@@ -1,0 +1,213 @@
+﻿@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body,
+html {
+    --font-sans: 'Barlow', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+@layer base {
+    :root {
+        --background: 30 11% 7%;
+        --foreground: 38 35% 94%;
+        --card: 30 11% 9%;
+        --card-foreground: 38 35% 94%;
+        --popover: 30 11% 11%;
+        --popover-foreground: 38 35% 94%;
+        --primary: 38 92% 55%;
+        --primary-foreground: 30 11% 7%;
+        --secondary: 30 11% 11%;
+        --secondary-foreground: 38 35% 94%;
+        --muted: 33 12% 15%;
+        --muted-foreground: 35 9% 60%;
+        --accent: 33 11% 16%;
+        --accent-foreground: 38 35% 94%;
+        --destructive: 6 80% 55%;
+        --destructive-foreground: 38 35% 94%;
+        --border: 33 11% 16%;
+        --input: 33 11% 16%;
+        --ring: 38 92% 55%;
+        --chart-1: 38 92% 55%;
+        --chart-2: 186 69% 46%;
+        --chart-3: 6 80% 55%;
+        --chart-4: 98 50% 46%;
+        --chart-5: 207 74% 53%;
+        --radius: 1.25rem;
+        --sidebar-background: 30 11% 9%;
+        --sidebar-foreground: 38 35% 94%;
+        --sidebar-primary: 38 92% 55%;
+        --sidebar-primary-foreground: 30 11% 7%;
+        --sidebar-accent: 33 12% 15%;
+        --sidebar-accent-foreground: 38 35% 94%;
+        --sidebar-border: 33 12% 15%;
+        --sidebar-ring: 38 92% 55%;
+    }
+
+    .dark {
+        --background: 30 11% 7%;
+        --foreground: 38 35% 94%;
+        --card: 30 11% 9%;
+        --card-foreground: 38 35% 94%;
+        --popover: 30 11% 11%;
+        --popover-foreground: 38 35% 94%;
+        --primary: 38 92% 55%;
+        --primary-foreground: 30 11% 7%;
+        --secondary: 30 11% 11%;
+        --secondary-foreground: 38 35% 94%;
+        --muted: 33 12% 15%;
+        --muted-foreground: 35 9% 60%;
+        --accent: 33 11% 16%;
+        --accent-foreground: 38 35% 94%;
+        --destructive: 6 80% 55%;
+        --destructive-foreground: 38 35% 94%;
+        --border: 33 11% 16%;
+        --input: 33 11% 16%;
+        --ring: 38 92% 55%;
+        --chart-1: 38 92% 55%;
+        --chart-2: 186 69% 46%;
+        --chart-3: 6 80% 55%;
+        --chart-4: 98 50% 46%;
+        --chart-5: 207 74% 53%;
+        --sidebar-background: 30 11% 9%;
+        --sidebar-foreground: 38 35% 94%;
+        --sidebar-primary: 38 92% 55%;
+        --sidebar-primary-foreground: 30 11% 7%;
+        --sidebar-accent: 33 12% 15%;
+        --sidebar-accent-foreground: 38 35% 94%;
+        --sidebar-border: 33 12% 15%;
+        --sidebar-ring: 38 92% 55%;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        @apply bg-background font-sans text-foreground antialiased;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+        color: inherit;
+    }
+}
+
+@layer components {
+    .font-display {
+        font-family: 'Barlow Condensed', ui-sans-serif, sans-serif;
+    }
+
+    .font-script {
+        font-family: 'Kaushan Script', cursive;
+    }
+
+    .eyebrow {
+        @apply text-sm font-bold uppercase tracking-[3px] text-brand-gold;
+    }
+
+    .display-title {
+        font-family: 'Barlow Condensed', ui-sans-serif, sans-serif;
+        @apply font-black italic uppercase leading-[0.9];
+    }
+
+    .surface-card {
+        @apply rounded-[22px] border border-brand-line2 bg-brand-card;
+    }
+
+    input[type='range'] {
+        accent-color: #23b8c4;
+    }
+}
+
+@keyframes d60-ecg {
+    from {
+        stroke-dashoffset: 34;
+    }
+    to {
+        stroke-dashoffset: -100;
+    }
+}
+
+@keyframes d60-ripple {
+    from {
+        transform: scale(0.15);
+        opacity: 0.95;
+    }
+    to {
+        transform: scale(1);
+        opacity: 0;
+    }
+}
+
+@keyframes d60-breathe {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.28);
+    }
+}
+
+@keyframes d60-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes d60-rise {
+    0%,
+    100% {
+        transform: translateY(6px);
+    }
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+@keyframes d60-unite {
+    0%,
+    100% {
+        transform: translate(var(--dx), var(--dy));
+    }
+    50% {
+        transform: translate(0px, 0px);
+    }
+}
+
+@keyframes d60-spark {
+    0%,
+    32%,
+    68%,
+    100% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes d60-bar {
+    0%,
+    100% {
+        transform: scaleY(0.35);
+    }
+    50% {
+        transform: scaleY(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    svg * {
+        animation: none !important;
+    }
+}
