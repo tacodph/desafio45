@@ -35,6 +35,10 @@ const submit = () => {
             {{ status }}
         </div>
 
+        <Button as="a" :href="route('auth.google')" variant="outline" class="w-full">Continuar com Gmail</Button>
+
+        <div class="text-center text-sm text-muted-foreground">ou</div>
+
         <form @submit.prevent="submit" class="flex flex-col gap-6">
             <div class="grid gap-6">
                 <div class="grid gap-2">

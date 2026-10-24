@@ -40,12 +40,13 @@ const navLinks = [
                     >
                         {{ link.label }}
                     </a>
-                    <a
-                        href="#entrar"
+                    <Link
+                        v-if="!$page.props.auth.user"
+                        :href="route('login')"
                         class="rounded-full bg-brand-gold px-[18px] py-2.5 text-[15px] font-bold text-brand-ink hover:bg-brand-gold-hover hover:text-brand-ink"
                     >
-                        Quem topa?
-                    </a>
+                        Entrar
+                    </Link>
                     <Link
                         v-if="$page.props.auth.user"
                         :href="route('dashboard')"
@@ -71,13 +72,13 @@ const navLinks = [
                 >
                     {{ link.label }}
                 </a>
-                <a
-                    href="#entrar"
+                <Link
+                    v-if="!$page.props.auth.user"
+                    :href="route('login')"
                     class="inline-flex w-fit rounded-full bg-brand-gold px-[18px] py-2.5 text-[15px] font-bold text-brand-ink"
-                    @click="menuOpen = false"
                 >
-                    Quem topa?
-                </a>
+                    Entrar
+                </Link>
                 <Link v-if="$page.props.auth.user" :href="route('dashboard')" class="text-[15px] font-medium text-brand-muted-3"> Painel </Link>
             </nav>
         </header>
@@ -533,14 +534,12 @@ const navLinks = [
                     Bora ficar 45 dias firme. 6 de novembro a 20 de dezembro — sozinho ou com seus amigos de verdade.
                 </p>
                 <div class="flex flex-wrap justify-center gap-3 pt-2">
-                    <a
-                        :href="instagramUrl"
-                        target="_blank"
-                        rel="noopener"
+                    <Link
+                        :href="route('register')"
                         class="rounded-full bg-brand-ink px-[30px] py-[18px] text-[17px] font-bold text-brand-cream hover:bg-brand-line hover:text-brand-cream"
                     >
-                        Seguir @desafio60.firme
-                    </a>
+                        Criar conta
+                    </Link>
                 </div>
             </div>
         </section>

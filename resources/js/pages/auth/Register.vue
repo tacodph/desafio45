@@ -8,6 +8,10 @@ import AuthBase from '@/layouts/AuthLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { LoaderCircle } from 'lucide-vue-next';
 
+defineProps<{
+    status?: string;
+}>();
+
 const form = useForm({
     name: '',
     email: '',
@@ -25,6 +29,14 @@ const submit = () => {
 <template>
     <AuthBase title="Quero entrar" description="Crie sua conta e comece os 45 dias firmes">
         <Head title="Criar conta" />
+
+        <div v-if="status" class="mb-4 text-center text-sm font-medium text-brand-mente">
+            {{ status }}
+        </div>
+
+        <Button as="a" :href="route('auth.google')" variant="outline" class="w-full">Continuar com Gmail</Button>
+
+        <div class="text-center text-sm text-muted-foreground">ou</div>
 
         <form @submit.prevent="submit" class="flex flex-col gap-6">
             <div class="grid gap-6">
