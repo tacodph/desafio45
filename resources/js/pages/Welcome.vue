@@ -15,6 +15,7 @@ const navLinks = [
     { href: '#regras', label: 'Regras' },
     { href: '#jornada', label: 'Jornada' },
     { href: '#mindset', label: 'Mindset' },
+    { href: '#parceiros', label: 'Parceiros' },
 ];
 </script>
 
@@ -524,6 +525,35 @@ const navLinks = [
                     <span class="font-display text-[clamp(24px,2.6vw,32px)] font-extrabold uppercase leading-[0.95]">Amizade<br />blindada</span>
                 </div>
             </div>
+        </section>
+
+        <section id="parceiros" class="mx-auto flex max-w-[1200px] flex-col gap-10 px-6 py-[clamp(72px,9vw,120px)]">
+            <div class="flex flex-col gap-3.5">
+                <div class="eyebrow">Quem caminha com a gente</div>
+                <h2 class="display-title m-0 text-[clamp(44px,6vw,80px)]">Parceiros</h2>
+            </div>
+
+            <article class="grid items-center gap-8 overflow-hidden rounded-[22px] border border-brand-line2 bg-brand-card2 p-5 sm:p-8 lg:grid-cols-[320px_1fr]">
+                <img src="/images/helen-freitas.jpg" alt="Helen Freitas" class="aspect-[3/4] w-full rounded-[18px] object-cover object-top" />
+                <div class="flex flex-col gap-5">
+                    <span class="text-xs font-bold uppercase tracking-[2px] text-brand-gold">Nutricionista</span>
+                    <h3 class="display-title m-0 text-[clamp(40px,5vw,64px)] leading-none">Helen Freitas</h3>
+                    <div class="flex flex-col gap-3 text-[17px]">
+                        <a
+                            href="https://www.instagram.com/helenfreitasnutri/"
+                            target="_blank"
+                            rel="noopener"
+                            class="font-semibold text-brand-cream hover:text-brand-gold"
+                        >
+                            Instagram · @helenfreitasnutri
+                        </a>
+                        <a href="https://helenfreitasnutri.com.br/" target="_blank" rel="noopener" class="font-semibold text-brand-cream hover:text-brand-gold">
+                            Site · helenfreitasnutri.com.br
+                        </a>
+                        <a href="tel:+5561992098384" class="font-semibold text-brand-cream hover:text-brand-gold">Telefone · (61) 99209-8384</a>
+                    </div>
+                </div>
+            </article>
         </section>
 
         <section id="entrar" class="bg-brand-gold text-brand-ink">

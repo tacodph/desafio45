@@ -2,26 +2,110 @@
 
 namespace Tests\Feature;
 
+use App\Enums\UserRole;
 use App\Models\User;
+use App\Models\UserType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class DashboardTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_guests_are_redirected_to_the_login_page()
+    public function test_guests_are_redirected_to_the_login_page(): void
     {
-        $response = $this->get('/dashboard');
-        $response->assertRedirect('/login');
+        $this->get('/dashboard')->assertRedirect('/login');
+        $this->get('/admin/usuarios')->assertRedirect('/login');
+        $this->get('/admin/usuarios/novo')->assertRedirect('/login');
+        $this->get('/equipe/atletas')->assertRedirect('/login');
     }
 
-    public function test_authenticated_users_can_visit_the_dashboard()
+    public function test_each_role_sees_its_own_dashboard(): void
     {
-        $user = User::factory()->create();
-        $this->actingAs($user);
+        $this->actingAs(User::factory()->create())
+            ->get('/dashboard')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->component('dashboard/Atleta'));
 
-        $response = $this->get('/dashboard');
-        $response->assertStatus(200);
+        $this->actingAs(User::factory()->ofRole(UserRole::Administrador)->create())
+            ->get('/dashboard')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->component('dashboard/Admin')->has('counts', 5));
+
+        $this->actingAs(User::factory()->ofRole(UserRole::Coach)->create())
+            ->get('/dashboard')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->component('dashboard/Equipe'));
+
+        $this->actingAs(User::factory()->ofRole(UserRole::Nutricionista)->create())
+            ->get('/dashboard')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->component('dashboard/Equipe'));
+
+        $this->actingAs(User::factory()->ofRole(UserRole::Marketing)->create())
+            ->get('/dashboard')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->component('dashboard/Equipe'));
+    }
+
+    public function test_only_the_admin_can_open_the_user_list(): void
+    {
+        $this->actingAs(User::factory()->ofRole(UserRole::Administrador)->create())
+            ->get('/admin/usuarios')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->component('dashboard/Users'));
+
+        $this->actingAs(User::factory()->create())
+            ->get('/admin/usuarios')
+            ->assertForbidden();
+
+        $this->actingAs(User::factory()->ofRole(UserRole::Coach)->create())
+            ->get('/admin/usuarios')
+            ->assertForbidden();
+    }
+
+    public function test_admin_can_register_a_user_of_any_type(): void
+    {
+        $coachId = UserType::idFor(UserRole::Coach);
+
+        $this->actingAs(User::factory()->ofRole(UserRole::Administrador)->create())
+            ->post('/admin/usuarios', [
+                'name' => 'Nova Coach',
+                'email' => 'coach@example.com',
+                'password' => 'password',
+                'password_confirmation' => 'password',
+                'user_type_id' => $coachId,
+            ])
+            ->assertRedirect('/admin/usuarios');
+
+        $created = User::query()->where('email', 'coach@example.com')->first();
+        $this->assertNotNull($created);
+        $this->assertSame($coachId, $created->user_type_id);
+        $this->assertNotNull($created->email_verified_at);
+
+        $this->actingAs(User::factory()->create())
+            ->get('/admin/usuarios/novo')
+            ->assertForbidden();
+    }
+
+    public function test_only_the_team_can_open_the_athlete_list(): void
+    {
+        User::factory()->create(['name' => 'Atleta Teste']);
+
+        $this->actingAs(User::factory()->ofRole(UserRole::Coach)->create())
+            ->get('/equipe/atletas')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('dashboard/Athletes')
+                ->where('athletes.0.name', 'Atleta Teste'));
+
+        $this->actingAs(User::factory()->create())
+            ->get('/equipe/atletas')
+            ->assertForbidden();
+
+        $this->actingAs(User::factory()->ofRole(UserRole::Administrador)->create())
+            ->get('/equipe/atletas')
+            ->assertForbidden();
     }
 }

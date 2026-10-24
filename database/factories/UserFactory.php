@@ -39,6 +39,13 @@ class UserFactory extends Factory
     /**
      * Indicate that the model's email address should be unverified.
      */
+    public function ofRole(UserRole $role): static
+    {
+        return $this->state(fn () => [
+            'user_type_id' => UserType::idFor($role),
+        ]);
+    }
+
     public function unverified(): static
     {
         return $this->state(fn (array $attributes) => [
