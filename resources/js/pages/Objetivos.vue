@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { CORPO_BLOCKS, GOAL_DETAILS, type GoalKey } from '@/data/goalDetails';
+import { GOAL_DETAILS, type GoalKey } from '@/data/goalDetails';
+import { SKILL_IDEAS, SKILL_OBJECTIVE } from '@/data/skillIdeas';
 import { images } from '@/data/images';
 import { Head, Link } from '@inertiajs/vue3';
 import { ArrowLeft, Menu, X } from 'lucide-vue-next';
@@ -56,7 +57,7 @@ watch(
                         {{ item.nav }}
                     </Link>
                     <Link
-                        :href="route('home')"
+                        :href="route('dashboard')"
                         class="rounded-full bg-brand-gold px-[18px] py-2.5 text-[15px] font-bold text-brand-ink hover:bg-brand-gold-hover hover:text-brand-ink"
                     >
                         Voltar ao início
@@ -79,7 +80,7 @@ watch(
                 >
                     {{ item.title }}
                 </Link>
-                <Link :href="route('home')" class="text-[15px] font-medium text-brand-gold" @click="menuOpen = false"> Voltar ao início </Link>
+                <Link :href="route('dashboard')" class="text-[15px] font-medium text-brand-gold" @click="menuOpen = false"> Voltar ao início </Link>
             </nav>
         </header>
 
@@ -128,7 +129,7 @@ watch(
                             <li v-for="line in item.why" :key="line" class="text-[16px] leading-relaxed text-brand-muted-3">{{ line }}</li>
                         </ul>
                     </div>
-                    <div class="surface-card flex flex-col gap-3 p-7">
+                    <div v-if="item.key !== 'habilidade'" class="surface-card flex flex-col gap-3 p-7">
                         <span class="text-[13px] font-bold uppercase tracking-[2px] text-brand-muted-2">Dicas práticas</span>
                         <ul class="m-0 flex list-none flex-col gap-3 p-0">
                             <li v-for="line in item.tips" :key="line" class="text-[16px] leading-relaxed text-brand-muted-3">{{ line }}</li>
@@ -137,12 +138,29 @@ watch(
                 </div>
             </div>
 
-            <div v-if="item.key === 'corpo'" class="mx-auto grid max-w-[1200px] gap-3 px-6 pb-[clamp(56px,8vw,96px)] md:grid-cols-3">
-                <div v-for="block in CORPO_BLOCKS" :key="block.title" class="rounded-[22px] border border-brand-line2 bg-brand-ink p-6">
-                    <span class="font-display text-xl font-extrabold uppercase" :style="{ color: item.color }">{{ block.title }}</span>
-                    <p class="m-0 mt-2 text-sm font-bold uppercase tracking-widest text-brand-muted-2">{{ block.when }}</p>
-                    <p class="m-0 mt-2 text-[16px] leading-relaxed text-brand-muted-3">{{ block.text }}</p>
+            <div v-if="item.key === 'habilidade'" class="mx-auto flex max-w-[1200px] flex-col gap-6 px-6 pb-[clamp(56px,8vw,96px)]">
+                <div class="flex flex-col gap-3">
+                    <span class="text-[13px] font-bold uppercase tracking-[2px]" :style="{ color: item.color }">Ideias para o desafio</span>
+                    <p class="m-0 max-w-[720px] text-[17px] leading-relaxed text-brand-muted">{{ SKILL_OBJECTIVE }}</p>
                 </div>
+                <div class="grid gap-4 md:grid-cols-2">
+                    <article v-for="group in SKILL_IDEAS" :key="group.title" class="surface-card flex flex-col gap-3 p-7">
+                        <h3 class="font-display m-0 text-2xl font-extrabold uppercase" :style="{ color: item.color }">{{ group.title }}</h3>
+                        <ul class="m-0 flex list-none flex-col gap-3 p-0">
+                            <li v-for="idea in group.items" :key="idea" class="text-[16px] leading-relaxed text-brand-muted-3">{{ idea }}</li>
+                        </ul>
+                    </article>
+                </div>
+            </div>
+
+            <div class="mx-auto max-w-[1200px] px-6 pb-[clamp(40px,6vw,72px)]">
+                <Link
+                    :href="route('dashboard')"
+                    class="inline-flex items-center gap-2 rounded-full border border-brand-line3 px-5 py-3 text-[15px] font-bold text-brand-cream hover:border-brand-cream"
+                >
+                    <ArrowLeft class="size-4" />
+                    Voltar
+                </Link>
             </div>
         </section>
 

@@ -12,6 +12,9 @@ class Achievement extends Model
         'achieved_on',
         'type',
         'detail',
+        'emotion',
+        'comment',
+        'nutritionist',
     ];
 
     protected function casts(): array

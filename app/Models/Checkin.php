@@ -30,6 +30,7 @@ class Checkin extends Model
             'strength' => 'boolean',
             'skill' => 'boolean',
             'plus_count' => 'integer',
+            'notes' => 'array',
         ];
     }
 

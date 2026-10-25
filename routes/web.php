@@ -9,13 +9,19 @@ Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('home');
 
-Route::redirect('objetivos', '/objetivos/treino')->name('objetivos');
-Route::redirect('objetivos/alimentacao', '/objetivos/hidratacao');
+Route::get('participar', function () {
+    return Inertia::render('Participar', [
+        'paymentUrl' => config('desafio.payment_url'),
+    ]);
+})->name('participar');
+
+Route::redirect('objetivos', '/objetivos/alimentacao')->name('objetivos');
 Route::redirect('objetivos/oracao', '/objetivos/plus');
-Route::redirect('objetivos/flexoes', '/objetivos/corpo');
+Route::redirect('objetivos/corpo', '/objetivos/alimentacao');
+Route::redirect('objetivos/flexoes', '/objetivos/alimentacao');
 
 Route::get('objetivos/{goal}', function (string $goal) {
-    $keys = ['treino', 'hidratacao', 'habilidade', 'corpo', 'plus'];
+    $keys = ['alimentacao', 'treino', 'hidratacao', 'habilidade', 'plus'];
 
     if (! in_array($goal, $keys, true)) {
         abort(404);
@@ -32,10 +38,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('admin/usuarios/novo', [DashboardController::class, 'createUser'])->name('admin.users.create');
     Route::post('admin/usuarios', [DashboardController::class, 'storeUser'])->name('admin.users.store');
     Route::get('equipe/atletas', [DashboardController::class, 'athletes'])->name('equipe.athletes');
+    Route::get('equipe/atletas/{athlete}/evolucao', [AthleteProgressController::class, 'showAthlete'])->name('equipe.athlete.progress');
+    Route::get('atleta/boas-vindas', [AthleteProgressController::class, 'welcome'])->name('athlete.welcome');
+    Route::post('atleta/boas-vindas', [AthleteProgressController::class, 'storeWelcome'])->name('athlete.welcome.store');
     Route::get('atleta/evolucao', [AthleteProgressController::class, 'show'])->name('athlete.progress');
     Route::put('atleta/metas', [AthleteProgressController::class, 'updateGoals'])->name('athlete.goals.update');
+    Route::put('atleta/habilidades', [AthleteProgressController::class, 'updateSkills'])->name('athlete.skills.update');
     Route::put('atleta/dias', [AthleteProgressController::class, 'updateDays'])->name('athlete.days.update');
     Route::post('atleta/conquistas', [AthleteProgressController::class, 'storeAchievement'])->name('athlete.achievements.store');
+    Route::put('atleta/conquistas/{achievement}', [AthleteProgressController::class, 'updateAchievement'])->name('athlete.achievements.update');
+    Route::put('atleta/conquistas/{achievement}/comentario', [AthleteProgressController::class, 'commentAchievement'])->name('athlete.achievements.comment');
     Route::delete('atleta/conquistas/{achievement}', [AthleteProgressController::class, 'destroyAchievement'])->name('athlete.achievements.destroy');
 });
 

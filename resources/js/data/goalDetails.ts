@@ -1,6 +1,6 @@
 import { images } from '@/data/images';
 
-export const GOAL_KEYS = ['treino', 'hidratacao', 'habilidade', 'corpo', 'plus'] as const;
+export const GOAL_KEYS = ['alimentacao', 'treino', 'hidratacao', 'habilidade', 'plus'] as const;
 
 export type GoalKey = (typeof GOAL_KEYS)[number];
 
@@ -18,13 +18,37 @@ export type GoalDetail = {
     tips: string[];
 };
 
-export const CORPO_BLOCKS = [
-    { title: 'Bloco 1', when: '6/11 a 20/11', text: 'Dias 1 a 15. Teste inicial e definição da meta.' },
-    { title: 'Bloco 2', when: '21/11 a 5/12', text: 'Dias 16 a 30. Teste no dia 15 e ajuste da meta.' },
-    { title: 'Bloco 3', when: '6/12 a 20/12', text: 'Dias 31 a 45. Teste no dia 30 e teste final no dia 45.' },
-];
-
 export const GOAL_DETAILS: GoalDetail[] = [
+    {
+        key: 'alimentacao',
+        color: '#43A047',
+        metric: 'Diário',
+        nav: 'Alimentação',
+        title: 'Alimentação e organização',
+        desc: 'Diário. Sem álcool, fast food e doce, com 1 refeição luxo e 1 Plus por semana.',
+        icon: images.alimentacao,
+        pillar: 'Diário',
+        rule: [
+            'Aqui a regra é transformar a alimentação em um sistema de organização semanal simples, com autonomia para escolher o que você gosta.',
+            'A ideia não é exigir que você cozinhe pratos elaborados nem que tenha uma variedade enorme de alimentos todos os dias. É ensinar a planejar, facilitar as escolhas e reduzir a dependência de ultraprocessados, hipercalóricos e opções que atrapalham a sua evolução.',
+            'A regra: planejar para facilitar',
+            'A cada semana, você vai escolher os alimentos que pretende consumir e definir como vai prepará-los. Não precisa inventar receitas novas todos os dias nem passar horas na cozinha.',
+            'O objetivo é ter comida de verdade disponível, facilitar as refeições e evitar depender de qualquer coisa que aparecer pela frente.',
+        ],
+        why: [
+            'Alimentação organizada dá energia real. A diferença aparece no treino e no sono.',
+            'A refeição luxo é o momento sem culpa. A Plus entra no dia sem virar uma segunda refeição.',
+        ],
+        tips: [
+            'No domingo, defina o cardápio e onde vai comer em cada refeição.',
+            'Monte a lista de compras a partir do cardápio e do que já tem em casa.',
+            'Separe um tempo curto para proteínas, legumes e lanches.',
+            'Tenha um plano para a correria: lanche na bolsa ou um pedido equilibrado já escolhido.',
+            'Escolha a refeição luxo e a Plus no começo da semana.',
+            'Doce industrializado: chocolate, bombom, refrigerante, sorvete de pote, bolo de padaria. Na refeição luxo, tudo vale.',
+            'Fast food: lanches, frituras e comida de rua. Uma refeição em restaurante normal vale.',
+        ],
+    },
     {
         key: 'treino',
         color: '#E53935',
@@ -67,8 +91,8 @@ export const GOAL_DETAILS: GoalDetail[] = [
             'O dia fecha quando as duas metas são batidas. Na pontuação, cada metade vale 1 ponto.',
         ],
         why: [
-            'Água e sono sustentam o treino e o humor sem virar regra de comida.',
-            'A alimentação fica no cantinho da nutri: equilíbrio e praticidade, sem punição.',
+            'Água e sono sustentam o treino e o humor, separados das regras da alimentação.',
+            'O cantinho da nutri traz listas, cardápios e opções práticas.',
         ],
         tips: [
             'Garrafa à vista, um copo a cada refeição e água ao acordar.',
@@ -92,7 +116,7 @@ export const GOAL_DETAILS: GoalDetail[] = [
         ],
         why: [
             'O objetivo é resolver situações reais: cozinhar, pedir algo equilibrado, organizar a semana.',
-            'Uma habilidade só evita começar cinco coisas e não terminar nenhuma.',
+            'Três ideias por semana dão foco: você pratica o que escolheu, sem começar tudo ao mesmo tempo e não terminar nada.',
         ],
         tips: [
             'Defina bem: não “aprender a cozinhar”, mas “um prato novo por semana”.',
@@ -101,42 +125,16 @@ export const GOAL_DETAILS: GoalDetail[] = [
         ],
     },
     {
-        key: 'corpo',
-        color: '#43A047',
-        metric: '4x / sem',
-        nav: 'Corpo',
-        title: 'Corpo forte',
-        desc: 'Sua meta física, no seu nível, pelo menos 4 vezes por semana.',
-        icon: images.corpo,
-        pillar: '4x por semana',
-        rule: [
-            'Cada pessoa escolhe uma meta mensurável: flexão, barra, prancha ou outra progressão combinada.',
-            'Treine essa meta pelo menos 4 vezes por semana.',
-            'O desafio tem 3 blocos de 15 dias, com teste no dia 1, 15, 30 e 45.',
-            'Dor diferente de cansaço é sinal para parar. Machucado descansa e avisa o grupo.',
-        ],
-        why: [
-            'A meta é evoluir com segurança, não obrigar todo mundo à mesma flexão.',
-            'O teste a cada bloco mostra progresso e permite ajustar a carga.',
-        ],
-        tips: [
-            'Flexão com joelhos pode ir para a tradicional: 3x8, depois 3x12, depois 3x5 tradicionais.',
-            'Flexão tradicional: 30, 50 e 70 por dia ao longo dos blocos.',
-            'Primeira barra: negativas, mais negativas, depois 1 barra completa.',
-            'Prancha: 3x30 s, 3x45 s, 3x60 s.',
-        ],
-    },
-    {
         key: 'plus',
         color: '#F5B800',
         metric: '1x / sem',
         nav: 'Plus',
         title: 'Objetivo Plus',
-        desc: 'A qualquer momento. Pelo menos um por semana, com pontos extras.',
+        desc: 'Uma por semana. Um alimento cultural, com pontos extras.',
         icon: images.plus,
         pillar: 'A qualquer momento',
         rule: [
-            'Pequenas experiências com comida, família e uma rotina mais prazerosa.',
+            'Um alimento cultural por semana, não uma refeição inteira.',
             'A meta é pelo menos 1 por semana. Até 2 por semana rendem +5 pontos cada.',
             'Não é obrigatório para fechar o dia, mas conta no ranking.',
         ],
@@ -145,10 +143,9 @@ export const GOAL_DETAILS: GoalDetail[] = [
             'Sentar à mesa, experimentar algo novo ou preparar um café com calma também é consistência.',
         ],
         tips: [
-            'Preparar uma receita com a família.',
-            'Sentar à mesa sem pressa.',
-            'Experimentar um alimento novo.',
-            'Preparar um café da manhã com calma.',
+            'Uma fatia de bolo de manhã ou à tarde.',
+            'Uma porção de pão de queijo.',
+            'Pipoca com a família.',
         ],
     },
 ];

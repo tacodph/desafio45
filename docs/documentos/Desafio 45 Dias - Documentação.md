@@ -15,7 +15,7 @@ Itens marcados com **(proposta)** são sugestões para preencher lacunas que o P
 
 O Desafio 45 Dias é um compromisso de 45 dias seguidos, de **sexta, 6 de novembro, a domingo, 20 de dezembro de 2026**. O último dia cai na véspera do início do verão (21 de dezembro), daí o subtítulo **"Antes do verão"**.
 
-São 5 objetivos que cuidam do movimento, da hidratação e do sono, da autonomia na rotina, da força física e de pequenas experiências que deixam a vida mais prazerosa.
+São 5 objetivos que cuidam do movimento, da hidratação e do sono, da autonomia na rotina, da alimentação e de pequenas experiências que deixam a vida mais prazerosa.
 
 **O desafio premia consistência e participação, não perfeição**. Ele continua divertido e desafiador, mas sem transformar alimentação e exercício em uma sequência de punições. Cada participante ajusta as metas ao próprio nível, e o grupo segue sendo o motor: a gente se cobra, se motiva e se celebra.
 
@@ -28,7 +28,7 @@ São 5 objetivos que cuidam do movimento, da hidratação e do sono, da autonomi
 | 1 | Movimento e treino | 🏋️ halter | Vermelho | Diário |
 | 2 | Hidratação e sono | 💧🌙 gota e lua | Azul | Diário |
 | 3 | Habilidade nova | 💡 lâmpada | Roxo | 3x por semana |
-| 4 | Corpo forte | 💪 braço | Verde | 4x por semana + testes |
+| 4 | Alimentação e organização | 🥗 prato | Verde | Diário |
 | 5 | Objetivo Plus | ⭐ estrela | Amarelo/dourado | A qualquer momento |
 
 ### 2.1 🏋️ Movimento e treino
@@ -89,35 +89,30 @@ O objetivo do dia é cumprido quando as duas metas são batidas. Para a pontuaç
 - Falar para o grupo qual habilidade escolheu gera compromisso.
 - Registre o progresso com foto ou vídeo na primeira semana, no dia 15, no dia 30 e no dia 45.
 
-### 2.4 💪 Corpo forte
+### 2.4 🥗 Alimentação e organização
 
-**Regra:** em vez de obrigar todo mundo a fazer flexões, **cada participante escolhe uma habilidade ou meta física compatível com seu nível**. O importante é ter uma meta mensurável e evoluir com segurança.
+**Regra:** organizar a alimentação do dia a dia e manter as regras da semana: sem álcool (exceto 3 eventos), sem fast food e sem doce industrializado. Uma refeição luxo por semana, usada **apenas** na sexta à noite, no sábado ou no domingo.
 
-**Possibilidades:**
+**Por que funciona:** alimentação limpa dá energia real. Você sente a diferença no treino e no sono.
 
-- Flexões adaptadas (joelhos, inclinadas) ou tradicionais.
-- Barra (negativa, australiana, barra completa).
-- Isometria (prancha, cadeirinha, suspensão na barra).
-- Progressões individuais definidas com um profissional.
+**Organização do dia a dia:**
 
-**Como cumprir (proposta):** treinar a meta escolhida **pelo menos 4 vezes por semana**. O desafio se divide em **3 blocos de 15 dias**:
+- **Planeje a semana:** no domingo, defina o cardápio básico dos próximos dias e onde vai comer em cada refeição.
+- **Lista de compras:** monte a lista a partir do cardápio e do que já tem em casa.
+- **Marmitas e preparo:** separe um tempo curto para deixar proteínas, legumes e lanches prontos.
+- **Plano para a correria:** tenha opções prontas para os dias cheios (lanche na bolsa, pedido equilibrado já escolhido).
+- **Escolha a refeição luxo com antecedência:** decida no começo da semana quando ela vai acontecer.
 
-| Bloco | Dias | Datas | Marco |
-|---|---|---|---|
-| 1 | 1 a 15 | 6/11 a 20/11 | Teste inicial no dia 1 e definição da meta |
-| 2 | 16 a 30 | 21/11 a 5/12 | Teste no dia 15 e ajuste da meta |
-| 3 | 31 a 45 | 6/12 a 20/12 | Teste no dia 30 e teste final no dia 45 |
+**Dicas práticas:**
 
-**Exemplos de progressão (proposta):**
+- **3 eventos com álcool:** no dia 1, declare seus 3 eventos (casamento, aniversário, confraternização). Assim ninguém fica inventando no meio do caminho. Nos dias desses eventos, beba água também.
+- **Refeição luxo:** uma por semana, pode ser qualquer coisa (sim, fast food também). Só vale na sexta à noite, no sábado ou no domingo. É o seu momento sem culpa, aproveite.
+- **O que é doce industrializado:** chocolate, bombom, refrigerante, sorvete de pote, bolo de padaria. Na refeição luxo, tudo é permitido.
+- **O que é fast food:** lanches, frituras, comida de rua. Uma refeição completa em restaurante normal vale.
+- **Foto do dia:** o prato de uma das refeições. Simples e funciona.
+- **Apoio:** listas de compras, cardápios e opções práticas no Cantinho exclusivo da nutri (seção 3).
 
-| Meta | Bloco 1 | Bloco 2 | Bloco 3 |
-|---|---|---|---|
-| Flexão com joelhos → tradicional | 3 séries de 8 com joelhos | 3 séries de 12 com joelhos | 3 séries de 5 tradicionais |
-| Flexões tradicionais | 30 por dia | 50 por dia | 70 por dia |
-| Primeira barra | 3 séries de 3 negativas | 3 séries de 5 negativas | 1 barra completa |
-| Prancha | 3 x 30 s | 3 x 45 s | 3 x 60 s |
-
-**Segurança:** dor diferente de cansaço é sinal para parar. Machucado descansa e avisa o grupo.
+**Meta:** no dia 45, o corpo responde melhor: mais energia, menos inchaço e pele mais bonita.
 
 ### 2.5 ⭐ Objetivo Plus (a qualquer momento)
 
@@ -174,7 +169,7 @@ A lógica é **check-in diário, pontuação por cumprimento das metas, bônus p
 | Movimento e treino | 3 |
 | Hidratação (meta de água) | 1 |
 | Sono (meta de sono) | 1 |
-| Corpo forte (dia de treino da meta) | 2 |
+| Alimentação e organização (dia dentro das regras) | 2 |
 | Habilidade nova (dia de prática) | 2 |
 | **Máximo por dia** | **10** |
 
@@ -184,11 +179,10 @@ A lógica é **check-in diário, pontuação por cumprimento das metas, bônus p
 |---|---|
 | Objetivo Plus realizado (até 2 por semana) | +5 cada |
 | Semana consistente: check-in em pelo menos 6 dos 7 dias | +10 |
-| Metas semanais batidas (Habilidade 3x e Corpo forte 4x) | +10 |
-| Evolução no teste de Corpo forte (dias 15, 30 e 45) | +10 por teste |
+| Metas semanais batidas (Habilidade 3x e alimentação em 6 dos 7 dias) | +10 |
 | Demonstração da Habilidade nova no dia 45 | +15 |
 | Motivar um amigo que estava desanimado (reconhecido pelo grupo) | +5 |
-| Primeira vez acertando algo novo (primeira barra, primeiro prato…) | +5 |
+| Primeira vez acertando algo novo (primeiro prato, primeira marmita da semana…) | +5 |
 
 ### 4.3 Se falhar um dia
 
@@ -209,7 +203,7 @@ A lógica é **check-in diário, pontuação por cumprimento das metas, bônus p
 
 Todos os dias, **até as 23h**, cada participante envia no grupo:
 
-1. **Foto do dia**: treino, garrafinha, prato da habilidade, série de Corpo forte ou o momento do Objetivo Plus.
+1. **Foto do dia**: treino, garrafinha, prato do dia, prática da habilidade ou o momento do Objetivo Plus.
 2. **Checklist** com os emojis dos objetivos:
 
 | Objetivo | Emoji |
@@ -217,7 +211,7 @@ Todos os dias, **até as 23h**, cada participante envia no grupo:
 | Movimento e treino | 🏋️ |
 | Hidratação e sono | 💧 |
 | Habilidade nova | 💡 |
-| Corpo forte | 💪 |
+| Alimentação e organização | 🥗 |
 | Objetivo Plus | ⭐ |
 
 **Exemplo de mensagem:**
@@ -226,7 +220,7 @@ Todos os dias, **até as 23h**, cada participante envia no grupo:
 > 🏋️ Corrida no parque, 40 min
 > 💧 2,5 L de água, dormi 7h30
 > 💡 Marmitas da semana prontas
-> 💪 Prancha 3 x 40 s
+> 🥗 Frango com legumes, sem doce
 > ⭐ Café da manhã com calma com a família
 >
 > Bora! A gente cresce junto!
@@ -236,7 +230,7 @@ Todos os dias, **até as 23h**, cada participante envia no grupo:
 ### Como registrar (proposta)
 
 - **WhatsApp:** comunicação diária, foto e checklist.
-- **Gymrats ou planilha:** registro dos pontos e do ranking.
+- **Planilha `Desafio-45-Dias-Planilha.xlsx`:** acompanhamento diário dos 5 objetivos, pontos calculados automaticamente, resumo semanal e ranking. O Gymrats pode complementar.
 - **Experiência digital:** a definir (ver seção 9).
 
 ---
@@ -247,12 +241,12 @@ Todos os dias, **até as 23h**, cada participante envia no grupo:
 |---|---|---|
 | Dom, 1/11 | −5 | Post de anúncio no Instagram |
 | Ter, 3/11 | −3 | Convite no WhatsApp e criação do grupo |
-| Qui, 5/11 | −1 | Cada participante declara nível, habilidade e meta de Corpo forte |
-| **Sex, 6/11** | **1** | **Início oficial**, foto "antes" e teste inicial de Corpo forte |
+| Qui, 5/11 | −1 | Cada participante declara nível, habilidade e os 3 eventos com álcool |
+| **Sex, 6/11** | **1** | **Início oficial** e foto "antes" |
 | Dom, 8/11 | 3 | Primeiro ranking (semana parcial: 6 a 8/11) |
-| Sex, 20/11 | 15 | "Tá ficando real!" Teste de Corpo forte e ajuste de metas |
-| Sáb, 5/12 | 30 | "Reta final." Foto de 30 dias e teste de Corpo forte |
-| **Dom, 20/12** | **45** | **Resultado final**, foto "depois", teste final e demonstração da habilidade |
+| Sex, 20/11 | 15 | "Tá ficando real!" Foto de 15 dias e ajuste de metas |
+| Sáb, 5/12 | 30 | "Reta final." Foto de 30 dias |
+| **Dom, 20/12** | **45** | **Resultado final**, foto "depois" e demonstração da habilidade |
 | Seg, 21/12 | — | Começa o verão. Celebração do grupo |
 
 **Semanas do ranking (segunda a domingo):**
@@ -281,7 +275,7 @@ Todos os dias, **até as 23h**, cada participante envia no grupo:
 > 🏋️ Movimento e treino (45 min como referência, no seu nível)
 > 💧 Hidratação e sono
 > 💡 Habilidade nova (autonomia na rotina)
-> 💪 Corpo forte (sua meta física, sua evolução)
+> 🥗 Alimentação e organização (sem álcool, fast food e doce, com 1 refeição luxo por semana)
 > ⭐ Objetivo Plus, a qualquer momento
 >
 > Check-in diário até as 23h com foto e checklist. Pontua quem participa, não quem é perfeito.
@@ -291,14 +285,14 @@ Todos os dias, **até as 23h**, cada participante envia no grupo:
 ### Descrição do grupo
 
 > Desafio 45 Dias: 6/11 a 20/12 · Antes do verão
-> 🏋️ Movimento e treino 💧 Hidratação e sono 💡 Habilidade nova 💪 Corpo forte ⭐ Objetivo Plus
+> 🏋️ Movimento e treino 💧 Hidratação e sono 💡 Habilidade nova 🥗 Alimentação e organização ⭐ Objetivo Plus
 > Check-in até 23h com foto + checklist. A gente cresce junto!
 
 ### Instagram
 
 - **Bio:** "Desafio 45 Dias · Antes do verão · A gente cresce junto · 6/11 → 20/12"
 - **Segundas:** stories de check-in com os treinos do fim de semana.
-- **Quartas:** reels de dicas (progressões de Corpo forte, dicas de sono e água, conteúdo do Cantinho da nutri, ideias de Objetivo Plus).
+- **Quartas:** reels de dicas (dicas de sono e água, receitas e trocas inteligentes, conteúdo do Cantinho da nutri, ideias de Objetivo Plus).
 - **Domingos:** ranking semanal.
 - **Dias 15, 30 e 45:** posts de virada com antes e depois.
 - **Hashtags:** #Desafio45Dias #AntesDoVerao #AGenteCresceJunto
@@ -323,7 +317,7 @@ Quatro peças em 1080 x 1080 px, com o emblema e os 5 objetivos: Story de propag
 | Movimento e treino | Vermelho | #E53935 |
 | Hidratação e sono | Azul | #1E88E5 |
 | Habilidade nova | Roxo | #8E24AA |
-| Corpo forte | Verde | #43A047 |
+| Alimentação e organização | Verde | #43A047 |
 | Objetivo Plus | Dourado | #F5B800 |
 
 **Tipografia:** títulos em pincel/brush, grossos e em caixa alta. Subtítulos em sans-serif bold com espaçamento largo. O lema vai em script manuscrito.
@@ -341,7 +335,8 @@ Pontos que o PDF deixa em aberto. As propostas deste documento servem de ponto d
 - [ ] Estruturar o sistema de pontos (proposta na seção 4).
 - [ ] Planejar os materiais do Cantinho da nutri e a experiência digital.
 - [ ] Decidir se a penalidade solidária continua.
-- [ ] Criar a planilha de acompanhamento: 45 linhas (6/11 a 20/12), colunas dos 5 objetivos, aba de pontos e ranking de 7 semanas.
+- [x] Criar a planilha de acompanhamento (`Desafio-45-Dias-Planilha.xlsx`).
+- [ ] Atualizar o emblema: trocar o ícone e o nome de Corpo forte por Alimentação e organização.
 - [ ] Criar as peças de divulgação com o emblema.
 
 ---
@@ -350,3 +345,4 @@ Pontos que o PDF deixa em aberto. As propostas deste documento servem de ponto d
 
 - `D:\ProjetosSandro\desafio45firme\documentos\estrutura_inicial_desafio_digital.pdf` — estrutura inicial do desafio digital (versão provisória).
 - `D:\ProjetosSandro\desafio45firme\documentos\Emblema Desafio 45 Dias.png` — emblema novo.
+- `D:\ProjetosSandro\desafio45firme\documentos\Desafio-45-Dias-Planilha.xlsx` — planilha de acompanhamento.

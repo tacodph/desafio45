@@ -17,22 +17,21 @@ export const DAILY_POINTS = [
     { t: 'Movimento e treino', p: '+3' },
     { t: 'Hidratação', p: '+1' },
     { t: 'Sono', p: '+1' },
-    { t: 'Corpo forte', p: '+2' },
+    { t: 'Alimentação e organização', p: '+2' },
     { t: 'Habilidade nova', p: '+2' },
 ];
 
 export const BONUS_POINTS = [
     { t: 'Objetivo Plus, até 2 por semana', p: '+5' },
     { t: 'Semana consistente, 6 de 7 dias', p: '+10' },
-    { t: 'Habilidade 3x e Corpo forte 4x', p: '+10' },
-    { t: 'Evolução no teste de Corpo forte', p: '+10' },
+    { t: 'Habilidade 3x e alimentação em 6 de 7 dias', p: '+10' },
     { t: 'Habilidade nova mostrada no dia 45', p: '+15' },
 ];
 
 const MILES = [
-    { day: 1, date: '6 nov', title: 'Início oficial.', line: 'Foto antes e teste inicial de Corpo forte.' },
-    { day: 15, date: '20 nov', title: 'Tá ficando real!', line: 'Teste de Corpo forte e ajuste das metas.' },
-    { day: 30, date: '5 dez', title: 'Reta final.', line: 'Foto de 30 dias e novo teste.' },
+    { day: 1, date: '6 nov', title: 'Início oficial.', line: 'Foto antes. Declare nível, habilidade e os 3 eventos com álcool.' },
+    { day: 15, date: '20 nov', title: 'Tá ficando real!', line: 'Foto de 15 dias e ajuste das metas.' },
+    { day: 30, date: '5 dez', title: 'Reta final.', line: 'Foto de 30 dias.' },
     { day: 45, date: '20 dez', title: 'Resultado final.', line: 'Foto depois, teste final e a habilidade no grupo.' },
 ];
 

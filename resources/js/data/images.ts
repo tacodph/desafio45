@@ -4,6 +4,6 @@ export const images = {
     treino: '/images/treino_movimento.png',
     hidratacao: '/images/hidratacao_sono.png',
     habilidade: '/images/habilidade_nova.png',
-    corpo: '/images/corpo_forte.png',
+    alimentacao: '/images/alimentacao.svg',
     plus: '/images/objetivo_plus.png',
 } as const;

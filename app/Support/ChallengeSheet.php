@@ -24,10 +24,12 @@ class ChallengeSheet
 
     /** @var array<string, array{0: string, 1: int}> */
     public const ACHIEVEMENTS = [
-        'strength_test' => ['Evolução no teste de Corpo forte', 10],
         'skill_demo' => ['Demonstração da habilidade no dia 45', 15],
         'motivate' => ['Motivar um amigo desanimado', 5],
         'first_time' => ['Primeira vez acertando algo novo', 5],
+        'cantinho' => ['Cantinho da vitória', 0],
+        'resistido' => ['Resistido do dia', 0],
+        'performance' => ['Performance', 0],
     ];
 
     public static function dateForDay(int $day): string
@@ -93,7 +95,14 @@ class ChallengeSheet
                 'strength' => (bool) $checkin?->strength,
                 'skill' => (bool) $checkin?->skill,
                 'plus_count' => (int) ($checkin?->plus_count ?? 0),
-                'notes' => $checkin?->notes ?? '',
+                'notes' => array_merge([
+                    'movement' => '',
+                    'water' => '',
+                    'sleep' => '',
+                    'strength' => '',
+                    'skill' => '',
+                    'plus' => '',
+                ], is_array($checkin?->notes) ? $checkin->notes : []),
                 'points' => $checkin ? self::dayPoints($checkin) : 0,
             ];
         }
@@ -139,6 +148,9 @@ class ChallengeSheet
                     'label' => self::ACHIEVEMENTS[$item->type][0] ?? $item->type,
                     'points' => self::ACHIEVEMENTS[$item->type][1] ?? 0,
                     'detail' => $item->detail ?? '',
+                    'emotion' => $item->emotion ?? '',
+                    'comment' => $item->comment ?? '',
+                    'nutritionist' => $item->nutritionist ?? '',
                 ]),
             'types' => collect(self::ACHIEVEMENTS)->map(fn ($item, $type) => [
                 'type' => $type,
@@ -173,7 +185,7 @@ class ChallengeSheet
                 ->filter(fn ($item) => $item->achieved_on->toDateString() >= $fromDate && $item->achieved_on->toDateString() <= $toDate)
                 ->sum(fn ($item) => self::ACHIEVEMENTS[$item->type][1] ?? 0);
             $consistency = $checkinCount >= ($week === 1 ? 3 : 6) ? 10 : 0;
-            $goalsBonus = $skill >= ($week === 1 ? 2 : 3) && $strength >= ($week === 1 ? 2 : 4) ? 10 : 0;
+            $goalsBonus = $skill >= ($week === 1 ? 2 : 3) && $strength >= ($week === 1 ? 3 : 6) ? 10 : 0;
             $plusBonus = min(2, $plus) * 5;
 
             $rows[] = [

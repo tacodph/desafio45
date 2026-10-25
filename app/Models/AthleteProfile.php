@@ -22,6 +22,13 @@ class AthleteProfile extends Model
         'penalty',
         'penalty_donated_on',
         'penalty_note',
+        'weekly_skills',
+        'weight',
+        'waist',
+        'abdomen',
+        'hip',
+        'photo',
+        'welcomed_at',
     ];
 
     protected function casts(): array
@@ -31,6 +38,12 @@ class AthleteProfile extends Model
             'penalty_donated_on' => 'date',
             'movement_minutes' => 'integer',
             'water_liters' => 'decimal:1',
+            'weekly_skills' => 'array',
+            'weight' => 'decimal:1',
+            'waist' => 'decimal:1',
+            'abdomen' => 'decimal:1',
+            'hip' => 'decimal:1',
+            'welcomed_at' => 'datetime',
         ];
     }
 

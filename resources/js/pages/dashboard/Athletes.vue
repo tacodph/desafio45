@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/vue3';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+
+const isNutri = computed(() => usePage<SharedData>().props.auth.user.user_type?.name === 'nutricionista');
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Equipe', href: '/dashboard' },
@@ -26,15 +29,19 @@ defineProps<{
                         <tr>
                             <th class="px-5 py-4 font-bold">Nome</th>
                             <th class="px-5 py-4 font-bold">E-mail</th>
+                            <th v-if="isNutri" class="px-5 py-4 font-bold">Conquistas</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-if="athletes.length === 0">
-                            <td class="px-5 py-4 text-brand-muted" colspan="2">Nenhum atleta ainda.</td>
+                            <td class="px-5 py-4 text-brand-muted" :colspan="isNutri ? 3 : 2">Nenhum atleta ainda.</td>
                         </tr>
                         <tr v-for="athlete in athletes" :key="athlete.id" class="border-t border-brand-line">
                             <td class="px-5 py-4 font-semibold">{{ athlete.name }}</td>
                             <td class="px-5 py-4 text-brand-muted">{{ athlete.email }}</td>
+                            <td v-if="isNutri" class="px-5 py-4">
+                                <Link :href="route('equipe.athlete.progress', athlete.id)" class="font-semibold text-brand-gold">Comentar</Link>
+                            </td>
                         </tr>
                     </tbody>
                 </table>

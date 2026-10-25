@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { BONUS_POINTS, DAILY_POINTS, useChallenge } from '@/composables/useChallenge';
-import { CORPO_BLOCKS } from '@/data/goalDetails';
+
 import { images } from '@/data/images';
 import { Head, Link } from '@inertiajs/vue3';
 import { Menu, X } from 'lucide-vue-next';
 import { ref } from 'vue';
 
-const { countdown, goals, fails, failTotal, failNote, failDots, incFail, decFail, milestones, instagramUrl } = useChallenge();
+const { countdown, goals, fails, failTotal, failNote, failDots, incFail, decFail, milestones } = useChallenge();
 
 const menuOpen = ref(false);
 
@@ -98,18 +98,16 @@ const navLinks = [
                     <span class="text-brand-gold">45 dias.</span><br />5 objetivos.<br />Antes do verão.
                 </h1>
                 <p class="m-0 max-w-[520px] text-[clamp(18px,1.6vw,21px)] leading-normal text-brand-muted-3">
-                    De 6 de novembro a 20 de dezembro de 2026. Movimento, água, sono, uma habilidade nova e uma meta de força no seu nível. O desafio
+                    De 6 de novembro a 20 de dezembro de 2026. Alimentação, movimento, água, sono e uma habilidade nova. O desafio
                     premia consistência e participação, não perfeição.
                 </p>
                 <div class="flex flex-wrap gap-3">
-                    <a
-                        :href="instagramUrl"
-                        target="_blank"
-                        rel="noopener"
+                    <Link
+                        :href="route('participar')"
                         class="inline-flex items-center gap-2.5 rounded-full bg-brand-gold px-7 py-4 text-[17px] font-bold text-brand-ink hover:bg-brand-gold-hover hover:text-brand-ink"
                     >
                         Quem topa? <span>→</span>
-                    </a>
+                    </Link>
                     <a
                         href="#regras"
                         class="rounded-full border-[1.5px] border-brand-line3 px-7 py-4 text-[17px] font-semibold text-brand-cream hover:border-brand-cream hover:text-brand-cream"
@@ -156,6 +154,25 @@ const navLinks = [
             </div>
         </section>
 
+        <section id="alimentacao" class="border-y border-brand-line bg-brand-strip">
+            <div class="mx-auto flex max-w-[760px] flex-col gap-5 px-6 py-[clamp(72px,9vw,120px)]">
+                <img :src="images.alimentacao" alt="" class="size-24" />
+                <div class="text-sm font-bold uppercase tracking-[3px] text-[#43A047]">Alimentação e organização</div>
+                <p class="m-0 text-[18px] leading-relaxed text-brand-muted">
+                    O Desafio 45 Dias é um compromisso de 45 dias seguidos, de sexta, 6 de novembro, a domingo, 20 de dezembro de 2026. O último dia cai na véspera do início do verão (21 de dezembro), daí o subtítulo "Antes do verão".
+                </p>
+                <p class="m-0 text-[18px] leading-relaxed text-brand-muted">
+                    São 5 objetivos que cuidam do movimento, da hidratação e do sono, da autonomia na rotina, da alimentação e de pequenas experiências que deixam a vida mais prazerosa.
+                </p>
+                <p class="m-0 text-[18px] leading-relaxed text-brand-muted">
+                    Você vai treinar seu autocontrole, experimentar coisas novas e encarar desafios semanais com metas possíveis, que vão te mostrar do que você é capaz quando se compromete com suas escolhas.
+                </p>
+                <Link :href="route('objetivos.show', 'alimentacao')" class="w-fit text-sm font-bold uppercase tracking-wider text-[#43A047]">
+                    Ver a regra →
+                </Link>
+            </div>
+        </section>
+
         <div class="border-y border-brand-line bg-brand-strip">
             <div
                 class="font-display mx-auto flex max-w-[1200px] flex-wrap justify-between gap-x-8 gap-y-4 px-6 py-[18px] text-[clamp(18px,2vw,24px)] font-bold uppercase tracking-[2px]"
@@ -195,29 +212,6 @@ const navLinks = [
             </div>
         </section>
 
-        <section id="corpo-forte" class="border-y border-brand-line bg-brand-strip">
-            <div class="mx-auto grid max-w-[1200px] items-center gap-12 px-6 py-[clamp(72px,9vw,120px)] lg:grid-cols-2">
-                <div class="flex flex-col gap-5">
-                    <img :src="images.corpo" alt="" class="size-24" />
-                    <div class="text-sm font-bold uppercase tracking-[3px] text-[#43A047]">Corpo forte</div>
-                    <h2 class="display-title m-0 text-[clamp(44px,6vw,80px)]">Sua meta.<br /><span class="text-[#43A047]">Seu nível.</span></h2>
-                    <p class="m-0 max-w-[460px] text-[17px] leading-relaxed text-brand-muted">
-                        Flexão, barra, prancha ou outra progressão. Pelo menos 4 vezes por semana, em 3 blocos de 15 dias, com teste no começo de cada
-                        bloco e no dia 45.
-                    </p>
-                </div>
-                <div class="flex flex-col gap-3">
-                    <div v-for="block in CORPO_BLOCKS" :key="block.title" class="rounded-[22px] border border-brand-line2 bg-brand-ink p-6">
-                        <div class="flex items-baseline justify-between gap-4">
-                            <span class="font-display text-2xl font-extrabold uppercase text-[#43A047]">{{ block.title }}</span>
-                            <span class="text-sm font-bold uppercase tracking-widest text-brand-muted-2">{{ block.when }}</span>
-                        </div>
-                        <p class="m-0 mt-2 text-[17px] text-brand-muted-3">{{ block.text }}</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <section id="regras" class="mx-auto flex max-w-[1200px] flex-col gap-10 px-6 py-[clamp(72px,9vw,120px)]">
             <div class="flex flex-col gap-3.5">
                 <div class="eyebrow">Como funciona</div>
@@ -232,7 +226,7 @@ const navLinks = [
                 <div class="surface-card flex flex-col gap-3 p-7">
                     <span class="font-display text-xl font-extrabold text-brand-gold">01</span>
                     <h3 class="font-display m-0 text-[28px] font-extrabold uppercase leading-none">Check-in até 23h</h3>
-                    <p class="m-0 text-base leading-normal text-brand-muted">Foto do dia e o checklist: treino, água e sono, habilidade, corpo forte e, se rolou, o Plus.</p>
+                    <p class="m-0 text-base leading-normal text-brand-muted">Foto do dia e o checklist: alimentação, treino, água e sono, habilidade e, se rolou, o Plus.</p>
                 </div>
                 <div class="surface-card flex flex-col gap-3 p-7">
                     <span class="font-display text-xl font-extrabold text-brand-gold">02</span>
@@ -247,7 +241,7 @@ const navLinks = [
                 <div class="surface-card flex flex-col gap-3 p-7">
                     <span class="font-display text-xl font-extrabold text-brand-gold">04</span>
                     <h3 class="font-display m-0 text-[28px] font-extrabold uppercase leading-none">Máximo 10</h3>
-                    <p class="m-0 text-base leading-normal text-brand-muted">Check-in, treino, água, sono, corpo forte e habilidade. O Plus entra como bônus.</p>
+                    <p class="m-0 text-base leading-normal text-brand-muted">Check-in, alimentação, treino, água, sono e habilidade. O Plus entra como bônus.</p>
                 </div>
             </div>
 
@@ -409,7 +403,7 @@ const navLinks = [
                         {
                             n: '03',
                             title: 'Celebrar<br>tudo',
-                            solo: 'Primeiro treino, primeira habilidade, primeiro teste de Corpo forte — anota e comemora.',
+                            solo: 'Primeira marmita, primeiro treino, primeira habilidade — anota e comemora.',
                             group: 'Reação de fogo em cada check-in completo. A vitória de um é de todos.',
                         },
                         {

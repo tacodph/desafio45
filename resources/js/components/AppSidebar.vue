@@ -5,7 +5,7 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { ClipboardCheck, Droplets, Dumbbell, Flame, LayoutGrid, Lightbulb, Settings, Star, Target, Users } from 'lucide-vue-next';
+import { ClipboardCheck, Droplets, Dumbbell, Flame, LayoutGrid, Lightbulb, Salad, Settings, Star, Users } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
@@ -29,7 +29,7 @@ const mainNavItems = computed<NavItem[]>(() => {
         return [
             { title: 'Painel', href: '/dashboard', icon: LayoutGrid },
             { title: 'Usuários', href: '/admin/usuarios', icon: Users },
-            { title: 'Objetivos', href: '/objetivos/treino', icon: Target },
+            { title: 'Objetivos', href: '/objetivos/alimentacao', icon: Salad },
             { title: 'Configurações', href: '/settings/profile', icon: Settings },
         ];
     }
@@ -38,10 +38,10 @@ const mainNavItems = computed<NavItem[]>(() => {
         return [
             { title: 'Painel', href: '/dashboard', icon: LayoutGrid },
             { title: 'Evolução', href: '/atleta/evolucao', icon: ClipboardCheck },
+            { title: 'Alimentação', href: '/objetivos/alimentacao', icon: Salad },
             { title: 'Treino', href: '/objetivos/treino', icon: Dumbbell },
             { title: 'Hidratação', href: '/objetivos/hidratacao', icon: Droplets },
             { title: 'Habilidade', href: '/objetivos/habilidade', icon: Lightbulb },
-            { title: 'Corpo forte', href: '/objetivos/corpo', icon: Target },
             { title: 'Plus', href: '/objetivos/plus', icon: Star },
         ];
     }
@@ -49,7 +49,7 @@ const mainNavItems = computed<NavItem[]>(() => {
     return [
         { title: 'Painel', href: '/dashboard', icon: LayoutGrid },
         { title: 'Atletas', href: '/equipe/atletas', icon: Users },
-        { title: 'Objetivos', href: '/objetivos/treino', icon: Target },
+        { title: 'Objetivos', href: '/objetivos/alimentacao', icon: Salad },
     ];
 });
 
