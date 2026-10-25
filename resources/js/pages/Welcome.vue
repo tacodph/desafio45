@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import BrandArt from '@/components/brand/BrandArt.vue';
-import { useChallenge } from '@/composables/useChallenge';
+import { BONUS_POINTS, DAILY_POINTS, useChallenge } from '@/composables/useChallenge';
+import { CORPO_BLOCKS } from '@/data/goalDetails';
+import { images } from '@/data/images';
 import { Head, Link } from '@inertiajs/vue3';
 import { Menu, X } from 'lucide-vue-next';
 import { ref } from 'vue';
 
-const { countdown, goals, pushDay, pushReps, bars, fails, failTotal, failNote, failDots, incFail, decFail, earn, milestones, instagramUrl } =
-    useChallenge();
+const { countdown, goals, fails, failTotal, failNote, failDots, incFail, decFail, milestones, instagramUrl } = useChallenge();
 
 const menuOpen = ref(false);
 
@@ -15,6 +15,7 @@ const navLinks = [
     { href: '#regras', label: 'Regras' },
     { href: '#jornada', label: 'Jornada' },
     { href: '#mindset', label: 'Mindset' },
+    { href: '#nutri', label: 'Nutri' },
     { href: '#parceiros', label: 'Parceiros' },
 ];
 </script>
@@ -26,9 +27,9 @@ const navLinks = [
         <header class="sticky top-0 z-20 border-b border-brand-line bg-brand-ink/88 backdrop-blur-[10px]">
             <div class="mx-auto flex max-w-[1200px] items-center justify-between gap-4 px-6 py-3">
                 <a href="#topo" class="flex items-center gap-2.5 text-brand-cream hover:text-brand-cream">
-                    <img src="/images/logo.webp" alt="Desafio 45 Firme" class="size-11 object-contain" />
+                    <img :src="images.logo" alt="Desafio 45 Dias" class="size-11 object-contain" />
                     <span class="font-display text-[22px] font-extrabold italic uppercase tracking-wide">
-                        Desafio <span class="text-brand-gold">45</span> Firme
+                        Desafio <span class="text-brand-gold">45</span> Dias
                     </span>
                 </a>
 
@@ -94,11 +95,11 @@ const navLinks = [
                     <span>6 nov → 20 dez · 45 dias antes do verão</span>
                 </div>
                 <h1 class="display-title m-0 text-[clamp(56px,8.4vw,112px)] tracking-[-1px]">
-                    <span class="text-brand-gold">45 dias.</span><br />5 objetivos.<br />Uma vida melhor.
+                    <span class="text-brand-gold">45 dias.</span><br />5 objetivos.<br />Antes do verão.
                 </h1>
                 <p class="m-0 max-w-[520px] text-[clamp(18px,1.6vw,21px)] leading-normal text-brand-muted-3">
-                    Enquanto o verão se aproxima, a gente se prepara. Não é só ficar com o corpo melhor para a praia (spoiler: vai ficar). É sobre
-                    transformação real — mente, fé, amizade e regra de vida.
+                    De 6 de novembro a 20 de dezembro de 2026. Movimento, água, sono, uma habilidade nova e uma meta de força no seu nível. O desafio
+                    premia consistência e participação, não perfeição.
                 </p>
                 <div class="flex flex-wrap gap-3">
                     <a
@@ -148,8 +149,8 @@ const navLinks = [
                     class="absolute aspect-square w-[78%] rounded-full bg-[radial-gradient(circle,rgba(246,168,33,0.22)_0%,rgba(246,168,33,0)_68%)]"
                 />
                 <img
-                    src="/images/logo.webp"
-                    alt="Logo Desafio 45 Firme — 45 dias antes do verão. A gente cresce junto"
+                    :src="images.logo"
+                    alt="Emblema Desafio 45 Dias — antes do verão. A gente cresce junto"
                     class="relative block h-auto w-full max-w-[580px]"
                 />
             </div>
@@ -159,22 +160,18 @@ const navLinks = [
             <div
                 class="font-display mx-auto flex max-w-[1200px] flex-wrap justify-between gap-x-8 gap-y-4 px-6 py-[18px] text-[clamp(18px,2vw,24px)] font-bold uppercase tracking-[2px]"
             >
-                <span class="text-brand-corpo">Corpo</span>
-                <span class="text-brand-mente">Mente</span>
-                <span class="text-brand-fe">Fé</span>
-                <span class="text-brand-familia">Família</span>
-                <span class="text-brand-conhecimento">Conhecimento</span>
+                <span v-for="goal in goals" :key="goal.key" :style="{ color: goal.color }">{{ goal.title }}</span>
             </div>
         </div>
 
         <section id="objetivos" class="mx-auto max-w-[1200px] px-6 py-[clamp(72px,9vw,120px)]">
             <div class="mb-10 flex flex-wrap items-end justify-between gap-6">
                 <div class="flex flex-col gap-3.5">
-                    <div class="eyebrow">Todo dia, sem exceção</div>
-                    <h2 class="display-title m-0 text-[clamp(44px,6vw,80px)]">5 objetivos por dia</h2>
+                    <div class="eyebrow">Consistência, não perfeição</div>
+                    <h2 class="display-title m-0 text-[clamp(44px,6vw,80px)]">5 objetivos</h2>
                 </div>
                 <p class="m-0 max-w-[360px] text-[17px] leading-normal text-brand-muted">
-                    Toque em cada objetivo para ver a regra, por que funciona e dicas práticas.
+                    Nem tudo é diário. Toque em cada objetivo para ver a regra, por que funciona e as dicas.
                 </p>
             </div>
 
@@ -198,47 +195,24 @@ const navLinks = [
             </div>
         </section>
 
-        <section id="objetivo-flexoes" class="border-y border-brand-line bg-brand-strip">
+        <section id="corpo-forte" class="border-y border-brand-line bg-brand-strip">
             <div class="mx-auto grid max-w-[1200px] items-center gap-12 px-6 py-[clamp(72px,9vw,120px)] lg:grid-cols-2">
                 <div class="flex flex-col gap-5">
-                    <div class="text-sm font-bold uppercase tracking-[3px] text-brand-conhecimento">Flexões progressivas</div>
-                    <h2 class="display-title m-0 text-[clamp(44px,6vw,80px)]">
-                        Começa com 30.<br /><span class="text-brand-conhecimento">Termina com 100.</span>
-                    </h2>
+                    <img :src="images.corpo" alt="" class="size-24" />
+                    <div class="text-sm font-bold uppercase tracking-[3px] text-[#43A047]">Corpo forte</div>
+                    <h2 class="display-title m-0 text-[clamp(44px,6vw,80px)]">Sua meta.<br /><span class="text-[#43A047]">Seu nível.</span></h2>
                     <p class="m-0 max-w-[460px] text-[17px] leading-relaxed text-brand-muted">
-                        A meta sobe a cada 8 dias: 30, 45, 60, 75, 90 e 100 — dá pra dividir em séries ao longo do dia. Arraste para ver a meta de
-                        cada dia. Fazendo em grupo? Criem o grupo de vocês no Gymrats para acompanhar a evolução juntos.
+                        Flexão, barra, prancha ou outra progressão. Pelo menos 4 vezes por semana, em 3 blocos de 15 dias, com teste no começo de cada
+                        bloco e no dia 45.
                     </p>
-                    <div class="flex max-w-[460px] flex-col gap-3.5 rounded-[22px] border border-brand-line2 bg-brand-ink px-6 pb-[18px] pt-6">
-                        <BrandArt kind="flexoes" />
-                        <div class="flex justify-between text-[13px] font-bold uppercase tracking-widest text-brand-muted-2">
-                            <span>30 / dia</span>
-                            <span class="text-brand-conhecimento">2.900 no total</span>
-                            <span>100 / dia</span>
-                        </div>
-                    </div>
                 </div>
-                <div class="flex flex-col gap-6 rounded-3xl border border-brand-line2 bg-brand-ink p-7">
-                    <div class="flex items-end justify-between gap-4">
-                        <div class="flex flex-col gap-1">
-                            <span class="text-[13px] font-bold uppercase tracking-[2px] text-brand-muted-2">Dia {{ pushDay }}</span>
-                            <span class="font-display text-[88px] font-black leading-none tabular-nums text-brand-cream">{{ pushReps }}</span>
+                <div class="flex flex-col gap-3">
+                    <div v-for="block in CORPO_BLOCKS" :key="block.title" class="rounded-[22px] border border-brand-line2 bg-brand-ink p-6">
+                        <div class="flex items-baseline justify-between gap-4">
+                            <span class="font-display text-2xl font-extrabold uppercase text-[#43A047]">{{ block.title }}</span>
+                            <span class="text-sm font-bold uppercase tracking-widest text-brand-muted-2">{{ block.when }}</span>
                         </div>
-                        <span class="font-display pb-1.5 text-[22px] font-bold uppercase text-brand-conhecimento">flexões</span>
-                    </div>
-                    <div class="flex h-[120px] items-end gap-0.5">
-                        <div
-                            v-for="(bar, index) in bars"
-                            :key="index"
-                            class="flex-1 rounded-t-sm"
-                            :style="{ height: bar.h, background: bar.c }"
-                        />
-                    </div>
-                    <input v-model.number="pushDay" type="range" min="1" max="45" aria-label="Dia do desafio" class="w-full" />
-                    <div class="flex justify-between text-[13px] font-semibold text-brand-muted-2">
-                        <span>Dia 1 · 30</span>
-                        <span>Dia 23 · 60</span>
-                        <span>Dia 45 · 100</span>
+                        <p class="m-0 mt-2 text-[17px] text-brand-muted-3">{{ block.text }}</p>
                     </div>
                 </div>
             </div>
@@ -258,26 +232,22 @@ const navLinks = [
                 <div class="surface-card flex flex-col gap-3 p-7">
                     <span class="font-display text-xl font-extrabold text-brand-gold">01</span>
                     <h3 class="font-display m-0 text-[28px] font-extrabold uppercase leading-none">Check-in até 23h</h3>
-                    <p class="m-0 text-base leading-normal text-brand-muted">Todo dia: foto + checklist dos 5 objetivos. Em grupo, manda no grupo de vocês.</p>
+                    <p class="m-0 text-base leading-normal text-brand-muted">Foto do dia e o checklist: treino, água e sono, habilidade, corpo forte e, se rolou, o Plus.</p>
                 </div>
                 <div class="surface-card flex flex-col gap-3 p-7">
                     <span class="font-display text-xl font-extrabold text-brand-gold">02</span>
-                    <h3 class="font-display m-0 text-[28px] font-extrabold uppercase leading-none">Ranking semanal</h3>
-                    <p class="m-0 text-base leading-normal text-brand-muted">Em grupo: todo domingo sai quem está “on fire” na semana.</p>
+                    <h3 class="font-display m-0 text-[28px] font-extrabold uppercase leading-none">Ranking de domingo</h3>
+                    <p class="m-0 text-base leading-normal text-brand-muted">A soma da semana sai todo domingo. O geral acompanha os 45 dias.</p>
                 </div>
                 <div class="surface-card flex flex-col gap-3 p-7">
                     <span class="font-display text-xl font-extrabold text-brand-gold">03</span>
-                    <h3 class="font-display m-0 text-[28px] font-extrabold uppercase leading-none">Refeição luxo</h3>
-                    <p class="m-0 text-base leading-normal text-brand-muted">
-                        1x por semana — só na sexta à noite, sábado ou domingo. Pode ser o que quiser.
-                    </p>
+                    <h3 class="font-display m-0 text-[28px] font-extrabold uppercase leading-none">Sem punição</h3>
+                    <p class="m-0 text-base leading-normal text-brand-muted">Falhou um dia? Avisa o grupo. O dia só deixa de pontuar. Amanhã conta de novo.</p>
                 </div>
                 <div class="surface-card flex flex-col gap-3 p-7">
                     <span class="font-display text-xl font-extrabold text-brand-gold">04</span>
-                    <h3 class="font-display m-0 text-[28px] font-extrabold uppercase leading-none">Fora disso</h3>
-                    <p class="m-0 text-base leading-normal text-brand-muted">
-                        Sem fast food, sem doce industrializado. Álcool só nos 3 eventos que você declarar no dia 1.
-                    </p>
+                    <h3 class="font-display m-0 text-[28px] font-extrabold uppercase leading-none">Máximo 10</h3>
+                    <p class="m-0 text-base leading-normal text-brand-muted">Check-in, treino, água, sono, corpo forte e habilidade. O Plus entra como bônus.</p>
                 </div>
             </div>
 
@@ -287,12 +257,12 @@ const navLinks = [
             >
                 <div class="flex flex-col gap-[22px]">
                     <div class="flex flex-col gap-2.5">
-                        <span class="text-sm font-bold uppercase tracking-[3px]">Regra de ouro</span>
+                        <span class="text-sm font-bold uppercase tracking-[3px]">Opcional, no dia 1</span>
                         <h3 class="display-title m-0 text-[clamp(48px,6vw,84px)] leading-[0.86]">Penalidade<br />solidária</h3>
-                        <span class="font-script text-[clamp(24px,2.6vw,32px)] leading-tight">Transformar falhas em generosidade</span>
+                        <span class="font-script text-[clamp(24px,2.6vw,32px)] leading-tight">Se o grupo combinar</span>
                     </div>
                     <p class="m-0 max-w-[520px] text-[19px] font-semibold leading-snug">
-                        Cada dia que você não cumprir os 5 objetivos, você guarda <strong class="font-extrabold">R$ 10,00</strong> para doação.
+                        Quem topar, guarda <strong class="font-extrabold">R$ 10,00</strong> por dia sem check-in. No fim, vira doação ou a comemoração.
                     </p>
                     <div class="flex flex-col border-t-[1.5px] border-brand-ink/25">
                         <div class="grid grid-cols-[minmax(0,190px)_minmax(0,1fr)] items-baseline gap-4 border-b-[1.5px] border-brand-ink/25 py-3.5">
@@ -351,27 +321,22 @@ const navLinks = [
         <section class="mx-auto flex max-w-[1200px] flex-col gap-8 px-6 pb-[clamp(72px,9vw,120px)]">
             <div class="flex flex-wrap items-end justify-between gap-6">
                 <h2 class="display-title m-0 text-[clamp(36px,4.6vw,60px)]">Sistema de pontos</h2>
-                <span class="text-[15px] font-semibold text-brand-muted-2">Sugestão para quem for fazer em grupo</span>
+                <span class="text-[15px] font-semibold text-brand-muted-2">Máximo de 10 pontos por dia</span>
             </div>
             <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] gap-4">
                 <div class="flex flex-col gap-1 rounded-[22px] border border-brand-line2 bg-brand-card2 p-7">
-                    <span class="mb-2.5 text-[13px] font-bold uppercase tracking-[2px] text-brand-mente">Ganhar</span>
-                    <div v-for="row in earn" :key="row.t" class="flex items-baseline justify-between gap-4 border-b border-brand-line2 py-3">
+                    <span class="mb-2.5 text-[13px] font-bold uppercase tracking-[2px] text-brand-mente">No dia</span>
+                    <div v-for="row in DAILY_POINTS" :key="row.t" class="flex items-baseline justify-between gap-4 border-b border-brand-line2 py-3">
                         <span class="text-base text-brand-muted-3">{{ row.t }}</span>
                         <span class="font-display whitespace-nowrap text-[26px] font-extrabold text-brand-mente">{{ row.p }}</span>
                     </div>
                 </div>
                 <div class="flex flex-col gap-1 rounded-[22px] border border-brand-line2 bg-brand-card2 p-7">
-                    <span class="mb-2.5 text-[13px] font-bold uppercase tracking-[2px] text-brand-corpo">Perder</span>
-                    <div class="flex items-baseline justify-between gap-4 border-b border-brand-line2 py-3">
-                        <span class="text-base text-brand-muted-3">Falhar 1 dia (+ R$ 10 na penalidade solidária)</span>
-                        <span class="font-display text-[26px] font-extrabold text-brand-corpo">−5</span>
+                    <span class="mb-2.5 text-[13px] font-bold uppercase tracking-[2px] text-brand-gold">Bônus</span>
+                    <div v-for="row in BONUS_POINTS" :key="row.t" class="flex items-baseline justify-between gap-4 border-b border-brand-line2 py-3">
+                        <span class="text-base text-brand-muted-3">{{ row.t }}</span>
+                        <span class="font-display whitespace-nowrap text-[26px] font-extrabold text-brand-gold">{{ row.p }}</span>
                     </div>
-                    <span class="mb-2 mt-[22px] text-[13px] font-bold uppercase tracking-[2px] text-brand-muted-2">Punições divertidas</span>
-                    <span class="text-[15px] leading-relaxed text-brand-muted">
-                        Paga drinks na próxima saída · Foto “constrangida” pro grupo · Paga um café da manhã comunitário · Fica marcado na próxima
-                        refeição luxo (paga pra todos)
-                    </span>
                 </div>
             </div>
             <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,240px),1fr))] gap-4">
@@ -381,7 +346,7 @@ const navLinks = [
                 </div>
                 <div class="flex items-center gap-[18px] rounded-[20px] border-[1.5px] border-brand-silver p-6">
                     <span class="font-display text-[56px] font-black italic leading-none text-brand-silver">2º</span>
-                    <span class="text-base leading-snug text-brand-muted-3">Escolhe o <strong class="text-brand-cream">bar/balada</strong> da celebração</span>
+                    <span class="text-base leading-snug text-brand-muted-3">Escolhe o <strong class="text-brand-cream">programa</strong> depois da celebração</span>
                 </div>
                 <div class="flex items-center gap-[18px] rounded-[20px] border-[1.5px] border-brand-bronze p-6">
                     <span class="font-display text-[56px] font-black italic leading-none text-brand-bronze">3º</span>
@@ -444,13 +409,13 @@ const navLinks = [
                         {
                             n: '03',
                             title: 'Celebrar<br>tudo',
-                            solo: 'Primeiro treino, primeira oração, primeira skill aprendida — anota e comemora.',
+                            solo: 'Primeiro treino, primeira habilidade, primeiro teste de Corpo forte — anota e comemora.',
                             group: 'Reação de fogo em cada check-in completo. A vitória de um é de todos.',
                         },
                         {
                             n: '04',
                             title: 'Lembrar<br>todo dia',
-                            solo: 'Você não está só: tem fé, família e muita gente fazendo o mesmo desafio.',
+                            solo: 'Você não está só: tem gente fazendo o mesmo desafio, no seu ritmo.',
                             group: '“A gente cresce junto” é o hino do desafio. No fim de todo post e de toda mensagem importante.',
                         },
                     ]"
@@ -484,45 +449,39 @@ const navLinks = [
                 <div class="eyebrow">Mais do que um desafio</div>
                 <h2 class="display-title m-0 text-[clamp(44px,6vw,80px)]">Uma regra<br />de vida.</h2>
                 <p class="m-0 max-w-[480px] text-[19px] leading-relaxed text-brand-muted-3">
-                    A gente quer estar melhor no verão. Corpo mais definido, mente mais clara, espírito mais firme. Mas acima de tudo, a gente quer
-                    <strong class="text-brand-cream">crescer junto</strong>. Amigos que se cobram, que se motivam, que se celebram.
+                    A gente quer chegar melhor no verão. Cada um no próprio nível, com o grupo cobrando, motivando e celebrando. Acima de tudo, a gente
+                    quer <strong class="text-brand-cream">crescer junto</strong>.
                 </p>
                 <p class="m-0 max-w-[480px] text-[19px] leading-relaxed text-brand-muted-3">
                     Isso não é um desafio de 45 dias. É uma regra de vida que a gente vai repetir todo ano.
                 </p>
             </div>
-            <div class="grid grid-cols-2 gap-3.5">
+            <div class="grid grid-cols-2 gap-3.5 sm:grid-cols-3">
                 <div
-                    class="flex aspect-square flex-col justify-between gap-3 overflow-hidden rounded-[22px] border border-brand-line2 border-t-4 border-t-brand-corpo bg-brand-card2 p-6"
+                    v-for="goal in goals"
+                    :key="goal.key"
+                    class="flex flex-col justify-between gap-3 overflow-hidden rounded-[22px] border border-brand-line2 bg-brand-card2 p-5"
+                    :style="{ borderTop: `4px solid ${goal.color}` }"
                 >
-                    <div class="flex min-h-0 flex-1 items-center justify-center">
-                        <BrandArt kind="corpo" />
-                    </div>
-                    <span class="font-display text-[clamp(24px,2.6vw,32px)] font-extrabold uppercase leading-[0.95]">Corpo<br />transformado</span>
+                    <img :src="goal.icon" alt="" class="size-20 object-contain" />
+                    <span class="font-display text-[clamp(22px,2.4vw,28px)] font-extrabold uppercase leading-[0.95]">{{ goal.title }}</span>
                 </div>
-                <div
-                    class="flex aspect-square flex-col justify-between gap-3 overflow-hidden rounded-[22px] border border-brand-line2 border-t-4 border-t-brand-familia bg-brand-card2 p-6"
-                >
-                    <div class="flex min-h-0 flex-1 items-center justify-center">
-                        <BrandArt kind="mente" />
-                    </div>
-                    <span class="font-display text-[clamp(24px,2.6vw,32px)] font-extrabold uppercase leading-[0.95]">Mente<br />clara</span>
+            </div>
+        </section>
+
+        <section id="nutri" class="border-t border-brand-line bg-brand-strip">
+            <div class="mx-auto flex max-w-[1200px] flex-col gap-8 px-6 py-[clamp(72px,9vw,120px)]">
+                <div class="flex flex-col gap-3.5">
+                    <div class="eyebrow">Alimentação</div>
+                    <h2 class="display-title m-0 text-[clamp(44px,6vw,80px)]">Cantinho da nutri</h2>
+                    <p class="m-0 max-w-[560px] text-[17px] leading-relaxed text-brand-muted">
+                        Praticidade e equilíbrio, sem terrorismo. O conteúdo de apoio fica com a nutricionista do desafio.
+                    </p>
                 </div>
-                <div
-                    class="flex aspect-square flex-col justify-between gap-3 overflow-hidden rounded-[22px] border border-brand-line2 border-t-4 border-t-brand-fe bg-brand-card2 p-6"
-                >
-                    <div class="flex min-h-0 flex-1 items-center justify-center">
-                        <BrandArt kind="espirito" />
+                <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,220px),1fr))] gap-3">
+                    <div v-for="item in ['Listas de compras', 'Cardápios da semana', 'Kit da vida real', 'Comer sem tudo ou nada']" :key="item" class="surface-card p-6">
+                        <h3 class="font-display m-0 text-2xl font-extrabold uppercase leading-tight">{{ item }}</h3>
                     </div>
-                    <span class="font-display text-[clamp(24px,2.6vw,32px)] font-extrabold uppercase leading-[0.95]">Espírito<br />firme</span>
-                </div>
-                <div
-                    class="flex aspect-square flex-col justify-between gap-3 overflow-hidden rounded-[22px] border border-brand-line2 border-t-4 border-t-brand-gold bg-brand-card2 p-6"
-                >
-                    <div class="flex min-h-0 flex-1 items-center justify-center">
-                        <BrandArt kind="amizade" />
-                    </div>
-                    <span class="font-display text-[clamp(24px,2.6vw,32px)] font-extrabold uppercase leading-[0.95]">Amizade<br />blindada</span>
                 </div>
             </div>
         </section>
@@ -534,7 +493,7 @@ const navLinks = [
             </div>
 
             <article class="grid items-center gap-8 overflow-hidden rounded-[22px] border border-brand-line2 bg-brand-card2 p-5 sm:p-8 lg:grid-cols-[320px_1fr]">
-                <img src="/images/helen-freitas.jpg" alt="Helen Freitas" class="aspect-[3/4] w-full rounded-[18px] object-cover object-top" />
+                <img :src="images.helen" alt="Helen Freitas" class="aspect-[3/4] w-full rounded-[18px] object-cover object-top" />
                 <div class="flex flex-col gap-5">
                     <span class="text-xs font-bold uppercase tracking-[2px] text-brand-gold">Nutricionista</span>
                     <h3 class="display-title m-0 text-[clamp(40px,5vw,64px)] leading-none">Helen Freitas</h3>
@@ -576,15 +535,15 @@ const navLinks = [
 
         <footer class="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-5 px-6 py-10">
             <div class="flex items-center gap-3">
-                <img src="/images/logo.webp" alt="" class="size-[52px] object-contain" />
+                <img :src="images.logo" alt="" class="size-[52px] object-contain" />
                 <div class="flex flex-col gap-0.5">
                     <span class="font-display text-xl font-extrabold italic uppercase">
-                        Desafio <span class="text-brand-gold">45</span> Firme
+                        Desafio <span class="text-brand-gold">45</span> Dias
                     </span>
-                    <span class="text-sm text-brand-muted-2">45 dias | Verão melhor | Amigos de vida · 6 nov — 20 dez</span>
+                    <span class="text-sm text-brand-muted-2">Antes do verão · 6 nov — 20 dez</span>
                 </div>
             </div>
-            <span class="text-sm font-semibold text-brand-muted-2">#Desafio45Firme #VerãoMelhor #TransformaçãoReal #AmigosDeVida</span>
+            <span class="text-sm font-semibold text-brand-muted-2">#Desafio45Dias #AntesDoVerao #AGenteCresceJunto</span>
         </footer>
     </div>
 </template>

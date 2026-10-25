@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import BrandArt from '@/components/brand/BrandArt.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { GOALS, useChallenge } from '@/composables/useChallenge';
+import { CORPO_BLOCKS } from '@/data/goalDetails';
+import { images } from '@/data/images';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 
@@ -12,7 +13,11 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const { countdown, pushDay, pushReps, bars, milestones } = useChallenge();
+defineProps<{
+    total: number;
+}>();
+
+const { countdown, milestones } = useChallenge();
 </script>
 
 <template>
@@ -21,12 +26,12 @@ const { countdown, pushDay, pushReps, bars, milestones } = useChallenge();
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-6 rounded-xl p-4 md:p-6">
             <div class="flex flex-col gap-3">
-                <div class="eyebrow">Desafio 45 Firme</div>
+                <div class="eyebrow">Desafio 45 Dias</div>
                 <h1 class="display-title text-[clamp(36px,5vw,56px)]">
                     A gente <span class="text-brand-gold">cresce junto</span>
                 </h1>
                 <p class="max-w-xl text-brand-muted">
-                    {{ countdown.label }}. Cinco objetivos por dia, do dia 1 ao dia 45.
+                    {{ countdown.label }}. Cinco objetivos, de 6 de novembro a 20 de dezembro.
                 </p>
             </div>
 
@@ -50,21 +55,25 @@ const { countdown, pushDay, pushReps, bars, milestones } = useChallenge();
                     <div v-else class="font-display text-3xl font-black italic uppercase text-brand-gold">Concluído</div>
                 </div>
 
-                <div class="surface-card flex flex-col justify-between gap-4 p-6">
-                    <span class="text-[13px] font-bold uppercase tracking-[2px] text-brand-conhecimento">Flexões</span>
-                    <div class="flex items-end justify-between">
-                        <span class="font-display text-6xl font-black tabular-nums">{{ pushReps }}</span>
-                        <span class="font-display text-lg font-bold uppercase text-brand-conhecimento">dia {{ pushDay }}</span>
-                    </div>
-                    <div class="flex h-16 items-end gap-px">
-                        <div v-for="(bar, index) in bars" :key="index" class="flex-1 rounded-t-sm" :style="{ height: bar.h, background: bar.c }" />
-                    </div>
+                <div class="surface-card flex flex-col gap-3 p-6">
+                    <span class="text-[13px] font-bold uppercase tracking-[2px] text-[#43A047]">Corpo forte</span>
+                    <p v-for="block in CORPO_BLOCKS" :key="block.title" class="m-0 text-sm text-brand-muted">
+                        <strong class="text-brand-cream">{{ block.title }}</strong> · {{ block.when }}
+                    </p>
                 </div>
 
-                <div class="surface-card overflow-hidden p-6">
-                    <BrandArt kind="amizade" />
+                <div class="surface-card flex items-center justify-center p-6">
+                    <img :src="images.logo" alt="Desafio 45 Dias" class="max-h-40 object-contain" />
                 </div>
             </div>
+
+            <Link :href="route('athlete.progress')" class="surface-card flex items-center justify-between gap-4 p-6">
+                <div>
+                    <span class="text-[13px] font-bold uppercase tracking-[2px] text-brand-gold">Minha evolução</span>
+                    <p class="m-0 mt-1 font-display text-3xl font-black">{{ total }} pts</p>
+                </div>
+                <span class="font-bold">Registrar o dia →</span>
+            </Link>
 
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
                 <Link v-for="goal in GOALS" :key="goal.key" :href="route('objetivos.show', goal.key)" class="surface-card flex flex-col gap-3 p-5">
@@ -74,7 +83,7 @@ const { countdown, pushDay, pushReps, bars, milestones } = useChallenge();
                 </Link>
             </div>
 
-            <div class="grid gap-3 md:grid-cols-5">
+            <div class="grid gap-3 md:grid-cols-4">
                 <div
                     v-for="mile in milestones"
                     :key="mile.day"

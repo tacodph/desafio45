@@ -6,6 +6,8 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -54,5 +56,20 @@ class User extends Authenticatable
     public function userType(): BelongsTo
     {
         return $this->belongsTo(UserType::class);
+    }
+
+    public function athleteProfile(): HasOne
+    {
+        return $this->hasOne(AthleteProfile::class);
+    }
+
+    public function checkins(): HasMany
+    {
+        return $this->hasMany(Checkin::class);
+    }
+
+    public function achievements(): HasMany
+    {
+        return $this->hasMany(Achievement::class);
     }
 }

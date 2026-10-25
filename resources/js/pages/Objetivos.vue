@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import BrandArt from '@/components/brand/BrandArt.vue';
-import { GOAL_DETAILS, type GoalKey } from '@/data/goalDetails';
-import { useChallenge } from '@/composables/useChallenge';
+import { CORPO_BLOCKS, GOAL_DETAILS, type GoalKey } from '@/data/goalDetails';
+import { images } from '@/data/images';
 import { Head, Link } from '@inertiajs/vue3';
 import { ArrowLeft, Menu, X } from 'lucide-vue-next';
 import { nextTick, onMounted, ref, watch } from 'vue';
@@ -10,7 +9,6 @@ const props = defineProps<{
     goal: GoalKey;
 }>();
 
-const { pushDay, pushReps, bars } = useChallenge();
 const menuOpen = ref(false);
 
 const scrollToGoal = (key: string) => {
@@ -41,9 +39,9 @@ watch(
         <header class="sticky top-0 z-20 border-b border-brand-line bg-brand-ink/88 backdrop-blur-[10px]">
             <div class="mx-auto flex max-w-[1200px] items-center justify-between gap-4 px-6 py-3">
                 <Link :href="route('home')" class="flex items-center gap-2.5 text-brand-cream hover:text-brand-cream">
-                    <img src="/images/logo.webp" alt="Desafio 45 Firme" class="size-11 object-contain" />
+                    <img :src="images.logo" alt="Desafio 45 Dias" class="size-11 object-contain" />
                     <span class="font-display text-[22px] font-extrabold italic uppercase tracking-wide">
-                        Desafio <span class="text-brand-gold">45</span> Firme
+                        Desafio <span class="text-brand-gold">45</span> Dias
                     </span>
                 </Link>
 
@@ -55,7 +53,7 @@ watch(
                         class="text-[15px] font-medium hover:text-brand-cream"
                         :class="item.key === goal ? 'text-brand-cream' : 'text-brand-muted-3'"
                     >
-                        {{ item.title.split(' ')[0] }}
+                        {{ item.nav }}
                     </Link>
                     <Link
                         :href="route('home')"
@@ -88,10 +86,10 @@ watch(
         <section class="mx-auto max-w-[1200px] px-6 pb-8 pt-[clamp(40px,6vw,72px)]">
             <Link :href="`${route('home')}#objetivos`" class="inline-flex items-center gap-2 text-sm font-semibold text-brand-muted-3 hover:text-brand-cream">
                 <ArrowLeft class="size-4" />
-                5 objetivos por dia
+                5 objetivos
             </Link>
             <div class="mt-6 flex flex-col gap-3.5">
-                <div class="eyebrow">Todo dia, sem exceção</div>
+                <div class="eyebrow">Cada um no seu ritmo</div>
                 <h1 class="display-title m-0 text-[clamp(44px,6vw,80px)]">A regra de cada objetivo</h1>
                 <p class="m-0 max-w-[560px] text-[17px] leading-relaxed text-brand-muted">
                     Toque nos cards da home ou use o menu acima. Aqui está a regra, por que funciona e dicas práticas de cada um dos 5.
@@ -100,11 +98,11 @@ watch(
         </section>
 
         <section
-            v-for="item in GOAL_DETAILS"
+            v-for="(item, index) in GOAL_DETAILS"
             :id="item.key"
             :key="item.key"
             class="scroll-mt-24 border-t border-brand-line"
-            :class="item.key === 'flexoes' || item.key === 'alimentacao' || item.key === 'habilidade' ? 'bg-brand-strip' : 'bg-brand-ink'"
+            :class="index % 2 ? 'bg-brand-strip' : 'bg-brand-ink'"
         >
             <div class="mx-auto grid max-w-[1200px] items-start gap-10 px-6 py-[clamp(56px,8vw,96px)] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
                 <div class="flex flex-col gap-5">
@@ -139,41 +137,18 @@ watch(
                 </div>
             </div>
 
-            <div v-if="item.key === 'flexoes'" class="mx-auto max-w-[1200px] px-6 pb-[clamp(56px,8vw,96px)]">
-                <div class="grid items-center gap-8 lg:grid-cols-2">
-                    <div class="flex flex-col gap-3.5 rounded-[22px] border border-brand-line2 bg-brand-ink px-6 pb-[18px] pt-6">
-                        <BrandArt kind="flexoes" />
-                        <div class="flex justify-between text-[13px] font-bold uppercase tracking-widest text-brand-muted-2">
-                            <span>30 / dia</span>
-                            <span class="text-brand-conhecimento">2.900 no total</span>
-                            <span>100 / dia</span>
-                        </div>
-                    </div>
-                    <div class="flex flex-col gap-6 rounded-3xl border border-brand-line2 bg-brand-ink p-7">
-                        <div class="flex items-end justify-between gap-4">
-                            <div class="flex flex-col gap-1">
-                                <span class="text-[13px] font-bold uppercase tracking-[2px] text-brand-muted-2">Dia {{ pushDay }}</span>
-                                <span class="font-display text-[88px] font-black leading-none tabular-nums text-brand-cream">{{ pushReps }}</span>
-                            </div>
-                            <span class="font-display pb-1.5 text-[22px] font-bold uppercase text-brand-conhecimento">flexões</span>
-                        </div>
-                        <div class="flex h-[120px] items-end gap-0.5">
-                            <div v-for="(bar, index) in bars" :key="index" class="flex-1 rounded-t-sm" :style="{ height: bar.h, background: bar.c }" />
-                        </div>
-                        <input v-model.number="pushDay" type="range" min="1" max="45" aria-label="Dia do desafio" class="w-full" />
-                        <div class="flex justify-between text-[13px] font-semibold text-brand-muted-2">
-                            <span>Dia 1 · 30</span>
-                            <span>Dia 23 · 60</span>
-                            <span>Dia 45 · 100</span>
-                        </div>
-                    </div>
+            <div v-if="item.key === 'corpo'" class="mx-auto grid max-w-[1200px] gap-3 px-6 pb-[clamp(56px,8vw,96px)] md:grid-cols-3">
+                <div v-for="block in CORPO_BLOCKS" :key="block.title" class="rounded-[22px] border border-brand-line2 bg-brand-ink p-6">
+                    <span class="font-display text-xl font-extrabold uppercase" :style="{ color: item.color }">{{ block.title }}</span>
+                    <p class="m-0 mt-2 text-sm font-bold uppercase tracking-widest text-brand-muted-2">{{ block.when }}</p>
+                    <p class="m-0 mt-2 text-[16px] leading-relaxed text-brand-muted-3">{{ block.text }}</p>
                 </div>
             </div>
         </section>
 
         <section class="bg-brand-gold text-brand-ink">
             <div class="mx-auto flex max-w-[1200px] flex-col items-start gap-5 px-6 py-16 lg:flex-row lg:items-center lg:justify-between">
-                <h2 class="display-title m-0 text-[clamp(36px,5vw,56px)]">Cinco por dia.<br />Quarenta e cinco dias.</h2>
+                <h2 class="display-title m-0 text-[clamp(36px,5vw,56px)]">Cinco objetivos.<br />Quarenta e cinco dias.</h2>
                 <Link
                     :href="`${route('home')}#entrar`"
                     class="rounded-full bg-brand-ink px-8 py-[18px] text-[17px] font-bold text-brand-cream hover:bg-brand-line hover:text-brand-cream"

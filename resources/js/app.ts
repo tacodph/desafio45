@@ -20,7 +20,7 @@ declare module 'vite/client' {
     }
 }
 
-const appName = import.meta.env.VITE_APP_NAME || 'Desafio 45 Firme';
+const appName = import.meta.env.VITE_APP_NAME || 'Desafio 45 Dias';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,

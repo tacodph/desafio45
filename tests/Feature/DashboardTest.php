@@ -19,6 +19,7 @@ class DashboardTest extends TestCase
         $this->get('/admin/usuarios')->assertRedirect('/login');
         $this->get('/admin/usuarios/novo')->assertRedirect('/login');
         $this->get('/equipe/atletas')->assertRedirect('/login');
+        $this->get('/atleta/evolucao')->assertRedirect('/login');
     }
 
     public function test_each_role_sees_its_own_dashboard(): void

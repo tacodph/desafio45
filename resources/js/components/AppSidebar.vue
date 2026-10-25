@@ -5,7 +5,7 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { Activity, Dumbbell, Flame, Heart, LayoutGrid, Salad, Settings, Sparkles, Target, Users } from 'lucide-vue-next';
+import { ClipboardCheck, Droplets, Dumbbell, Flame, LayoutGrid, Lightbulb, Settings, Star, Target, Users } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
@@ -37,11 +37,12 @@ const mainNavItems = computed<NavItem[]>(() => {
     if (role.value === 'atleta') {
         return [
             { title: 'Painel', href: '/dashboard', icon: LayoutGrid },
+            { title: 'Evolução', href: '/atleta/evolucao', icon: ClipboardCheck },
             { title: 'Treino', href: '/objetivos/treino', icon: Dumbbell },
-            { title: 'Alimentação', href: '/objetivos/alimentacao', icon: Salad },
-            { title: 'Fé', href: '/objetivos/oracao', icon: Heart },
-            { title: 'Habilidade', href: '/objetivos/habilidade', icon: Sparkles },
-            { title: 'Flexões', href: '/objetivos/flexoes', icon: Activity },
+            { title: 'Hidratação', href: '/objetivos/hidratacao', icon: Droplets },
+            { title: 'Habilidade', href: '/objetivos/habilidade', icon: Lightbulb },
+            { title: 'Corpo forte', href: '/objetivos/corpo', icon: Target },
+            { title: 'Plus', href: '/objetivos/plus', icon: Star },
         ];
     }
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\UserRole;
 use App\Models\User;
 use App\Models\UserType;
+use App\Support\ChallengeSheet;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Password;
@@ -24,7 +25,11 @@ class DashboardController extends Controller
         }
 
         if ($role === UserRole::Atleta) {
-            return Inertia::render('dashboard/Atleta');
+            $request->user()->load(['checkins', 'achievements']);
+
+            return Inertia::render('dashboard/Atleta', [
+                'total' => collect(ChallengeSheet::weeks($request->user()))->sum('total'),
+            ]);
         }
 
         return Inertia::render('dashboard/Equipe', [

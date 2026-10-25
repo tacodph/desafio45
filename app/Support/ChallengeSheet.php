@@ -1,0 +1,197 @@
+<?php
+
+namespace App\Support;
+
+use App\Models\Checkin;
+use App\Models\User;
+use Carbon\CarbonInterface;
+use Illuminate\Support\Carbon;
+
+class ChallengeSheet
+{
+    public const START = '2026-11-06';
+
+    /** @var array<int, array{0: int, 1: int}> */
+    public const WEEKS = [
+        1 => [1, 3],
+        2 => [4, 10],
+        3 => [11, 17],
+        4 => [18, 24],
+        5 => [25, 31],
+        6 => [32, 38],
+        7 => [39, 45],
+    ];
+
+    /** @var array<string, array{0: string, 1: int}> */
+    public const ACHIEVEMENTS = [
+        'strength_test' => ['Evolução no teste de Corpo forte', 10],
+        'skill_demo' => ['Demonstração da habilidade no dia 45', 15],
+        'motivate' => ['Motivar um amigo desanimado', 5],
+        'first_time' => ['Primeira vez acertando algo novo', 5],
+    ];
+
+    public static function dateForDay(int $day): string
+    {
+        return Carbon::parse(self::START)->addDays($day - 1)->toDateString();
+    }
+
+    public static function dayOn(CarbonInterface $date): int
+    {
+        $start = Carbon::parse(self::START)->startOfDay()->getTimestamp();
+        $stamp = $date->copy()->startOfDay()->getTimestamp();
+
+        return (int) (($stamp - $start) / 86400) + 1;
+    }
+
+    public static function weekOf(int $day): int
+    {
+        foreach (self::WEEKS as $week => [$from, $to]) {
+            if ($day >= $from && $day <= $to) {
+                return $week;
+            }
+        }
+
+        return $day < 1 ? 1 : 7;
+    }
+
+    public static function currentWeek(?CarbonInterface $today = null): int
+    {
+        $day = self::dayOn($today ?? Carbon::today());
+
+        return self::weekOf(max(1, min(45, $day)));
+    }
+
+    public static function dayPoints(Checkin $checkin): int
+    {
+        return ($checkin->checked_in ? 1 : 0)
+            + ($checkin->movement ? 3 : 0)
+            + ($checkin->water ? 1 : 0)
+            + ($checkin->sleep ? 1 : 0)
+            + ($checkin->strength ? 2 : 0)
+            + ($checkin->skill ? 2 : 0);
+    }
+
+    public static function payload(User $user): array
+    {
+        $user->loadMissing(['athleteProfile', 'checkins', 'achievements']);
+        $checkins = $user->checkins->keyBy('day');
+        $weekdays = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+        $days = [];
+
+        for ($day = 1; $day <= 45; $day++) {
+            $date = Carbon::parse(self::dateForDay($day));
+            $checkin = $checkins->get($day);
+            $days[] = [
+                'day' => $day,
+                'date' => $date->format('d/m'),
+                'weekday' => $weekdays[$date->dayOfWeek],
+                'week' => self::weekOf($day),
+                'checked_in' => (bool) $checkin?->checked_in,
+                'movement' => (bool) $checkin?->movement,
+                'water' => (bool) $checkin?->water,
+                'sleep' => (bool) $checkin?->sleep,
+                'strength' => (bool) $checkin?->strength,
+                'skill' => (bool) $checkin?->skill,
+                'plus_count' => (int) ($checkin?->plus_count ?? 0),
+                'notes' => $checkin?->notes ?? '',
+                'points' => $checkin ? self::dayPoints($checkin) : 0,
+            ];
+        }
+
+        $profile = $user->athleteProfile;
+        $elapsed = max(0, min(45, self::dayOn(Carbon::today()) - 1));
+        $missed = 0;
+
+        if ($profile?->penalty) {
+            for ($day = 1; $day <= $elapsed; $day++) {
+                if (! $checkins->get($day)?->checked_in) {
+                    $missed++;
+                }
+            }
+        }
+
+        return [
+            'currentWeek' => self::currentWeek(),
+            'profile' => [
+                'movement_level' => $profile?->movement_level ?? '',
+                'movement_minutes' => $profile?->movement_minutes ?? '',
+                'water_liters' => $profile?->water_liters ?? '',
+                'sleep_goal' => $profile?->sleep_goal ?? '',
+                'skill' => $profile?->skill ?? '',
+                'strength_goal' => $profile?->strength_goal ?? '',
+                'test_1' => $profile?->test_1 ?? '',
+                'test_15' => $profile?->test_15 ?? '',
+                'test_30' => $profile?->test_30 ?? '',
+                'test_45' => $profile?->test_45 ?? '',
+                'penalty' => (bool) $profile?->penalty,
+                'penalty_donated_on' => $profile?->penalty_donated_on?->toDateString() ?? '',
+                'penalty_note' => $profile?->penalty_note ?? '',
+            ],
+            'days' => $days,
+            'weeks' => self::weeks($user),
+            'achievements' => $user->achievements
+                ->sortByDesc('achieved_on')
+                ->values()
+                ->map(fn ($item) => [
+                    'id' => $item->id,
+                    'achieved_on' => $item->achieved_on->toDateString(),
+                    'type' => $item->type,
+                    'label' => self::ACHIEVEMENTS[$item->type][0] ?? $item->type,
+                    'points' => self::ACHIEVEMENTS[$item->type][1] ?? 0,
+                    'detail' => $item->detail ?? '',
+                ]),
+            'types' => collect(self::ACHIEVEMENTS)->map(fn ($item, $type) => [
+                'type' => $type,
+                'label' => $item[0],
+                'points' => $item[1],
+            ])->values(),
+            'total' => collect(self::weeks($user))->sum('total'),
+            'penalty' => [
+                'missed' => $missed,
+                'amount' => $missed * 10,
+            ],
+        ];
+    }
+
+    /** @return list<array<string, int|string>> */
+    public static function weeks(User $user): array
+    {
+        $user->loadMissing(['checkins', 'achievements']);
+        $checkins = $user->checkins->keyBy('day');
+        $rows = [];
+
+        foreach (self::WEEKS as $week => [$from, $to]) {
+            $slice = collect(range($from, $to))->map(fn (int $day) => $checkins->get($day));
+            $daily = $slice->sum(fn ($checkin) => $checkin ? self::dayPoints($checkin) : 0);
+            $checkinCount = $slice->filter(fn ($checkin) => $checkin?->checked_in)->count();
+            $strength = $slice->filter(fn ($checkin) => $checkin?->strength)->count();
+            $skill = $slice->filter(fn ($checkin) => $checkin?->skill)->count();
+            $plus = (int) $slice->sum(fn ($checkin) => $checkin?->plus_count ?? 0);
+            $fromDate = self::dateForDay($from);
+            $toDate = self::dateForDay($to);
+            $achievementPoints = $user->achievements
+                ->filter(fn ($item) => $item->achieved_on->toDateString() >= $fromDate && $item->achieved_on->toDateString() <= $toDate)
+                ->sum(fn ($item) => self::ACHIEVEMENTS[$item->type][1] ?? 0);
+            $consistency = $checkinCount >= ($week === 1 ? 3 : 6) ? 10 : 0;
+            $goalsBonus = $skill >= ($week === 1 ? 2 : 3) && $strength >= ($week === 1 ? 2 : 4) ? 10 : 0;
+            $plusBonus = min(2, $plus) * 5;
+
+            $rows[] = [
+                'week' => $week,
+                'period' => Carbon::parse($fromDate)->format('d/m').' a '.Carbon::parse($toDate)->format('d/m'),
+                'checkins' => $checkinCount,
+                'daily' => $daily,
+                'strength' => $strength,
+                'skill' => $skill,
+                'plus' => $plus,
+                'plus_bonus' => $plusBonus,
+                'consistency' => $consistency,
+                'goals_bonus' => $goalsBonus,
+                'achievements' => $achievementPoints,
+                'total' => $daily + $plusBonus + $consistency + $goalsBonus + $achievementPoints,
+            ];
+        }
+
+        return $rows;
+    }
+}

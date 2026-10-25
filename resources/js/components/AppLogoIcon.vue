@@ -1,4 +1,5 @@
 ﻿<script setup lang="ts">
+import { images } from '@/data/images';
 import type { HTMLAttributes } from 'vue';
 
 defineOptions({
@@ -14,8 +15,8 @@ defineProps<Props>();
 
 <template>
     <img
-        src="/images/logo.webp"
-        alt="Desafio 45 Firme"
+        :src="images.logo"
+        alt="Desafio 45 Dias"
         :class="className"
         class="object-contain"
         v-bind="$attrs"

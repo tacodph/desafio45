@@ -1,4 +1,6 @@
-export const GOAL_KEYS = ['treino', 'alimentacao', 'oracao', 'habilidade', 'flexoes'] as const;
+import { images } from '@/data/images';
+
+export const GOAL_KEYS = ['treino', 'hidratacao', 'habilidade', 'corpo', 'plus'] as const;
 
 export type GoalKey = (typeof GOAL_KEYS)[number];
 
@@ -6,6 +8,7 @@ export type GoalDetail = {
     key: GoalKey;
     color: string;
     metric: string;
+    nav: string;
     title: string;
     desc: string;
     icon: string;
@@ -15,139 +18,141 @@ export type GoalDetail = {
     tips: string[];
 };
 
+export const CORPO_BLOCKS = [
+    { title: 'Bloco 1', when: '6/11 a 20/11', text: 'Dias 1 a 15. Teste inicial e definição da meta.' },
+    { title: 'Bloco 2', when: '21/11 a 5/12', text: 'Dias 16 a 30. Teste no dia 15 e ajuste da meta.' },
+    { title: 'Bloco 3', when: '6/12 a 20/12', text: 'Dias 31 a 45. Teste no dia 30 e teste final no dia 45.' },
+];
+
 export const GOAL_DETAILS: GoalDetail[] = [
     {
         key: 'treino',
-        color: '#E8432E',
+        color: '#E53935',
         metric: '45 min',
-        title: 'Treino e movimento',
-        desc: 'Qualquer modalidade. Pelo menos 2x por semana ao ar livre.',
-        icon: '/images/goals/treino.webp',
-        pillar: 'Corpo',
+        nav: 'Treino',
+        title: 'Movimento e treino',
+        desc: 'Diário. A referência é 45 minutos, ajustada ao seu nível.',
+        icon: images.treino,
+        pillar: 'Diário',
         rule: [
-            'Todo dia: pelo menos 45 minutos de treino ou movimento.',
-            'Vale academia, corrida, bike, futebol, natação, luta, yoga, caminhada forte — o que fizer você suar e se mexer de verdade.',
-            'Pelo menos 2 vezes por semana o treino precisa ser ao ar livre.',
-            'No check-in até 23h, manda a foto + o que fez no dia.',
+            'Manter o movimento todos os dias. A referência é 45 minutos de treino ou movimento.',
+            'A meta se ajusta ao nível declarado no dia 1: iniciante 20 a 30 min, intermediário 30 a 45 min, avançado 45 min ou mais.',
+            'Dá para subir de nível no dia 15 ou no dia 30.',
+            'No check-in até 23h, manda a foto do treino ou do rosto suado.',
         ],
         why: [
-            'O corpo responde a consistência, não a um treino perfeito uma vez por semana.',
-            'Sair de casa 2x por semana quebra a rotina fechada, melhora o humor e reforça o compromisso público com o desafio.',
-            '45 minutos é o tempo em que dá para treinar de verdade sem virar desculpa nem virar obsessão.',
+            'O treino cria rotina, dá confiança e mostra que você consegue.',
+            'O desafio premia consistência, não um treino perfeito isolado.',
+            'Qualquer modalidade vale: musculação, corrida, futebol, natação, yoga, dança.',
         ],
         tips: [
-            'Se o dia apertar, quebre em 2 blocos (ex.: 25 + 20). O que conta é completar os 45 minutos.',
-            'Deixe a roupa pronta na noite anterior. Menos decisão, mais ação.',
-            'Marque na agenda os 2 treinos ao ar livre da semana — domingo, se possível.',
-            'Caminhada vale se for firme: ritmo que eleve o coração, não um passeio no celular.',
+            'Treinar ao ar livre é recomendado: parque, praia ou rua.',
+            'Dá para dividir. 30 minutos de manhã e 15 à noite contam.',
+            'Dia ruim ainda conta: fez menos, avise o grupo e siga.',
+            'Deixe a roupa pronta na noite anterior.',
         ],
     },
     {
-        key: 'alimentacao',
-        color: '#5DB33A',
-        metric: '3L de água',
-        title: 'Alimentação e hidratação',
-        desc: 'Sem álcool, fast food e doce industrializado. 1 refeição luxo por semana.',
-        icon: '/images/goals/alimentacao.webp',
-        pillar: 'Corpo',
+        key: 'hidratacao',
+        color: '#1E88E5',
+        metric: 'Água + sono',
+        nav: 'Hidratação',
+        title: 'Hidratação e sono',
+        desc: 'Diário. Meta de água e pelo menos 7 horas de sono.',
+        icon: images.hidratacao,
+        pillar: 'Diário',
         rule: [
-            'Beba 3 litros de água por dia.',
-            'Fora da refeição luxo: sem fast food, sem doce industrializado e sem álcool.',
-            '1 refeição luxo por semana — só na sexta à noite, sábado ou domingo. Nessa refeição pode ser o que quiser.',
-            'Álcool só nos 3 eventos que você declarar no dia 1 do desafio. Fora isso, não entra.',
+            'Hidratação: meta individual de cerca de 35 ml por kg, ou a meta fixa de 2,5 a 3 litros.',
+            'Sono: pelo menos 7 horas, ou o horário combinado com tolerância de 30 minutos.',
+            'O dia fecha quando as duas metas são batidas. Na pontuação, cada metade vale 1 ponto.',
         ],
         why: [
-            'Hidratação muda energia, pele, treino e fome. 3 litros é a âncora diária mais simples do desafio.',
-            'Tirar fast food e doce industrializado corta o ciclo de pico e queda. A refeição luxo existe para o plano ser sustentável.',
-            'Limitar o álcool a 3 eventos declarados tira a negociação diária e coloca o prazer no lugar certo: celebração, não escape.',
+            'Água e sono sustentam o treino e o humor sem virar regra de comida.',
+            'A alimentação fica no cantinho da nutri: equilíbrio e praticidade, sem punição.',
         ],
         tips: [
-            'Encha 3 garrafas de 1L de manhã. Se as três acabaram, a meta de água está feita.',
-            'Doce caseiro de fruta não é o alvo. O que sai é o industrializado: refrigerante, chocolate de supermercado, bolacha, sorvete de paçoca de mercado.',
-            'Escolha o dia da refeição luxo no começo da semana. Assim o restante dos dias não vira “quase luxo”.',
-            'No dia 1, anote os 3 eventos com álcool. Se não anotou, não vale depois.',
-        ],
-    },
-    {
-        key: 'oracao',
-        color: '#2E8FE0',
-        metric: '10 + 30 min',
-        title: 'Fé e família',
-        desc: 'Oração diária, missa ou culto semanal e família sem celular.',
-        icon: '/images/goals/oracao.webp',
-        pillar: 'Fé',
-        rule: [
-            '10 minutos de oração todo dia — de manhã, à noite ou no intervalo que você conseguir proteger.',
-            'Missa ou culto 1 vez por semana.',
-            '30 minutos por dia de presença com a família, sem celular. Vale conversa, jantar, brincadeira, caminhada junto.',
-            'Quem mora sozinho: 30 minutos de ligação, vídeo ou encontro com alguém da família (ou o vínculo mais próximo que você tem).',
-        ],
-        why: [
-            'O desafio não é só corpo. Fé e vínculo são o que segura a disciplina quando a motivação cai.',
-            'Dez minutos diários criam o hábito. A missa ou o culto semanal tira a fé do automático.',
-            'Família sem celular é treino de presença. É o oposto do scroll — e é o que a gente quer lembrar no verão.',
-        ],
-        tips: [
-            'Deixe o celular em outro cômodo nos 30 minutos. Se estiver na mesa, a regra quebrou.',
-            'Use um alarme fixo para os 10 minutos de oração. Hábito pega no horário, não na vontade.',
-            'Se perder a missa/culto do domingo, reponha na semana. Não acumule para “o mês que vem”.',
-            'Avise em casa: “são 30 minutos nossos, sem tela”. O combinado evita briga e vira ritual.',
+            'Garrafa à vista, um copo a cada refeição e água ao acordar.',
+            'Um copo de 250 ml: 3 litros são 12 copos.',
+            'Telas desligadas antes de deitar, quarto escuro e cafeína só até o meio da tarde.',
         ],
     },
     {
         key: 'habilidade',
-        color: '#9B4FD0',
-        metric: '15 min',
+        color: '#8E24AA',
+        metric: '3x / sem',
+        nav: 'Habilidade',
         title: 'Habilidade nova',
-        desc: 'Escolha no dia 1, pratique todo dia, mostre no dia 45.',
-        icon: '/images/goals/habilidade.webp',
-        pillar: 'Conhecimento',
+        desc: 'Autonomia na rotina. Uma habilidade, pelo menos 3 vezes por semana.',
+        icon: images.habilidade,
+        pillar: '3x por semana',
         rule: [
-            'No dia 1, escolha UMA habilidade nova. Não troca no meio do caminho.',
-            'Pratique pelo menos 15 minutos todos os dias.',
-            'No dia 45, mostre o resultado: vídeo, foto, áudio, texto — alguma prova de que você avançou.',
-            'Tem que ser nova de verdade: algo que você ainda não pratica no piloto automático.',
+            'No dia 1, escolha uma habilidade concreta. Exemplo: aprender 5 pratos saudáveis ou preparar as marmitas da semana.',
+            'Pratique pelo menos 3 vezes por semana.',
+            'Mostre a evolução no grupo no dia 45.',
         ],
         why: [
-            'Quinze minutos por dia, 45 dias, são cerca de 11 horas de foco. Dá para sair do zero e ter o que mostrar.',
-            'Uma só habilidade evita a armadilha de começar cinco coisas e não terminar nenhuma.',
-            'Mostrar no dia 45 cria accountability. Não é para impressionar: é para não mentir para você mesmo.',
+            'O objetivo é resolver situações reais: cozinhar, pedir algo equilibrado, organizar a semana.',
+            'Uma habilidade só evita começar cinco coisas e não terminar nenhuma.',
         ],
         tips: [
-            'Exemplos que funcionam: violão, inglês, programação, desenho, xadrez, fotografia, um livro difícil, culinária de verdade.',
-            'Prepare o material na noite anterior (caderno, app, instrumento). Se tiver que “achar”, você pula o dia.',
-            'Grave um take rápido toda semana. No dia 45 você compara o dia 1 com o agora — e se surpreende.',
-            'Se travar, baixe a régua: 15 minutos ruins ainda contam. 0 minutos não conta.',
+            'Defina bem: não “aprender a cozinhar”, mas “um prato novo por semana”.',
+            'Falar a escolha para o grupo gera compromisso.',
+            'Registre foto ou vídeo na primeira semana e nos dias 15, 30 e 45.',
         ],
     },
     {
-        key: 'flexoes',
-        color: '#23B8C4',
-        metric: '30 → 100',
-        title: 'Flexões progressivas',
-        desc: 'A meta sobe a cada 8 dias. 2.900 no total.',
-        icon: '/images/goals/flexoes.webp',
-        pillar: 'Corpo',
+        key: 'corpo',
+        color: '#43A047',
+        metric: '4x / sem',
+        nav: 'Corpo',
+        title: 'Corpo forte',
+        desc: 'Sua meta física, no seu nível, pelo menos 4 vezes por semana.',
+        icon: images.corpo,
+        pillar: '4x por semana',
         rule: [
-            'A meta diária sobe a cada 8 dias: 30, 45, 60, 75, 90 e 100 flexões (os 5 últimos dias são de 100).',
-            'Pode dividir em séries ao longo do dia. O que conta é o total do dia.',
-            'Do dia 1 ao 45, o acumulado é de 2.900 flexões.',
-            'No check-in, registra que cumpriu a meta do dia.',
+            'Cada pessoa escolhe uma meta mensurável: flexão, barra, prancha ou outra progressão combinada.',
+            'Treine essa meta pelo menos 4 vezes por semana.',
+            'O desafio tem 3 blocos de 15 dias, com teste no dia 1, 15, 30 e 45.',
+            'Dor diferente de cansaço é sinal para parar. Machucado descansa e avisa o grupo.',
         ],
         why: [
-            'Começar com 30 é acessível. Terminar com 100 prova que o corpo mudou — e a cabeça também.',
-            'A progressão de 8 em 8 dias evita lesão de ego (querer 100 no dia 1) e evita acomodação.',
-            'É o objetivo mais visível do grupo: todo mundo entende o número. Por isso funciona tão bem no Gymrats.',
+            'A meta é evoluir com segurança, não obrigar todo mundo à mesma flexão.',
+            'O teste a cada bloco mostra progresso e permite ajustar a carga.',
         ],
         tips: [
-            'Joelho no chão no começo vale se a forma estiver certa. Melhor 30 bem feitas do que 10 caindo.',
-            'Espalhe: 3 séries de manhã, 2 à tarde, o resto à noite. O dia inteiro é o ringue.',
-            'Em grupo, criem o grupo no Gymrats para acompanhar a evolução juntos.',
-            'Use o slider nesta página para ver a meta exata de cada dia antes de começar.',
+            'Flexão com joelhos pode ir para a tradicional: 3x8, depois 3x12, depois 3x5 tradicionais.',
+            'Flexão tradicional: 30, 50 e 70 por dia ao longo dos blocos.',
+            'Primeira barra: negativas, mais negativas, depois 1 barra completa.',
+            'Prancha: 3x30 s, 3x45 s, 3x60 s.',
+        ],
+    },
+    {
+        key: 'plus',
+        color: '#F5B800',
+        metric: '1x / sem',
+        nav: 'Plus',
+        title: 'Objetivo Plus',
+        desc: 'A qualquer momento. Pelo menos um por semana, com pontos extras.',
+        icon: images.plus,
+        pillar: 'A qualquer momento',
+        rule: [
+            'Pequenas experiências com comida, família e uma rotina mais prazerosa.',
+            'A meta é pelo menos 1 por semana. Até 2 por semana rendem +5 pontos cada.',
+            'Não é obrigatório para fechar o dia, mas conta no ranking.',
+        ],
+        why: [
+            'O desafio continua divertido sem transformar comida e exercício em punição.',
+            'Sentar à mesa, experimentar algo novo ou preparar um café com calma também é consistência.',
+        ],
+        tips: [
+            'Preparar uma receita com a família.',
+            'Sentar à mesa sem pressa.',
+            'Experimentar um alimento novo.',
+            'Preparar um café da manhã com calma.',
         ],
     },
 ];
 
-export function findGoal(key: string): GoalDetail | undefined {
+export function goalDetail(key: string): GoalDetail | undefined {
     return GOAL_DETAILS.find((goal) => goal.key === key);
 }
