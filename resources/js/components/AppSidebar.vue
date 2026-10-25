@@ -38,7 +38,7 @@ const mainNavItems = computed<NavItem[]>(() => {
         return [
             { title: 'Painel', href: '/dashboard', icon: LayoutGrid },
             { title: 'Evolução', href: '/atleta/evolucao', icon: ClipboardCheck },
-            { title: 'Alimentação', href: '/objetivos/alimentacao', icon: Salad },
+            { title: 'Alimentação', href: '/objetivos/alimentacao', icon: Salad, children: [{ title: 'Lista de compras', href: '/objetivos/alimentacao/compras' }] },
             { title: 'Treino', href: '/objetivos/treino', icon: Dumbbell },
             { title: 'Hidratação', href: '/objetivos/hidratacao', icon: Droplets },
             { title: 'Habilidade', href: '/objetivos/habilidade', icon: Lightbulb },

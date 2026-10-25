@@ -221,4 +221,48 @@ class AthleteProgressTest extends TestCase
         $this->actingAs($athlete)->get('/dashboard')->assertOk();
         $this->actingAs($athlete)->get('/atleta/boas-vindas')->assertRedirect('/dashboard');
     }
+
+    public function test_an_athlete_saves_a_shopping_list_for_one_week(): void
+    {
+        $athlete = User::factory()->create();
+
+        $this->get('/objetivos/alimentacao/compras')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->where('canSave', false)->where('lists', []));
+
+        $this->actingAs($athlete)
+            ->put('/objetivos/alimentacao/compras', [
+                'week' => 2,
+                'items' => ['Patinho', 'Ovos de galinha'],
+                'extras' => ['Queijo da fazenda'],
+            ])
+            ->assertRedirect('/objetivos/alimentacao/compras');
+
+        $this->actingAs($athlete)
+            ->get('/objetivos/alimentacao/compras')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('canSave', true)
+                ->where('lists.0.week', 2)
+                ->where('lists.0.period', '09/11 a 15/11')
+                ->where('lists.0.items', ['Patinho', 'Ovos de galinha'])
+                ->where('lists.0.extras', ['Queijo da fazenda']));
+
+        $this->actingAs($athlete)
+            ->put('/objetivos/alimentacao/compras', [
+                'week' => 2,
+                'items' => [],
+                'extras' => [],
+            ])
+            ->assertRedirect('/objetivos/alimentacao/compras');
+
+        $this->assertNull($athlete->fresh()->athleteProfile->shopping_lists);
+
+        $this->actingAs(User::factory()->ofRole(UserRole::Coach)->create())
+            ->put('/objetivos/alimentacao/compras', [
+                'week' => 1,
+                'items' => ['Patinho'],
+            ])
+            ->assertForbidden();
+    }
 }

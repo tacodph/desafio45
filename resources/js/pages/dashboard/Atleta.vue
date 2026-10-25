@@ -69,6 +69,22 @@ const saveSkills = () => skills.put(route('athlete.skills.update'));
                 </div>
             </div>
 
+            <section class="flex flex-col gap-3">
+                <div>
+                    <div class="eyebrow">Alimentação</div>
+                    <h2 class="font-display m-0 text-3xl font-extrabold uppercase">Cantinho da nutri</h2>
+                    <p class="m-0 mt-2 max-w-2xl text-sm text-brand-muted">Praticidade e equilíbrio, sem terrorismo.</p>
+                </div>
+                <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    <Link :href="route('alimentacao.compras')" class="surface-card p-5">
+                        <h3 class="font-display m-0 text-xl font-extrabold uppercase leading-tight">Listas de compras</h3>
+                    </Link>
+                    <div v-for="item in ['Cardápios da semana', 'Kit da vida real', 'Comer sem tudo ou nada']" :key="item" class="surface-card p-5">
+                        <h3 class="font-display m-0 text-xl font-extrabold uppercase leading-tight">{{ item }}</h3>
+                    </div>
+                </div>
+            </section>
+
             <div v-if="baseline.photo || baseline.weight || baseline.waist || baseline.abdomen || baseline.hip" class="surface-card flex flex-wrap items-center gap-5 p-5">
                 <img v-if="baseline.photo" :src="baseline.photo" alt="Foto do dia 1" class="h-28 w-24 rounded-xl object-cover" />
                 <div>

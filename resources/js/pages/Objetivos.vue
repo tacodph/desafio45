@@ -105,6 +105,15 @@ watch(
             class="scroll-mt-24 border-t border-brand-line"
             :class="index % 2 ? 'bg-brand-strip' : 'bg-brand-ink'"
         >
+            <div v-if="item.key === 'alimentacao'" class="mx-auto flex max-w-[1200px] flex-wrap gap-2 px-6 pt-8">
+                <span class="rounded-full bg-[#43A047] px-4 py-2 text-sm font-bold text-white">A regra</span>
+                <Link
+                    :href="route('alimentacao.compras')"
+                    class="rounded-full border border-brand-line3 px-4 py-2 text-sm font-bold text-brand-cream hover:border-brand-cream"
+                >
+                    Lista de compras
+                </Link>
+            </div>
             <div class="mx-auto grid max-w-[1200px] items-start gap-10 px-6 py-[clamp(56px,8vw,96px)] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
                 <div class="flex flex-col gap-5">
                     <img :src="item.icon" alt="" class="size-[88px]" />

@@ -11,6 +11,7 @@ use App\Models\UserType;
 use App\Support\ChallengeSheet;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -244,6 +245,81 @@ class AthleteProgressController extends Controller
                 ->orderBy('name')
                 ->value('name'),
         ]);
+    }
+
+    public function shopping(Request $request): Response
+    {
+        $weeks = collect(ChallengeSheet::WEEKS)->map(function (array $range, int $week) {
+            [$from, $to] = $range;
+
+            return [
+                'week' => $week,
+                'period' => Carbon::parse(ChallengeSheet::dateForDay($from))->format('d/m').' a '.Carbon::parse(ChallengeSheet::dateForDay($to))->format('d/m'),
+            ];
+        })->values();
+
+        $saved = [];
+        $user = $request->user();
+        $canSave = $user && UserRole::tryFrom($user->userType->name) === UserRole::Atleta;
+
+        if ($canSave) {
+            $saved = $user->athleteProfile?->shopping_lists ?? [];
+        }
+
+        $lists = $weeks->map(function (array $week) use ($saved) {
+            $row = $saved[(string) $week['week']] ?? null;
+
+            if (! is_array($row) || (($row['items'] ?? []) === [] && ($row['extras'] ?? []) === [])) {
+                return null;
+            }
+
+            return [
+                'week' => $week['week'],
+                'period' => $week['period'],
+                'items' => array_values($row['items']),
+                'extras' => array_values($row['extras'] ?? []),
+            ];
+        })->filter()->values();
+
+        return Inertia::render('Compras', [
+            'weeks' => $weeks,
+            'lists' => $lists,
+            'canSave' => $canSave,
+        ]);
+    }
+
+    public function updateShopping(Request $request): RedirectResponse
+    {
+        $this->abortUnlessAthlete($request);
+
+        $data = $request->validate([
+            'week' => 'required|integer|between:1,7',
+            'items' => 'array|max:300',
+            'items.*' => 'string|max:120',
+            'extras' => 'array|max:30',
+            'extras.*' => 'nullable|string|max:120',
+        ]);
+
+        $items = array_values(array_unique(array_filter($data['items'] ?? [])));
+        $extras = array_values(array_filter(array_map(
+            fn ($item) => is_string($item) ? trim($item) : '',
+            $data['extras'] ?? [],
+        )));
+
+        $profile = AthleteProfile::query()->firstOrNew(['user_id' => $request->user()->id]);
+        $lists = $profile->shopping_lists ?? [];
+        $key = (string) $data['week'];
+
+        if ($items === [] && $extras === []) {
+            unset($lists[$key]);
+        } else {
+            $lists[$key] = ['items' => $items, 'extras' => $extras];
+        }
+
+        $profile->shopping_lists = $lists === [] ? null : $lists;
+        $profile->save();
+
+        return to_route('alimentacao.compras');
     }
 
     private function abortUnlessAthlete(Request $request): void

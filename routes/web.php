@@ -20,6 +20,8 @@ Route::redirect('objetivos/oracao', '/objetivos/plus');
 Route::redirect('objetivos/corpo', '/objetivos/alimentacao');
 Route::redirect('objetivos/flexoes', '/objetivos/alimentacao');
 
+Route::get('objetivos/alimentacao/compras', [AthleteProgressController::class, 'shopping'])->name('alimentacao.compras');
+
 Route::get('objetivos/{goal}', function (string $goal) {
     $keys = ['alimentacao', 'treino', 'hidratacao', 'habilidade', 'plus'];
 
@@ -44,6 +46,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('atleta/evolucao', [AthleteProgressController::class, 'show'])->name('athlete.progress');
     Route::put('atleta/metas', [AthleteProgressController::class, 'updateGoals'])->name('athlete.goals.update');
     Route::put('atleta/habilidades', [AthleteProgressController::class, 'updateSkills'])->name('athlete.skills.update');
+    Route::put('objetivos/alimentacao/compras', [AthleteProgressController::class, 'updateShopping'])->name('alimentacao.compras.update');
     Route::put('atleta/dias', [AthleteProgressController::class, 'updateDays'])->name('athlete.days.update');
     Route::post('atleta/conquistas', [AthleteProgressController::class, 'storeAchievement'])->name('athlete.achievements.store');
     Route::put('atleta/conquistas/{achievement}', [AthleteProgressController::class, 'updateAchievement'])->name('athlete.achievements.update');
