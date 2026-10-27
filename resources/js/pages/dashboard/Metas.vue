@@ -78,14 +78,6 @@ const save = () => metas.put(route('athlete.goals.update'));
                         <Label for="sleep_goal">Meta de sono</Label>
                         <Input id="sleep_goal" v-model="metas.sleep_goal" placeholder="7h por noite ou deitar às 23h" />
                     </div>
-                    <div class="grid gap-2">
-                        <Label for="skill">Habilidade nova</Label>
-                        <Input id="skill" v-model="metas.skill" placeholder="Ex.: cozinhar 5 pratos saudáveis" />
-                    </div>
-                    <div class="grid gap-2">
-                        <Label for="strength_goal">3 eventos com álcool</Label>
-                        <Input id="strength_goal" v-model="metas.strength_goal" placeholder="Ex.: casamento, aniversário, confraternização" />
-                    </div>
                     <p class="text-sm text-brand-muted">Sem fast food e doce, exceto na refeição luxo. Uma refeição luxo e uma Plus por semana. A luxo é uma refeição inteira. A Plus é um alimento cultural, como bolo, pão de queijo ou pipoca.</p>
                     <label class="flex items-center gap-3 text-sm">
                         <input v-model="metas.penalty" type="checkbox" class="size-4 accent-brand-gold" />

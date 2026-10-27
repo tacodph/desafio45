@@ -20,6 +20,8 @@ class Checkin extends Model
         'notes',
         'details',
         'workout_photo',
+        'meal_photo',
+        'meal_comment',
     ];
 
     protected function casts(): array

@@ -1,12 +1,9 @@
 <script setup lang="ts">
-import InputError from '@/components/InputError.vue';
-import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { GOALS, useChallenge } from '@/composables/useChallenge';
 import { images } from '@/data/images';
-import { SKILL_IDEAS } from '@/data/skillIdeas';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -17,20 +14,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const props = defineProps<{
     total: number;
-    skillWeeks: { week: number; period: string; picks: string[] }[];
     baseline: { weight: string | null; waist: string | null; abdomen: string | null; hip: string | null; photo: string | null };
 }>();
 
 const { countdown, milestones } = useChallenge();
-
-const skills = useForm({
-    weeks: props.skillWeeks.map((week) => [...week.picks]),
-});
-
-const taken = (weekIndex: number, slot: number, idea: string) =>
-    skills.weeks[weekIndex].some((pick, index) => index !== slot && pick === idea);
-
-const saveSkills = () => skills.put(route('athlete.skills.update'));
 </script>
 
 <template>
@@ -132,37 +119,6 @@ const saveSkills = () => skills.put(route('athlete.skills.update'));
                     <img :src="images.logo" alt="Desafio 45 Dias" class="max-h-28 object-contain md:max-h-40" />
                 </div>
             </div>
-
-            <form class="flex flex-col gap-4" @submit.prevent="saveSkills">
-                <div>
-                    <div class="eyebrow">Habilidade nova</div>
-                    <h2 class="font-display m-0 text-3xl font-extrabold uppercase">3 por semana</h2>
-                    <p class="m-0 mt-2 max-w-2xl text-sm text-brand-muted">Escolha 3 ideias para cada semana. Elas podem mudar de uma semana para a outra.</p>
-                </div>
-                <div class="grid gap-4 lg:grid-cols-2">
-                    <article v-for="(week, weekIndex) in skillWeeks" :key="week.week" class="surface-card grid min-w-0 gap-3 p-4 sm:p-5">
-                        <div class="flex items-baseline justify-between gap-3">
-                            <span class="font-display text-xl font-extrabold uppercase">Semana {{ week.week }}</span>
-                            <span class="text-sm text-brand-muted">{{ week.period }}</span>
-                        </div>
-                        <select
-                            v-for="slot in 3"
-                            :key="slot"
-                            v-model="skills.weeks[weekIndex][slot - 1]"
-                            class="h-11 w-full min-w-0 rounded-xl border border-brand-line2 bg-brand-card2 px-3 text-sm text-brand-cream [color-scheme:dark]"
-                        >
-                            <option value="">Escolher</option>
-                            <optgroup v-for="group in SKILL_IDEAS" :key="group.title" :label="group.title">
-                                <option v-for="idea in group.items" :key="idea" :value="idea" :disabled="taken(weekIndex, slot - 1, idea)">
-                                    {{ idea }}
-                                </option>
-                            </optgroup>
-                        </select>
-                    </article>
-                </div>
-                <InputError :message="skills.errors.weeks" />
-                <Button type="submit" class="w-fit" :disabled="skills.processing">Salvar habilidades</Button>
-            </form>
 
             <Link :href="route('athlete.progress.tab', 'dias')" class="surface-card flex flex-wrap items-center justify-between gap-3 p-5 sm:gap-4 sm:p-6">
                 <div>

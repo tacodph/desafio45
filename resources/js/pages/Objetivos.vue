@@ -8,6 +8,7 @@ import { computed, ref } from 'vue';
 
 const props = defineProps<{
     goal: GoalKey;
+    skillCatalog?: { title: string; items: string[] }[];
 }>();
 
 const menuOpen = ref(false);
@@ -106,7 +107,7 @@ const next = computed(() => GOAL_DETAILS[(index.value + 1) % GOAL_DETAILS.length
                 </Link>
             </div>
             <div class="mx-auto max-w-[1200px] px-6 py-[clamp(56px,8vw,96px)]">
-                <GoalContent :item="item" />
+                <GoalContent :item="item" :skill-catalog="skillCatalog" />
             </div>
 
             <div class="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-3 px-6 pb-[clamp(40px,6vw,72px)]">

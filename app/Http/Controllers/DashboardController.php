@@ -9,7 +9,6 @@ use App\Models\User;
 use App\Models\UserType;
 use App\Support\ChallengeSheet;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
@@ -38,22 +37,11 @@ class DashboardController extends Controller
             if (! $user->athleteProfile->goals_set_at) {
                 return to_route('athlete.start.goals');
             }
-            $saved = $user->athleteProfile?->weekly_skills ?? [];
-            $skillWeeks = [];
-
-            foreach (ChallengeSheet::WEEKS as $week => [$from, $to]) {
-                $skillWeeks[] = [
-                    'week' => $week,
-                    'period' => Carbon::parse(ChallengeSheet::dateForDay($from))->format('d/m').' a '.Carbon::parse(ChallengeSheet::dateForDay($to))->format('d/m'),
-                    'picks' => array_pad(array_slice($saved[$week - 1] ?? [], 0, 3), 3, ''),
-                ];
-            }
 
             $profile = $user->athleteProfile;
 
             return Inertia::render('dashboard/Atleta', [
                 'total' => collect(ChallengeSheet::weeks($user))->sum('total'),
-                'skillWeeks' => $skillWeeks,
                 'baseline' => [
                     'weight' => $profile->weight,
                     'waist' => $profile->waist,

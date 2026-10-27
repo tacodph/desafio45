@@ -21,6 +21,24 @@ class DashboardTest extends TestCase
         $this->get('/admin/usuarios/novo')->assertRedirect('/login');
         $this->get('/equipe/atletas')->assertRedirect('/login');
         $this->get('/atleta/evolucao/dias')->assertRedirect('/login');
+        $this->get('/pontuacao')->assertRedirect('/login');
+        $this->get('/atleta/ponto-de-partida/como-tirar-medidas')->assertRedirect('/login');
+    }
+
+    public function test_a_logged_in_user_can_open_the_scoring_page(): void
+    {
+        $this->actingAs(User::factory()->create())
+            ->get('/pontuacao')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->component('Pontuacao'));
+    }
+
+    public function test_a_logged_in_user_can_open_the_measures_guide(): void
+    {
+        $this->actingAs(User::factory()->create())
+            ->get('/atleta/ponto-de-partida/como-tirar-medidas')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->component('dashboard/ComoTirarMedidas'));
     }
 
     public function test_each_role_sees_its_own_dashboard(): void

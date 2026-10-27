@@ -5,7 +5,7 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavGroupItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { Apple, ClipboardCheck, Droplets, Dumbbell, Flag, Flame, LayoutGrid, Lightbulb, Salad, Settings, Star, Users } from 'lucide-vue-next';
+import { Apple, ClipboardCheck, Droplets, Dumbbell, Flag, Flame, LayoutGrid, Lightbulb, Salad, Settings, Star, Trophy, Users } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
@@ -33,6 +33,7 @@ const mainNavItems = computed<NavGroupItem[]>(() => {
             { title: 'Usuários', href: '/admin/usuarios', icon: Users },
             { title: 'Alimentos', href: '/admin/alimentos', icon: Apple },
             { title: 'Objetivos', href: '/meus-objetivos/alimentacao', icon: Salad },
+            { title: 'Pontuação', href: '/pontuacao', icon: Trophy },
             { title: 'Configurações', href: '/settings/profile', icon: Settings },
         ];
     }
@@ -55,9 +56,10 @@ const mainNavItems = computed<NavGroupItem[]>(() => {
                     { title: 'Dias', href: '/atleta/evolucao/dias' },
                     { title: 'Conquistas', href: '/atleta/evolucao/conquistas' },
                     { title: 'Resumo', href: '/atleta/evolucao/resumo' },
+                    { title: 'Pontuação', href: '/pontuacao' },
                 ],
             },
-            { title: 'Alimentação', icon: Salad, children: [objective('alimentacao'), { title: 'Lista de compras', href: '/objetivos/alimentacao/compras' }] },
+            { title: 'Alimentação', icon: Salad, children: [objective('alimentacao'), { title: 'Monte seu Cardápio', href: '/objetivos/alimentacao/compras' }] },
             { title: 'Treino', icon: Dumbbell, children: [objective('treino')] },
             { title: 'Hidratação', icon: Droplets, children: [objective('hidratacao')] },
             { title: 'Habilidade', icon: Lightbulb, children: [objective('habilidade')] },
@@ -69,6 +71,7 @@ const mainNavItems = computed<NavGroupItem[]>(() => {
         { title: 'Painel', href: '/dashboard', icon: LayoutGrid },
         { title: 'Atletas', href: '/equipe/atletas', icon: Users },
         { title: 'Objetivos', href: '/meus-objetivos/alimentacao', icon: Salad },
+        { title: 'Pontuação', href: '/pontuacao', icon: Trophy },
     ];
 });
 

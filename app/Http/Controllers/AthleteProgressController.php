@@ -131,7 +131,7 @@ class AthleteProgressController extends Controller
 
         $profile->fill([...$data, 'goals_set_at' => $profile->goals_set_at ?? now()])->save();
 
-        return $firstTime ? to_route('dashboard') : to_route('athlete.start.goals');
+        return $firstTime ? to_route('athlete.progress.tab', 'dias') : to_route('athlete.start.goals');
     }
 
     public function updateSkills(Request $request): RedirectResponse
@@ -143,29 +143,18 @@ class AthleteProgressController extends Controller
         }
 
         $data = $request->validate([
-            'weeks' => 'required|array|size:7',
-            'weeks.*' => 'array|max:3',
-            'weeks.*.*' => 'nullable|string|max:180',
+            'week' => 'required|integer|between:1,7',
+            'picks' => 'required|array|size:3',
+            'picks.*' => 'required|string|max:180|distinct',
         ]);
 
-        $weeks = collect($data['weeks'])->map(function (array $picks) {
-            $chosen = array_values(array_filter($picks, fn ($item) => is_string($item) && $item !== ''));
+        $profile = AthleteProfile::query()->firstOrNew(['user_id' => $request->user()->id]);
+        $weeks = array_replace(array_fill(0, 7, []), array_values($profile->weekly_skills ?? []));
+        $weeks[$data['week'] - 1] = array_values($data['picks']);
 
-            if (count($chosen) !== count(array_unique($chosen))) {
-                throw ValidationException::withMessages([
-                    'weeks' => 'Na mesma semana, escolha habilidades diferentes.',
-                ]);
-            }
+        $profile->fill(['weekly_skills' => array_values($weeks)])->save();
 
-            return $chosen;
-        })->all();
-
-        AthleteProfile::query()->updateOrCreate(
-            ['user_id' => $request->user()->id],
-            ['weekly_skills' => $weeks],
-        );
-
-        return to_route('dashboard');
+        return to_route('athlete.progress.tab', 'dias');
     }
 
     public function updateDays(Request $request): RedirectResponse
@@ -189,7 +178,7 @@ class AthleteProgressController extends Controller
             'days.*.notes' => 'nullable|array',
             'days.*.notes.*' => 'nullable|string|max:255',
             'days.*.details' => 'nullable|array',
-            'days.*.details.workouts' => 'nullable|array|max:6',
+            'days.*.details.workouts' => 'required_with:days.*.details|array|min:1|max:6',
             'days.*.details.workouts.*.type' => 'required|string|max:40',
             'days.*.details.workouts.*.minutes' => 'nullable|integer|min:0|max:600',
             'days.*.details.water_ml' => 'nullable|integer|min:0|max:10000',
@@ -216,7 +205,7 @@ class AthleteProgressController extends Controller
             Checkin::query()->updateOrCreate(
                 ['user_id' => $request->user()->id, 'day' => $day['day']],
                 [
-                    'checked_in' => $day['checked_in'] ?? false,
+                    'checked_in' => true,
                     ...$achieved,
                     'details' => $details,
                     'plus_count' => $day['plus_count'] ?? 0,
@@ -270,6 +259,61 @@ class AthleteProgressController extends Controller
             Storage::disk('public')->delete($checkin->workout_photo);
             $checkin->update(['workout_photo' => null]);
         }
+
+        return back();
+    }
+
+    public function storeMealPhoto(Request $request, int $day): RedirectResponse
+    {
+        $this->abortUnlessAthlete($request);
+
+        if ($pending = $this->pendingStart($request)) {
+            return $pending;
+        }
+
+        abort_unless($day >= 1 && $day <= 45, 404);
+
+        $data = $request->validate(['photo' => 'required|image|max:5120']);
+        $checkin = Checkin::query()->firstOrNew(['user_id' => $request->user()->id, 'day' => $day]);
+
+        if ($checkin->meal_photo) {
+            Storage::disk('public')->delete($checkin->meal_photo);
+        }
+
+        $checkin->meal_photo = $data['photo']->store('meals', 'public');
+        $checkin->save();
+
+        return back();
+    }
+
+    public function destroyMealPhoto(Request $request, int $day): RedirectResponse
+    {
+        $this->abortUnlessAthlete($request);
+
+        if ($pending = $this->pendingStart($request)) {
+            return $pending;
+        }
+
+        $checkin = Checkin::query()->where(['user_id' => $request->user()->id, 'day' => $day])->first();
+
+        if ($checkin?->meal_photo) {
+            Storage::disk('public')->delete($checkin->meal_photo);
+            $checkin->update(['meal_photo' => null]);
+        }
+
+        return back();
+    }
+
+    public function commentMeal(Request $request, User $athlete, int $day): RedirectResponse
+    {
+        abort_unless(UserRole::from($request->user()->userType->name) === UserRole::Nutricionista, 403);
+        abort_unless($athlete->userType->name === UserRole::Atleta->value, 404);
+        abort_unless($day >= 1 && $day <= 45, 404);
+
+        $data = $request->validate(['comment' => 'required|string|max:500']);
+        $checkin = Checkin::query()->firstOrNew(['user_id' => $athlete->id, 'day' => $day]);
+        $checkin->meal_comment = $data['comment'];
+        $checkin->save();
 
         return back();
     }
@@ -349,6 +393,7 @@ class AthleteProgressController extends Controller
             'tab' => $tab,
             'canEdit' => $canEdit,
             'canComment' => $canComment,
+            'athleteId' => $canComment ? $athlete->id : null,
             'athleteName' => $canComment ? $athlete->name : null,
             'nutritionistName' => User::query()
                 ->where('user_type_id', UserType::idFor(UserRole::Nutricionista))

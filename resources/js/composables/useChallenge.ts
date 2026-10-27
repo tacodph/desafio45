@@ -22,10 +22,9 @@ export const DAILY_POINTS = [
 ];
 
 export const BONUS_POINTS = [
-    { t: 'Objetivo Plus, até 2 por semana', p: '+5' },
-    { t: 'Semana consistente, 6 de 7 dias', p: '+10' },
-    { t: 'Habilidade 3x e alimentação em 6 de 7 dias', p: '+10' },
-    { t: 'Habilidade nova mostrada no dia 45', p: '+15' },
+    { t: 'Semana consistente, 6 de 7 dias (3 na semana 1)', p: '+10' },
+    { t: 'Motivar um amigo desanimado', p: '+5' },
+    { t: 'Primeira vez acertando algo novo', p: '+5' },
 ];
 
 const MILES = [

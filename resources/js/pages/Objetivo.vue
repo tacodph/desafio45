@@ -8,6 +8,7 @@ import { computed } from 'vue';
 
 const props = defineProps<{
     goal: GoalKey;
+    skillCatalog?: { title: string; items: string[] }[];
 }>();
 
 const item = computed(() => GOAL_DETAILS.find((detail) => detail.key === props.goal) ?? GOAL_DETAILS[0]);
@@ -23,7 +24,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-1 flex-col gap-6 p-4 md:p-6">
-            <GoalContent :item="item" />
+            <GoalContent :item="item" :skill-catalog="skillCatalog" />
         </div>
     </AppLayout>
 </template>

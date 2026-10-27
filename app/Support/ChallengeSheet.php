@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Checkin;
+use App\Models\Skill;
 use App\Models\User;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
@@ -114,7 +115,8 @@ class ChallengeSheet
 
     public static function payload(User $user): array
     {
-        $user->loadMissing(['athleteProfile', 'checkins', 'achievements']);
+        $user->loadMissing(['athleteProfile', 'achievements']);
+        $user->load('checkins');
         $checkins = $user->checkins->keyBy('day');
         $weekdays = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
         $days = [];
@@ -137,6 +139,8 @@ class ChallengeSheet
                 'details' => self::detailsFor($checkin),
                 'saved' => self::hasEntry($checkin),
                 'workout_photo' => $checkin?->workout_photo ? '/storage/'.$checkin->workout_photo : null,
+                'meal_photo' => $checkin?->meal_photo ? '/storage/'.$checkin->meal_photo : null,
+                'meal_comment' => $checkin?->meal_comment ?? '',
                 'notes' => array_merge([
                     'movement' => '',
                     'water' => '',
@@ -171,6 +175,7 @@ class ChallengeSheet
                 fn ($picks) => array_values(array_filter((array) $picks)),
                 $profile?->weekly_skills ?? [],
             )),
+            'skillCatalog' => Skill::catalog(),
             'profile' => [
                 'movement_level' => $profile?->movement_level ?? '',
                 'movement_minutes' => $profile?->movement_minutes ?? '',

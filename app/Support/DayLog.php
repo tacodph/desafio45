@@ -61,10 +61,10 @@ class DayLog
         $details ??= [];
 
         $workouts = collect($details['workouts'] ?? [])
-            ->filter(fn ($item) => is_array($item) && (int) ($item['minutes'] ?? 0) > 0)
+            ->filter(fn ($item) => is_array($item) && filled($item['type'] ?? null))
             ->map(fn (array $item) => [
                 'type' => in_array($item['type'] ?? null, self::WORKOUT_TYPES, true) ? $item['type'] : 'Outro',
-                'minutes' => min(600, (int) $item['minutes']),
+                'minutes' => min(600, (int) ($item['minutes'] ?? 0)),
             ])
             ->values()
             ->all();

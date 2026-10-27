@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AthleteProgressController;
 use App\Http\Controllers\DashboardController;
+use App\Models\Skill;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -31,15 +32,17 @@ Route::get('objetivos/{goal}', function (string $goal) {
 
     return Inertia::render('Objetivos', [
         'goal' => $goal,
+        'skillCatalog' => Skill::catalog(),
     ]);
 })->name('objetivos.show');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
+    Route::get('pontuacao', fn () => Inertia::render('Pontuacao'))->name('pontuacao');
     Route::get('meus-objetivos/{goal}', function (string $goal) {
         abort_unless(in_array($goal, ['alimentacao', 'treino', 'hidratacao', 'habilidade', 'plus'], true), 404);
 
-        return Inertia::render('Objetivo', ['goal' => $goal]);
+        return Inertia::render('Objetivo', ['goal' => $goal, 'skillCatalog' => Skill::catalog()]);
     })->name('meus-objetivos.show');
     Route::get('admin/usuarios', [DashboardController::class, 'users'])->name('admin.users');
     Route::get('admin/usuarios/novo', [DashboardController::class, 'createUser'])->name('admin.users.create');
@@ -52,6 +55,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('equipe/atletas/{athlete}/evolucao', [AthleteProgressController::class, 'showAthlete'])->name('equipe.athlete.progress');
     Route::get('atleta/ponto-de-partida/primeiro-dia', [AthleteProgressController::class, 'firstDay'])->name('athlete.start.first-day');
     Route::post('atleta/ponto-de-partida/primeiro-dia', [AthleteProgressController::class, 'storeFirstDay'])->name('athlete.start.first-day.store');
+    Route::get('atleta/ponto-de-partida/como-tirar-medidas', fn () => Inertia::render('dashboard/ComoTirarMedidas'))->name('athlete.start.measures-guide');
     Route::get('atleta/ponto-de-partida/metas', [AthleteProgressController::class, 'goals'])->name('athlete.start.goals');
     Route::redirect('atleta/boas-vindas', '/atleta/ponto-de-partida/primeiro-dia');
     Route::redirect('atleta/evolucao/metas', '/atleta/ponto-de-partida/metas');
@@ -68,6 +72,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('atleta/dias', [AthleteProgressController::class, 'updateDays'])->name('athlete.days.update');
     Route::post('atleta/dias/{day}/foto-treino', [AthleteProgressController::class, 'storeWorkoutPhoto'])->whereNumber('day')->name('athlete.days.photo.store');
     Route::delete('atleta/dias/{day}/foto-treino', [AthleteProgressController::class, 'destroyWorkoutPhoto'])->whereNumber('day')->name('athlete.days.photo.destroy');
+    Route::post('atleta/dias/{day}/foto-refeicao', [AthleteProgressController::class, 'storeMealPhoto'])->whereNumber('day')->name('athlete.days.meal.store');
+    Route::delete('atleta/dias/{day}/foto-refeicao', [AthleteProgressController::class, 'destroyMealPhoto'])->whereNumber('day')->name('athlete.days.meal.destroy');
+    Route::put('equipe/atletas/{athlete}/dias/{day}/comentario-refeicao', [AthleteProgressController::class, 'commentMeal'])->whereNumber('day')->name('equipe.athlete.meal.comment');
     Route::post('atleta/conquistas', [AthleteProgressController::class, 'storeAchievement'])->name('athlete.achievements.store');
     Route::put('atleta/conquistas/{achievement}', [AthleteProgressController::class, 'updateAchievement'])->name('athlete.achievements.update');
     Route::put('atleta/conquistas/{achievement}/comentario', [AthleteProgressController::class, 'commentAchievement'])->name('athlete.achievements.comment');

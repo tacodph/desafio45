@@ -9,7 +9,7 @@ import { type DayDetails, type DayGoals } from '@/data/dayLog';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 type Day = {
     day: number;
@@ -20,6 +20,8 @@ type Day = {
     plus_count: number;
     details: DayDetails;
     workout_photo: string | null;
+    meal_photo: string | null;
+    meal_comment: string;
     saved: boolean;
     notes: Record<string, string>;
     points: number;
@@ -47,6 +49,7 @@ const props = defineProps<{
     goals: DayGoals;
     workoutTypes: string[];
     weeklySkills: string[][];
+    skillCatalog: { title: string; items: string[] }[];
     days: Day[];
     weeks: Week[];
     achievements: { id: number; achieved_on: string; type: string; label: string; points: number; detail: string; emotion: string; comment: string; nutritionist: string }[];
@@ -54,6 +57,7 @@ const props = defineProps<{
     total: number;
     canEdit: boolean;
     canComment: boolean;
+    athleteId: number | null;
     athleteName: string | null;
     nutritionistName: string | null;
 }>();
@@ -67,7 +71,7 @@ const tabs: [Tab, string][] = [
 ];
 
 // O atleta navega por páginas (/atleta/evolucao/{aba}); a nutricionista alterna as abas na mesma tela.
-const localTab = ref<Tab>('conquistas');
+const localTab = ref<Tab>('dias');
 const tab = computed<Tab>(() => (props.canEdit ? (props.tab ?? 'dias') : localTab.value));
 
 const breadcrumbs = computed<BreadcrumbItem[]>(() => [
@@ -76,6 +80,41 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
     { title: tabs.find((item) => item[0] === tab.value)?.[1] ?? 'Dias', href: '#' },
 ]);
 const week = ref(props.currentWeek);
+const savedWeekSkills = computed(() => (props.weeklySkills[week.value - 1] ?? []).filter(Boolean));
+const needsWeekSkills = computed(() => props.canEdit && savedWeekSkills.value.length === 0);
+const editingWeekSkills = ref(needsWeekSkills.value);
+const weekSkillForm = useForm({
+    week: week.value,
+    picks: [...savedWeekSkills.value] as string[],
+});
+
+watch(week, (value) => {
+    weekSkillForm.week = value;
+    weekSkillForm.picks = [...(props.weeklySkills[value - 1] ?? [])].filter(Boolean);
+    editingWeekSkills.value = props.canEdit && weekSkillForm.picks.length === 0;
+});
+
+const toggleWeekSkill = (idea: string) => {
+    const index = weekSkillForm.picks.indexOf(idea);
+
+    if (index >= 0) {
+        weekSkillForm.picks.splice(index, 1);
+
+        return;
+    }
+
+    if (weekSkillForm.picks.length < 3) {
+        weekSkillForm.picks.push(idea);
+    }
+};
+
+const saveWeekSkills = () =>
+    weekSkillForm.put(route('athlete.skills.update'), {
+        preserveScroll: true,
+        onSuccess: () => {
+            editingWeekSkills.value = false;
+        },
+    });
 
 const dias = useForm({
     days: props.days.map((day) => ({
@@ -90,7 +129,7 @@ const conquests = [
     {
         type: 'cantinho',
         title: 'Cantinho da vitória',
-        about: 'O que você fez de diferente e foi uma evolução. Ex.: fiz marmita na semana, preparei uma salada, preparei uma refeição em vez do iFood.',
+        about: 'Uma superação que você não previa — diferente de uma habilidade nova. Algo que saiu do seu padrão e te pegou de surpresa.\nEx.: nunca acorda cedo para treinar, mas nesse dia acordou e foi treinar para bater a meta.',
         form: useForm({ type: 'cantinho', detail: '' }),
     },
     {
@@ -185,7 +224,7 @@ const saveComment = () => {
             </div>
 
             <div class="flex flex-wrap gap-2">
-                <template v-for="item in canEdit ? tabs : tabs.slice(1)" :key="item[0]">
+                <template v-for="item in tabs" :key="item[0]">
                     <Link
                         v-if="canEdit"
                         :href="route('athlete.progress.tab', item[0])"
@@ -219,18 +258,77 @@ const saveComment = () => {
                         Semana {{ item.week }}
                     </button>
                 </div>
+                <section v-if="canEdit" class="surface-card grid gap-3 p-4 sm:p-5">
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                            <div class="eyebrow">Habilidades da semana {{ week }}</div>
+                            <p class="m-0 mt-1 text-sm text-brand-muted">Escolha 3 ideias para praticar nesta semana. Sem isso, os dias ficam travados.</p>
+                        </div>
+                        <button v-if="savedWeekSkills.length && !editingWeekSkills" type="button" class="text-sm font-semibold text-brand-gold" @click="editingWeekSkills = true">
+                            Alterar
+                        </button>
+                    </div>
+                    <div v-if="!editingWeekSkills && savedWeekSkills.length" class="grid gap-1.5">
+                        <p v-for="idea in savedWeekSkills" :key="idea" class="m-0 text-sm">{{ idea }}</p>
+                    </div>
+                    <div v-else class="grid gap-3">
+                        <div class="flex flex-wrap gap-1.5">
+                            <button
+                                v-for="idea in weekSkillForm.picks"
+                                :key="idea"
+                                type="button"
+                                class="rounded-full border border-brand-gold bg-brand-gold px-3 py-1.5 text-left text-xs font-bold text-brand-ink"
+                                @click="toggleWeekSkill(idea)"
+                            >
+                                {{ idea }} ×
+                            </button>
+                            <span v-if="weekSkillForm.picks.length < 3" class="self-center text-xs text-brand-muted">Faltam {{ 3 - weekSkillForm.picks.length }}</span>
+                        </div>
+                        <div class="grid max-h-72 gap-3 overflow-y-auto">
+                            <div v-for="group in skillCatalog" :key="group.title" class="grid gap-1">
+                                <p class="m-0 text-[11px] font-bold uppercase tracking-widest text-brand-gold">{{ group.title }}</p>
+                                <button
+                                    v-for="idea in group.items"
+                                    :key="idea"
+                                    type="button"
+                                    class="rounded-lg px-2 py-2 text-left text-sm leading-snug disabled:opacity-40"
+                                    :class="weekSkillForm.picks.includes(idea) ? 'bg-brand-gold text-brand-ink' : 'text-brand-cream hover:bg-brand-line2'"
+                                    :disabled="weekSkillForm.picks.length >= 3 && !weekSkillForm.picks.includes(idea)"
+                                    @click="toggleWeekSkill(idea)"
+                                >
+                                    {{ idea }}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <Button type="button" class="w-fit" :disabled="weekSkillForm.processing || weekSkillForm.picks.length !== 3" @click="saveWeekSkills">
+                                Salvar habilidades da semana
+                            </Button>
+                            <button v-if="savedWeekSkills.length" type="button" class="text-sm font-semibold text-brand-muted" @click="editingWeekSkills = false; weekSkillForm.picks = [...savedWeekSkills]">
+                                Cancelar
+                            </button>
+                        </div>
+                        <InputError :message="weekSkillForm.errors.picks || weekSkillForm.errors['picks.0']" />
+                    </div>
+                </section>
+                <p v-if="needsWeekSkills" class="m-0 text-sm text-brand-muted">Escolha as 3 habilidades da semana para lançar os dias.</p>
                 <DayCard
-                    v-for="item in visibleDays"
+                    v-for="item in needsWeekSkills ? [] : visibleDays"
                     :key="item.entry.day"
                     :entry="item.entry"
                     :date="item.info.date"
                     :weekday="item.info.weekday"
                     :goals="goals"
                     :photo="item.info.workout_photo"
+                    :meal-photo="item.info.meal_photo"
+                    :meal-comment="item.info.meal_comment"
                     :saved="item.info.saved"
                     :workout-types="workoutTypes"
                     :week-skills="weeklySkills[item.info.week - 1] ?? []"
                     :default-open="item.entry.day === openDay"
+                    :can-edit="canEdit"
+                    :can-comment="canComment"
+                    :athlete-id="athleteId"
                 />
             </div>
 

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { type GoalDetail } from '@/data/goalDetails';
-import { SKILL_IDEAS, SKILL_OBJECTIVE } from '@/data/skillIdeas';
+import { SKILL_OBJECTIVE } from '@/data/skillIdeas';
 
 defineProps<{
     item: GoalDetail;
+    skillCatalog?: { title: string; items: string[] }[];
 }>();
 </script>
 
@@ -48,7 +49,7 @@ defineProps<{
                 <p class="m-0 max-w-[720px] text-[17px] leading-relaxed text-brand-muted">{{ SKILL_OBJECTIVE }}</p>
             </div>
             <div class="grid gap-4 md:grid-cols-2">
-                <article v-for="group in SKILL_IDEAS" :key="group.title" class="surface-card flex flex-col gap-3 p-7">
+                <article v-for="group in skillCatalog ?? []" :key="group.title" class="surface-card flex flex-col gap-3 p-7">
                     <h3 class="font-display m-0 text-2xl font-extrabold uppercase" :style="{ color: item.color }">{{ group.title }}</h3>
                     <ul class="m-0 flex list-none flex-col gap-3 p-0">
                         <li v-for="idea in group.items" :key="idea" class="text-[16px] leading-relaxed text-brand-muted-3">{{ idea }}</li>
