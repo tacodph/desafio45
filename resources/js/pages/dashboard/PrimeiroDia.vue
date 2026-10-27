@@ -87,14 +87,11 @@ const fieldClass = 'h-11 rounded-xl border border-brand-line2 bg-brand-card2 px-
                 </p>
             </div>
 
-            <details class="surface-card group p-6" :open="firstAccess">
-                <summary class="flex cursor-pointer list-none items-center justify-between gap-3">
-                    <div class="flex flex-col gap-1">
-                        <div class="eyebrow">Material de apoio</div>
-                        <h2 class="m-0 text-xl font-bold text-brand-cream">Como tirar suas medidas</h2>
-                    </div>
-                    <span class="text-2xl text-brand-gold transition-transform group-open:rotate-45">+</span>
-                </summary>
+            <section class="surface-card p-6">
+                <div class="flex flex-col gap-1">
+                    <div class="eyebrow">Material de apoio</div>
+                    <h2 class="m-0 text-xl font-bold text-brand-cream">Como tirar suas medidas</h2>
+                </div>
 
                 <div class="mt-5 flex flex-col gap-6">
                     <p class="m-0 text-brand-muted">
@@ -162,7 +159,7 @@ const fieldClass = 'h-11 rounded-xl border border-brand-line2 bg-brand-card2 px-
                         sua nutricionista. A padronização é essencial para comparar os resultados ao longo do tempo.
                     </p>
                 </div>
-            </details>
+            </section>
 
             <form class="surface-card flex flex-col gap-4 p-6" @submit.prevent="save">
                 <label class="flex flex-col gap-1.5 text-sm font-semibold">
