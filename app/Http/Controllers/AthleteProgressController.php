@@ -87,9 +87,13 @@ class AthleteProgressController extends Controller
             'waterMinimum' => DayLog::waterMinimumLiters($request->user()->athleteProfile?->weight),
         ]);
     }
-    public function show(Request $request, string $tab): Response
+    public function show(Request $request, string $tab): Response|RedirectResponse
     {
         $this->abortUnlessAthlete($request);
+
+        if ($pending = $this->pendingStart($request)) {
+            return $pending;
+        }
 
         return $this->page($request->user(), true, false, $tab);
     }
@@ -134,6 +138,10 @@ class AthleteProgressController extends Controller
     {
         $this->abortUnlessAthlete($request);
 
+        if ($pending = $this->pendingStart($request)) {
+            return $pending;
+        }
+
         $data = $request->validate([
             'weeks' => 'required|array|size:7',
             'weeks.*' => 'array|max:3',
@@ -163,6 +171,10 @@ class AthleteProgressController extends Controller
     public function updateDays(Request $request): RedirectResponse
     {
         $this->abortUnlessAthlete($request);
+
+        if ($pending = $this->pendingStart($request)) {
+            return $pending;
+        }
 
         $data = $request->validate([
             'days' => 'required|array|max:45',
@@ -220,9 +232,55 @@ class AthleteProgressController extends Controller
         return to_route('athlete.progress.tab', 'dias');
     }
 
+    public function storeWorkoutPhoto(Request $request, int $day): RedirectResponse
+    {
+        $this->abortUnlessAthlete($request);
+
+        if ($pending = $this->pendingStart($request)) {
+            return $pending;
+        }
+
+        abort_unless($day >= 1 && $day <= 45, 404);
+
+        $data = $request->validate(['photo' => 'required|image|max:5120']);
+
+        $checkin = Checkin::query()->firstOrNew(['user_id' => $request->user()->id, 'day' => $day]);
+
+        if ($checkin->workout_photo) {
+            Storage::disk('public')->delete($checkin->workout_photo);
+        }
+
+        $checkin->workout_photo = $data['photo']->store('workouts', 'public');
+        $checkin->save();
+
+        return back();
+    }
+
+    public function destroyWorkoutPhoto(Request $request, int $day): RedirectResponse
+    {
+        $this->abortUnlessAthlete($request);
+
+        if ($pending = $this->pendingStart($request)) {
+            return $pending;
+        }
+
+        $checkin = Checkin::query()->where(['user_id' => $request->user()->id, 'day' => $day])->first();
+
+        if ($checkin?->workout_photo) {
+            Storage::disk('public')->delete($checkin->workout_photo);
+            $checkin->update(['workout_photo' => null]);
+        }
+
+        return back();
+    }
+
     public function storeAchievement(Request $request): RedirectResponse
     {
         $this->abortUnlessAthlete($request);
+
+        if ($pending = $this->pendingStart($request)) {
+            return $pending;
+        }
 
         $data = $request->validate([
             'achieved_on' => 'nullable|date|after_or_equal:2026-11-06|before_or_equal:2026-12-20',
@@ -241,6 +299,10 @@ class AthleteProgressController extends Controller
     public function updateAchievement(Request $request, Achievement $achievement): RedirectResponse
     {
         $this->abortUnlessAthlete($request);
+
+        if ($pending = $this->pendingStart($request)) {
+            return $pending;
+        }
         abort_unless($achievement->user_id === $request->user()->id, 403);
 
         $achievement->update($request->validate([
@@ -269,6 +331,10 @@ class AthleteProgressController extends Controller
     public function destroyAchievement(Request $request, Achievement $achievement): RedirectResponse
     {
         $this->abortUnlessAthlete($request);
+
+        if ($pending = $this->pendingStart($request)) {
+            return $pending;
+        }
         abort_unless($achievement->user_id === $request->user()->id, 403);
 
         $achievement->delete();
@@ -418,6 +484,18 @@ class AthleteProgressController extends Controller
                 'extras' => array_values($row['extras'] ?? []),
             ];
         })->filter()->values()->all();
+    }
+
+    /** Evolução só libera depois do Primeiro dia e das Metas. */
+    private function pendingStart(Request $request): ?RedirectResponse
+    {
+        $profile = $request->user()->athleteProfile;
+
+        return match (true) {
+            ! $profile?->welcomed_at => to_route('athlete.start.first-day'),
+            ! $profile->goals_set_at => to_route('athlete.start.goals'),
+            default => null,
+        };
     }
 
     private function abortUnlessAthlete(Request $request): void

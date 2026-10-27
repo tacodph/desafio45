@@ -19,6 +19,8 @@ type Day = {
     checked_in: boolean;
     plus_count: number;
     details: DayDetails;
+    workout_photo: string | null;
+    saved: boolean;
     notes: Record<string, string>;
     points: number;
 };
@@ -114,7 +116,6 @@ const visibleDays = computed(() =>
 // Abre só o dia de hoje; se a semana não tem o dia de hoje, abre o primeiro dia dela.
 const openDay = computed(() => (visibleDays.value.some((item) => item.entry.day === props.today) ? props.today : visibleDays.value[0]?.entry.day));
 
-const saveDias = () => dias.put(route('athlete.days.update'));
 const saveConquista = (form: (typeof conquests)[number]['form']) =>
     form.post(route('athlete.achievements.store'), {
         onSuccess: () => form.reset('detail'),
@@ -205,7 +206,7 @@ const saveComment = () => {
                 </template>
             </div>
 
-            <form v-if="tab === 'dias'" class="flex flex-col gap-4" @submit.prevent="saveDias">
+            <div v-if="tab === 'dias'" class="flex flex-col gap-4">
                 <div class="flex flex-wrap gap-2">
                     <button
                         v-for="item in weeks"
@@ -225,13 +226,13 @@ const saveComment = () => {
                     :date="item.info.date"
                     :weekday="item.info.weekday"
                     :goals="goals"
+                    :photo="item.info.workout_photo"
+                    :saved="item.info.saved"
                     :workout-types="workoutTypes"
                     :week-skills="weeklySkills[item.info.week - 1] ?? []"
                     :default-open="item.entry.day === openDay"
                 />
-                <Button type="submit" class="w-fit" :disabled="dias.processing">Salvar dias</Button>
-                <InputError :message="Object.values(dias.errors)[0]" />
-            </form>
+            </div>
 
             <div v-else-if="tab === 'conquistas'" class="flex max-w-3xl flex-col gap-4">
                 <section v-for="card in conquests" :key="card.type" class="surface-card grid gap-4 p-4 sm:p-5">

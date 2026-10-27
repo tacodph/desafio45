@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 use App\Http\Controllers\AthleteProgressController;
 use App\Http\Controllers\DashboardController;
@@ -66,6 +66,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('objetivos/alimentacao/compras', [AthleteProgressController::class, 'storeShopping'])->name('alimentacao.compras.store');
     Route::put('objetivos/alimentacao/compras', [AthleteProgressController::class, 'updateShopping'])->name('alimentacao.compras.update');
     Route::put('atleta/dias', [AthleteProgressController::class, 'updateDays'])->name('athlete.days.update');
+    Route::post('atleta/dias/{day}/foto-treino', [AthleteProgressController::class, 'storeWorkoutPhoto'])->whereNumber('day')->name('athlete.days.photo.store');
+    Route::delete('atleta/dias/{day}/foto-treino', [AthleteProgressController::class, 'destroyWorkoutPhoto'])->whereNumber('day')->name('athlete.days.photo.destroy');
     Route::post('atleta/conquistas', [AthleteProgressController::class, 'storeAchievement'])->name('athlete.achievements.store');
     Route::put('atleta/conquistas/{achievement}', [AthleteProgressController::class, 'updateAchievement'])->name('athlete.achievements.update');
     Route::put('atleta/conquistas/{achievement}/comentario', [AthleteProgressController::class, 'commentAchievement'])->name('athlete.achievements.comment');

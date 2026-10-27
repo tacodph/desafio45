@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { achieved, dayPoints, workoutMinutes, type DayDetails, type DayGoals } from '@/data/dayLog';
-import { Link } from '@inertiajs/vue3';
-import { ChevronDown, Droplets, Dumbbell, Lightbulb, Moon, Plus, Salad, Star, X } from 'lucide-vue-next';
+import { Link, router } from '@inertiajs/vue3';
+import { Camera, ChevronDown, Droplets, Dumbbell, Lightbulb, Moon, Pencil, Plus, Salad, Star, X } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
 type DayForm = {
@@ -17,12 +17,50 @@ const props = defineProps<{
     date: string;
     weekday: string;
     goals: DayGoals;
+    photo?: string | null;
+    saved: boolean;
     workoutTypes: string[];
     weekSkills: string[];
     defaultOpen?: boolean;
 }>();
 
 const open = ref(props.defaultOpen ?? false);
+
+// Dia já salvo fica travado até clicar em "Editar"; cada dia tem o seu próprio salvar.
+const editing = ref(!props.saved);
+const saving = ref(false);
+const saveError = ref('');
+
+// Ao editar, guarda uma cópia do dia para o "Cancelar" devolver o que estava salvo.
+const snapshot = ref('');
+
+const startEdit = () => {
+    snapshot.value = JSON.stringify({ checked_in: props.entry.checked_in, plus_count: props.entry.plus_count, notes: props.entry.notes, details: props.entry.details });
+    saveError.value = '';
+    editing.value = true;
+};
+
+const cancelEdit = () => {
+    Object.assign(props.entry, JSON.parse(snapshot.value));
+    saveError.value = '';
+    editing.value = false;
+};
+
+const saveDay = () => {
+    saveError.value = '';
+    router.put(
+        route('athlete.days.update'),
+        { days: [JSON.parse(JSON.stringify(props.entry))] },
+        {
+            preserveState: true,
+            preserveScroll: true,
+            onStart: () => (saving.value = true),
+            onSuccess: () => (editing.value = false),
+            onError: (errors) => (saveError.value = Object.values(errors)[0] ?? 'Não foi possível salvar o dia.'),
+            onFinish: () => (saving.value = false),
+        },
+    );
+};
 
 const done = computed(() => achieved(props.entry.details, props.goals));
 const points = computed(() => dayPoints(props.entry.checked_in, props.entry.details, props.goals));
@@ -61,6 +99,73 @@ const launchGoals = () => {
         details.food.no_sweet = true;
     }
 };
+
+// "Meta atingida": ao marcar, preenche o campo com a meta; ao desmarcar, devolve o que estava antes.
+const before: Partial<Record<keyof DayDetails['manual'], string>> = {};
+
+const toggleGoal = (key: 'movement' | 'water' | 'sleep' | 'strength', checked: boolean) => {
+    const details = props.entry.details;
+    const field = { movement: 'workouts', water: 'water_ml', sleep: 'sleep_hours', strength: 'food' }[key] as 'workouts' | 'water_ml' | 'sleep_hours' | 'food';
+
+    details.manual[key] = checked;
+
+    if (!checked) {
+        if (before[key] !== undefined) {
+            (details as Record<string, unknown>)[field] = JSON.parse(before[key] as string);
+            delete before[key];
+        }
+
+        return;
+    }
+
+    before[key] = JSON.stringify(details[field]);
+
+    if (key === 'water') {
+        details.water_ml = Math.max(details.water_ml, props.goals.water_ml);
+    } else if (key === 'sleep') {
+        details.sleep_hours = Math.max(Number(details.sleep_hours) || 0, props.goals.sleep_hours);
+    } else if (key === 'strength') {
+        details.food.no_alcohol = details.food.no_fast_food = details.food.no_sweet = true;
+    } else if (!details.workouts.length) {
+        details.workouts.push({ type: props.workoutTypes[0], minutes: props.goals.movement_minutes });
+    } else {
+        addMinutes(details.workouts.length - 1, Math.max(0, props.goals.movement_minutes - minutes.value));
+    }
+};
+
+// Foto do treino: envia na hora (sem depender do botão "Salvar dias"); preserveState mantém o que já foi digitado.
+const photoInput = ref<HTMLInputElement | null>(null);
+const uploading = ref(false);
+const photoError = ref('');
+
+const sendPhoto = (event: Event) => {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+        return;
+    }
+
+    photoError.value = '';
+    router.post(
+        route('athlete.days.photo.store', props.entry.day),
+        { photo: file },
+        {
+            forceFormData: true,
+            preserveState: true,
+            preserveScroll: true,
+            onStart: () => (uploading.value = true),
+            onError: (errors) => (photoError.value = Object.values(errors)[0] ?? 'Não foi possível enviar a foto.'),
+            onFinish: () => {
+                uploading.value = false;
+                input.value = '';
+            },
+        },
+    );
+};
+
+const removePhoto = () =>
+    router.delete(route('athlete.days.photo.destroy', props.entry.day), { preserveState: true, preserveScroll: true });
 
 const addWorkout = () => props.entry.details.workouts.push({ type: props.workoutTypes[0], minutes: '' });
 const addMinutes = (index: number, amount: number) => {
@@ -107,6 +212,7 @@ const chipClass = (active: boolean) =>
         </button>
 
         <div v-show="open" class="grid gap-3">
+            <fieldset :disabled="!editing" class="m-0 grid min-w-0 gap-3 border-0 p-0" :class="editing ? '' : 'opacity-80'">
             <label class="flex min-h-12 items-center gap-3 rounded-xl border px-3 py-3 text-sm font-semibold" :class="entry.checked_in ? 'border-brand-gold bg-brand-gold/10 text-brand-cream' : 'border-brand-line2 text-brand-muted'">
                 <input v-model="entry.checked_in" type="checkbox" class="size-5 shrink-0 accent-brand-gold" @change="launchGoals" />
                 Check-in do dia (foto e checklist no grupo)
@@ -136,10 +242,21 @@ const chipClass = (active: boolean) =>
                         <button v-for="amount in [15, 30, 45, 60]" :key="amount" type="button" :class="chipClass(false)" @click="addMinutes(index, amount)">+{{ amount }}</button>
                     </div>
                 </div>
-                <button type="button" class="flex min-h-9 w-fit items-center gap-1.5 text-sm font-semibold text-brand-gold" @click="addWorkout"><Plus class="size-4" /> Adicionar treino</button>
-                <label v-if="minutes < goals.movement_minutes" class="flex min-h-9 items-center gap-2.5 text-xs text-brand-muted">
-                    <input v-model="entry.details.manual.movement" type="checkbox" class="size-5 shrink-0 accent-brand-gold" />
-                    Contar mesmo sem bater a meta
+                <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <button type="button" class="flex min-h-9 w-fit items-center gap-1.5 text-sm font-semibold text-brand-gold" @click="addWorkout"><Plus class="size-4" /> Adicionar treino</button>
+                    <button type="button" class="flex min-h-9 w-fit items-center gap-1.5 text-sm font-semibold text-brand-gold disabled:opacity-60" :disabled="uploading" @click="photoInput?.click()">
+                        <Camera class="size-4" /> {{ uploading ? 'Enviando...' : photo ? 'Trocar foto' : 'Adicionar foto' }}
+                    </button>
+                    <input ref="photoInput" type="file" accept="image/*" class="hidden" @change="sendPhoto" />
+                </div>
+                <div v-if="photo" class="relative w-fit">
+                    <img :src="photo" alt="Foto do treino" class="max-h-48 max-w-full rounded-lg border border-brand-line2 object-cover" />
+                    <button type="button" class="absolute right-1.5 top-1.5 rounded-full bg-brand-ink/80 p-1.5 text-brand-cream" aria-label="Remover foto do treino" @click="removePhoto"><X class="size-4" /></button>
+                </div>
+                <p v-if="photoError" class="m-0 text-xs text-red-400">{{ photoError }}</p>
+                <label v-if="minutes < goals.movement_minutes || entry.details.manual.movement" class="flex min-h-9 items-center gap-2.5 text-xs text-brand-muted">
+                    <input :checked="entry.details.manual.movement" type="checkbox" class="size-5 shrink-0 accent-brand-gold" @change="toggleGoal('movement', ($event.target as HTMLInputElement).checked)" />
+                    Meta atingida
                 </label>
             </section>
 
@@ -160,9 +277,9 @@ const chipClass = (active: boolean) =>
                     <button type="button" :class="chipClass(false)" @click="addWater(1000)">+ 1 L</button>
                     <button type="button" :class="chipClass(false)" @click="entry.details.water_ml = 0">Zerar</button>
                 </div>
-                <label v-if="entry.details.water_ml < goals.water_ml" class="flex min-h-9 items-center gap-2.5 text-xs text-brand-muted">
-                    <input v-model="entry.details.manual.water" type="checkbox" class="size-5 shrink-0 accent-brand-gold" />
-                    Contar mesmo sem bater a meta
+                <label v-if="entry.details.water_ml < goals.water_ml || entry.details.manual.water" class="flex min-h-9 items-center gap-2.5 text-xs text-brand-muted">
+                    <input :checked="entry.details.manual.water" type="checkbox" class="size-5 shrink-0 accent-brand-gold" @change="toggleGoal('water', ($event.target as HTMLInputElement).checked)" />
+                    Meta atingida
                 </label>
             </section>
 
@@ -179,9 +296,9 @@ const chipClass = (active: boolean) =>
                     <input v-model.number="entry.details.sleep_hours" type="number" min="0" max="24" step="0.5" placeholder="Horas dormidas" aria-label="Horas dormidas" :class="[fieldClass, 'w-40']" />
                     <span class="text-sm text-brand-muted">horas</span>
                 </div>
-                <label v-if="(Number(entry.details.sleep_hours) || 0) < goals.sleep_hours" class="flex min-h-9 items-center gap-2.5 text-xs text-brand-muted">
-                    <input v-model="entry.details.manual.sleep" type="checkbox" class="size-5 shrink-0 accent-brand-gold" />
-                    Contar mesmo sem bater a meta
+                <label v-if="(Number(entry.details.sleep_hours) || 0) < goals.sleep_hours || entry.details.manual.sleep" class="flex min-h-9 items-center gap-2.5 text-xs text-brand-muted">
+                    <input :checked="entry.details.manual.sleep" type="checkbox" class="size-5 shrink-0 accent-brand-gold" @change="toggleGoal('sleep', ($event.target as HTMLInputElement).checked)" />
+                    Meta atingida
                 </label>
             </section>
 
@@ -200,8 +317,8 @@ const chipClass = (active: boolean) =>
                     </button>
                 </div>
                 <label v-if="!done.strength || entry.details.manual.strength" class="flex min-h-9 items-center gap-2.5 text-xs text-brand-muted">
-                    <input v-model="entry.details.manual.strength" type="checkbox" class="size-5 shrink-0 accent-brand-gold" />
-                    Contar mesmo sem cumprir tudo
+                    <input :checked="entry.details.manual.strength" type="checkbox" class="size-5 shrink-0 accent-brand-gold" @change="toggleGoal('strength', ($event.target as HTMLInputElement).checked)" />
+                    Meta atingida
                 </label>
             </section>
 
@@ -221,7 +338,7 @@ const chipClass = (active: boolean) =>
                 </p>
                 <label v-if="!entry.details.skill" class="flex min-h-9 items-center gap-2.5 text-xs text-brand-muted">
                     <input v-model="entry.details.manual.skill" type="checkbox" class="size-5 shrink-0 accent-brand-gold" />
-                    Contar a habilidade do dia
+                    Meta atingida
                 </label>
             </section>
 
@@ -235,6 +352,20 @@ const chipClass = (active: boolean) =>
             </section>
 
             <input v-model="entry.notes.day" maxlength="255" placeholder="Observação do dia (opcional)" :class="fieldClass" />
-        </div>
+            </fieldset>
+
+            <div class="flex flex-wrap items-center gap-3">
+                <button v-if="editing" type="button" class="h-11 rounded-lg bg-brand-gold px-5 text-sm font-bold text-brand-ink disabled:opacity-60" :disabled="saving" @click="saveDay">
+                    {{ saving ? 'Salvando...' : `Salvar dia ${entry.day}` }}
+                </button>
+                <button v-if="editing && saved && snapshot" type="button" class="h-11 rounded-lg border border-brand-line3 px-5 text-sm font-bold text-brand-muted disabled:opacity-60" :disabled="saving" @click="cancelEdit">
+                    Cancelar
+                </button>
+                <button v-else-if="!editing" type="button" class="flex h-11 items-center gap-2 rounded-lg border border-brand-gold px-5 text-sm font-bold text-brand-gold" @click="startEdit">
+                    <Pencil class="size-4" /> Editar dia {{ entry.day }}
+                </button>
+                <span v-if="!editing" class="text-xs text-brand-muted">Dia salvo</span>
+            </div>
+            <p v-if="saveError" class="m-0 text-xs text-red-400">{{ saveError }}</p>        </div>
     </article>
 </template>

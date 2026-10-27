@@ -92,6 +92,26 @@ class ChallengeSheet
         ]);
     }
 
+    /** Dia com algo lançado (linhas vazias criadas por salvamentos antigos não contam). */
+    private static function hasEntry(?Checkin $checkin): bool
+    {
+        if ($checkin === null) {
+            return false;
+        }
+
+        $details = self::detailsFor($checkin);
+
+        return $checkin->checked_in
+            || $checkin->plus_count > 0
+            || filled($checkin->notes)
+            || $details['workouts'] !== []
+            || $details['water_ml'] > 0
+            || $details['sleep_hours'] > 0
+            || in_array(true, $details['food'], true)
+            || in_array(true, $details['manual'], true)
+            || $details['skill'] !== '';
+    }
+
     public static function payload(User $user): array
     {
         $user->loadMissing(['athleteProfile', 'checkins', 'achievements']);
@@ -115,6 +135,8 @@ class ChallengeSheet
                 'skill' => (bool) $checkin?->skill,
                 'plus_count' => (int) ($checkin?->plus_count ?? 0),
                 'details' => self::detailsFor($checkin),
+                'saved' => self::hasEntry($checkin),
+                'workout_photo' => $checkin?->workout_photo ? '/storage/'.$checkin->workout_photo : null,
                 'notes' => array_merge([
                     'movement' => '',
                     'water' => '',

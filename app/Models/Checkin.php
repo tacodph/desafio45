@@ -19,6 +19,7 @@ class Checkin extends Model
         'plus_count',
         'notes',
         'details',
+        'workout_photo',
     ];
 
     protected function casts(): array
