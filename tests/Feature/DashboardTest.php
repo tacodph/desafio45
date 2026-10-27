@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\UserRole;
+use App\Models\AthleteProfile;
 use App\Models\User;
 use App\Models\UserType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,12 +20,15 @@ class DashboardTest extends TestCase
         $this->get('/admin/usuarios')->assertRedirect('/login');
         $this->get('/admin/usuarios/novo')->assertRedirect('/login');
         $this->get('/equipe/atletas')->assertRedirect('/login');
-        $this->get('/atleta/evolucao')->assertRedirect('/login');
+        $this->get('/atleta/evolucao/dias')->assertRedirect('/login');
     }
 
     public function test_each_role_sees_its_own_dashboard(): void
     {
-        $this->actingAs(User::factory()->create())
+        $athlete = User::factory()->create();
+        AthleteProfile::query()->create(['user_id' => $athlete->id, 'welcomed_at' => now(), 'goals_set_at' => now()]);
+
+        $this->actingAs($athlete)
             ->get('/dashboard')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page->component('dashboard/Atleta'));

@@ -30,6 +30,7 @@ class AthleteProfile extends Model
         'hip',
         'photo',
         'welcomed_at',
+        'goals_set_at',
     ];
 
     protected function casts(): array
@@ -46,6 +47,7 @@ class AthleteProfile extends Model
             'abdomen' => 'decimal:1',
             'hip' => 'decimal:1',
             'welcomed_at' => 'datetime',
+            'goals_set_at' => 'datetime',
         ];
     }
 

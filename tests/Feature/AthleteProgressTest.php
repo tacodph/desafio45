@@ -17,13 +17,13 @@ class AthleteProgressTest extends TestCase
     public function test_only_an_athlete_can_fill_the_progress(): void
     {
         $this->actingAs(User::factory()->ofRole(UserRole::Administrador)->create())
-            ->get('/atleta/evolucao')
+            ->get('/atleta/evolucao/dias')
             ->assertForbidden();
 
         $athlete = User::factory()->create();
 
         $this->actingAs($athlete)
-            ->get('/atleta/evolucao')
+            ->get('/atleta/evolucao/dias')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page->component('dashboard/Evolucao')->where('total', 0));
 
@@ -37,7 +37,7 @@ class AthleteProgressTest extends TestCase
                 'strength_goal' => 'prancha 60s',
                 'penalty' => true,
             ])
-            ->assertRedirect('/atleta/evolucao');
+            ->assertRedirect('/dashboard');
 
         $this->assertDatabaseHas('athlete_profiles', [
             'user_id' => $athlete->id,
@@ -68,7 +68,7 @@ class AthleteProgressTest extends TestCase
 
         $this->actingAs($athlete)
             ->put('/atleta/dias', ['days' => $days])
-            ->assertRedirect('/atleta/evolucao');
+            ->assertRedirect('/atleta/evolucao/dias');
 
         $this->actingAs($athlete)
             ->post('/atleta/conquistas', [
@@ -76,10 +76,10 @@ class AthleteProgressTest extends TestCase
                 'type' => 'first_time',
                 'detail' => 'Primeira prancha',
             ])
-            ->assertRedirect('/atleta/evolucao?aba=conquistas');
+            ->assertRedirect('/atleta/evolucao/conquistas');
 
         $this->actingAs($athlete)
-            ->get('/atleta/evolucao')
+            ->get('/atleta/evolucao/dias')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->where('weeks.0.daily', 30)
@@ -99,7 +99,7 @@ class AthleteProgressTest extends TestCase
                 'type' => 'cantinho',
                 'detail' => 'Fiz marmita na semana',
             ])
-            ->assertRedirect('/atleta/evolucao?aba=conquistas');
+            ->assertRedirect('/atleta/evolucao/conquistas');
 
         $this->assertDatabaseHas('achievements', [
             'user_id' => $athlete->id,
@@ -117,13 +117,13 @@ class AthleteProgressTest extends TestCase
                 'type' => 'cantinho',
                 'detail' => 'Fiz marmita na semana',
             ])
-            ->assertRedirect('/atleta/evolucao?aba=conquistas');
+            ->assertRedirect('/atleta/evolucao/conquistas');
 
         $achievement = $athlete->achievements()->first();
 
         $this->actingAs($athlete)
             ->put("/atleta/conquistas/{$achievement->id}", ['detail' => 'Marmita de frango'])
-            ->assertRedirect('/atleta/evolucao?aba=conquistas');
+            ->assertRedirect('/atleta/evolucao/conquistas');
 
         $this->actingAs($athlete)
             ->put("/atleta/conquistas/{$achievement->id}/comentario", [
@@ -135,7 +135,7 @@ class AthleteProgressTest extends TestCase
         $nutri = User::factory()->ofRole(UserRole::Nutricionista)->create();
 
         $this->actingAs($athlete)
-            ->get('/atleta/evolucao')
+            ->get('/atleta/evolucao/dias')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page->where('nutritionistName', $nutri->name));
 
@@ -199,17 +199,17 @@ class AthleteProgressTest extends TestCase
         Storage::fake('public');
         $athlete = User::factory()->create();
 
-        $this->actingAs($athlete)->get('/dashboard')->assertRedirect('/atleta/boas-vindas');
+        $this->actingAs($athlete)->get('/dashboard')->assertRedirect('/atleta/ponto-de-partida/primeiro-dia');
 
         $this->actingAs($athlete)
-            ->post('/atleta/boas-vindas', [
+            ->post('/atleta/ponto-de-partida/primeiro-dia', [
                 'weight' => 70.5,
                 'waist' => 80,
                 'abdomen' => 85,
                 'hip' => 98,
                 'photo' => UploadedFile::fake()->image('antes.jpg'),
             ])
-            ->assertRedirect('/dashboard');
+            ->assertRedirect('/atleta/ponto-de-partida/metas');
 
         $profile = $athlete->fresh()->athleteProfile;
 
@@ -218,8 +218,48 @@ class AthleteProgressTest extends TestCase
         $this->assertSame('80.0', $profile->waist);
         Storage::disk('public')->assertExists($profile->photo);
 
+        $this->actingAs($athlete)->get('/dashboard')->assertRedirect('/atleta/ponto-de-partida/metas');
+
+        $this->actingAs($athlete)->put('/atleta/metas', ['movement_level' => 'iniciante', 'water_liters' => 2.5])->assertRedirect('/dashboard');
         $this->actingAs($athlete)->get('/dashboard')->assertOk();
-        $this->actingAs($athlete)->get('/atleta/boas-vindas')->assertRedirect('/dashboard');
+        $this->assertNotNull($athlete->fresh()->athleteProfile->goals_set_at);
+
+        // Depois do primeiro acesso, as duas telas continuam abertas para ajustes.
+        $this->actingAs($athlete)->get('/atleta/ponto-de-partida/primeiro-dia')->assertOk()->assertInertia(fn (Assert $page) => $page->component('dashboard/PrimeiroDia')->where('firstAccess', false));
+        $this->actingAs($athlete)->get('/atleta/ponto-de-partida/metas')->assertOk()->assertInertia(fn (Assert $page) => $page->component('dashboard/Metas')->where('firstAccess', false));
+    }
+
+    public function test_a_new_shopping_list_is_created_on_its_own_page_without_repeating_weeks(): void
+    {
+        $athlete = User::factory()->create();
+
+        $this->actingAs($athlete)
+            ->get('/objetivos/alimentacao/compras/nova')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->component('ComprasForm')->has('weeks', 7)->where('list', null));
+
+        $this->actingAs($athlete)
+            ->post('/objetivos/alimentacao/compras', ['week' => 3, 'items' => ['Patinho']])
+            ->assertRedirect('/objetivos/alimentacao/compras');
+
+        $athlete = $athlete->fresh();
+
+        $this->actingAs($athlete)
+            ->get('/objetivos/alimentacao/compras/nova')
+            ->assertInertia(fn (Assert $page) => $page->has('weeks', 6)->where('weeks.2.week', 4));
+
+        $this->actingAs($athlete)
+            ->post('/objetivos/alimentacao/compras', ['week' => 3, 'items' => ['Lagarto']])
+            ->assertSessionHasErrors('week');
+
+        $this->assertSame(['Patinho'], $athlete->fresh()->athleteProfile->shopping_lists['3']['items']);
+
+        $this->actingAs($athlete)
+            ->get('/objetivos/alimentacao/compras/3/editar')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->has('weeks', 1)->where('list.items', ['Patinho']));
+
+        $this->actingAs($athlete)->get('/objetivos/alimentacao/compras/5/editar')->assertNotFound();
     }
 
     public function test_an_athlete_saves_a_shopping_list_for_one_week(): void
@@ -264,5 +304,132 @@ class AthleteProgressTest extends TestCase
                 'items' => ['Patinho'],
             ])
             ->assertForbidden();
+    }
+
+    public function test_a_goal_opens_inside_the_logged_area(): void
+    {
+        $this->get('/meus-objetivos/treino')->assertRedirect('/login');
+
+        $this->actingAs(User::factory()->create())
+            ->get('/meus-objetivos/treino')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->component('Objetivo')->where('goal', 'treino'));
+
+        $this->actingAs(User::factory()->create())
+            ->get('/meus-objetivos/nada')
+            ->assertNotFound();
+    }
+
+    public function test_each_evolution_submenu_has_its_own_page(): void
+    {
+        $athlete = User::factory()->create();
+
+        $this->actingAs($athlete)->get('/atleta/evolucao')->assertRedirect('/atleta/evolucao/dias');
+
+        foreach (['dias', 'conquistas', 'resumo'] as $tab) {
+            $this->actingAs($athlete)
+                ->get("/atleta/evolucao/{$tab}")
+                ->assertOk()
+                ->assertInertia(fn (Assert $page) => $page->component('dashboard/Evolucao')->where('tab', $tab));
+        }
+
+        $this->actingAs($athlete)->get('/atleta/evolucao/outra')->assertNotFound();
+        $this->actingAs($athlete)->get('/atleta/evolucao/metas')->assertRedirect('/atleta/ponto-de-partida/metas');
+    }
+
+    public function test_day_details_reach_the_goals_or_count_manually(): void
+    {
+        $athlete = User::factory()->create();
+
+        $this->actingAs($athlete)
+            ->put('/atleta/dias', ['days' => [
+                [
+                    'day' => 1,
+                    'checked_in' => true,
+                    'details' => [
+                        'workouts' => [['type' => 'Corrida', 'minutes' => 30], ['type' => 'Musculação', 'minutes' => 15]],
+                        'water_ml' => 2500,
+                        'sleep_hours' => 7.5,
+                        'food' => ['no_alcohol' => true, 'no_fast_food' => true, 'no_sweet' => true],
+                        'skill' => 'Cozinhar um prato novo',
+                    ],
+                ],
+                [
+                    'day' => 2,
+                    'checked_in' => true,
+                    'details' => [
+                        'workouts' => [['type' => 'Caminhada', 'minutes' => 20]],
+                        'water_ml' => 1000,
+                        'sleep_hours' => 5,
+                        'food' => ['no_alcohol' => true],
+                        'manual' => ['movement' => true],
+                    ],
+                ],
+                [
+                    'day' => 3,
+                    'checked_in' => false,
+                    'details' => [
+                        'workouts' => [['type' => 'Caminhada', 'minutes' => 20]],
+                        'water_ml' => 1000,
+                        'sleep_hours' => 5,
+                    ],
+                ],
+            ]])
+            ->assertRedirect('/atleta/evolucao/dias');
+
+        $full = $athlete->checkins()->where('day', 1)->first();
+        $this->assertTrue($full->movement && $full->water && $full->sleep && $full->strength && $full->skill);
+        $this->assertSame(10, \App\Support\ChallengeSheet::dayPoints($full));
+        $this->assertSame(45, array_sum(array_column($full->details['workouts'], 'minutes')));
+
+        $manual = $athlete->checkins()->where('day', 2)->first();
+        $this->assertTrue($manual->movement);
+        $this->assertFalse($manual->water || $manual->sleep || $manual->strength || $manual->skill);
+        $this->assertSame(4, \App\Support\ChallengeSheet::dayPoints($manual));
+
+        $short = $athlete->checkins()->where('day', 3)->first();
+        $this->assertSame(0, \App\Support\ChallengeSheet::dayPoints($short));
+    }
+
+    public function test_the_goal_comes_from_the_profile_and_legacy_days_keep_their_points(): void
+    {
+        $athlete = User::factory()->create();
+        \App\Models\AthleteProfile::query()->create(['user_id' => $athlete->id, 'movement_level' => 'iniciante', 'water_liters' => 2]);
+
+        $this->actingAs($athlete)
+            ->put('/atleta/dias', ['days' => [[
+                'day' => 1,
+                'checked_in' => true,
+                'details' => ['workouts' => [['type' => 'Yoga', 'minutes' => 20]], 'water_ml' => 2000],
+            ]]])
+            ->assertRedirect();
+
+        $day = $athlete->checkins()->where('day', 1)->first();
+        $this->assertTrue($day->movement);
+        $this->assertTrue($day->water);
+
+        // Dia salvo só com os checks (antes dos detalhes): continua pontuando e aparece como manual.
+        $athlete->checkins()->create(['day' => 2, 'checked_in' => true, 'movement' => true, 'water' => true]);
+
+        $this->actingAs($athlete->fresh())
+            ->get('/atleta/evolucao/dias')
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('goals.movement_minutes', 20)
+                ->where('goals.water_ml', 2000)
+                ->where('days.1.details.manual.movement', true)
+                ->where('days.1.details.manual.water', true)
+                ->where('days.1.points', 5));
+    }
+
+    public function test_the_water_goal_minimum_comes_from_the_weight(): void
+    {
+        $athlete = User::factory()->create();
+        \App\Models\AthleteProfile::query()->create(['user_id' => $athlete->id, 'weight' => 80, 'welcomed_at' => now()]);
+
+        $this->actingAs($athlete)
+            ->get('/atleta/ponto-de-partida/metas')
+            ->assertInertia(fn (Assert $page) => $page->where('waterMinimum', 2.8)->where('profile.water_liters', ''));
+
+        $this->assertSame(2800, \App\Support\DayLog::goals($athlete->fresh()->athleteProfile)['water_ml']);
     }
 }

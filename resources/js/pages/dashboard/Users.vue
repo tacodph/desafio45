@@ -20,12 +20,20 @@ defineProps<{
         <div class="flex h-full flex-1 flex-col gap-6 p-4 md:p-6">
             <div class="flex flex-wrap items-center justify-between gap-4">
                 <h1 class="display-title text-[clamp(36px,5vw,56px)]">Usuários</h1>
-                <Link :href="route('admin.users.create')" class="surface-card px-5 py-4 font-display text-lg font-bold uppercase">
+                <Link :href="route('admin.users.create')" class="surface-card w-full px-5 py-4 text-center font-display text-lg font-bold uppercase sm:w-auto">
                     Cadastrar usuário
                 </Link>
             </div>
 
-            <div class="surface-card overflow-x-auto">
+            <ul class="m-0 flex list-none flex-col gap-3 p-0 md:hidden">
+                <li v-for="user in users" :key="user.id" class="surface-card flex flex-col gap-1 p-4">
+                    <span class="font-semibold">{{ user.name }}</span>
+                    <span class="break-all text-sm text-brand-muted">{{ user.email }}</span>
+                    <span class="text-xs font-bold uppercase tracking-[2px] text-brand-gold">{{ user.user_type?.name }}</span>
+                </li>
+            </ul>
+
+            <div class="surface-card hidden overflow-x-auto md:block">
                 <table class="w-full text-left text-sm">
                     <thead class="text-[13px] uppercase tracking-[2px] text-brand-muted-2">
                         <tr>

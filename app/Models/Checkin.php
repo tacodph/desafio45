@@ -18,6 +18,7 @@ class Checkin extends Model
         'skill',
         'plus_count',
         'notes',
+        'details',
     ];
 
     protected function casts(): array
@@ -31,6 +32,7 @@ class Checkin extends Model
             'skill' => 'boolean',
             'plus_count' => 'integer',
             'notes' => 'array',
+            'details' => 'array',
         ];
     }
 

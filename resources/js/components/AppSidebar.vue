@@ -1,11 +1,11 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type NavItem, type SharedData } from '@/types';
+import { type NavGroupItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { ClipboardCheck, Droplets, Dumbbell, Flame, LayoutGrid, Lightbulb, Salad, Settings, Star, Users } from 'lucide-vue-next';
+import { Apple, ClipboardCheck, Droplets, Dumbbell, Flag, Flame, LayoutGrid, Lightbulb, Salad, Settings, Star, Users } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
@@ -24,12 +24,15 @@ const menuLabel = computed(() => {
     return 'Equipe';
 });
 
-const mainNavItems = computed<NavItem[]>(() => {
+const objective = (goal: string) => ({ title: 'Objetivo', href: `/meus-objetivos/${goal}` });
+
+const mainNavItems = computed<NavGroupItem[]>(() => {
     if (role.value === 'administrador') {
         return [
             { title: 'Painel', href: '/dashboard', icon: LayoutGrid },
             { title: 'Usuários', href: '/admin/usuarios', icon: Users },
-            { title: 'Objetivos', href: '/objetivos/alimentacao', icon: Salad },
+            { title: 'Alimentos', href: '/admin/alimentos', icon: Apple },
+            { title: 'Objetivos', href: '/meus-objetivos/alimentacao', icon: Salad },
             { title: 'Configurações', href: '/settings/profile', icon: Settings },
         ];
     }
@@ -37,19 +40,35 @@ const mainNavItems = computed<NavItem[]>(() => {
     if (role.value === 'atleta') {
         return [
             { title: 'Painel', href: '/dashboard', icon: LayoutGrid },
-            { title: 'Evolução', href: '/atleta/evolucao', icon: ClipboardCheck },
-            { title: 'Alimentação', href: '/objetivos/alimentacao', icon: Salad, children: [{ title: 'Lista de compras', href: '/objetivos/alimentacao/compras' }] },
-            { title: 'Treino', href: '/objetivos/treino', icon: Dumbbell },
-            { title: 'Hidratação', href: '/objetivos/hidratacao', icon: Droplets },
-            { title: 'Habilidade', href: '/objetivos/habilidade', icon: Lightbulb },
-            { title: 'Plus', href: '/objetivos/plus', icon: Star },
+            {
+                title: 'Ponto de partida',
+                icon: Flag,
+                children: [
+                    { title: 'Primeiro dia', href: '/atleta/ponto-de-partida/primeiro-dia' },
+                    { title: 'Metas', href: '/atleta/ponto-de-partida/metas' },
+                ],
+            },
+            {
+                title: 'Evolução',
+                icon: ClipboardCheck,
+                children: [
+                    { title: 'Dias', href: '/atleta/evolucao/dias' },
+                    { title: 'Conquistas', href: '/atleta/evolucao/conquistas' },
+                    { title: 'Resumo', href: '/atleta/evolucao/resumo' },
+                ],
+            },
+            { title: 'Alimentação', icon: Salad, children: [objective('alimentacao'), { title: 'Lista de compras', href: '/objetivos/alimentacao/compras' }] },
+            { title: 'Treino', icon: Dumbbell, children: [objective('treino')] },
+            { title: 'Hidratação', icon: Droplets, children: [objective('hidratacao')] },
+            { title: 'Habilidade', icon: Lightbulb, children: [objective('habilidade')] },
+            { title: 'Plus', icon: Star, children: [objective('plus')] },
         ];
     }
 
     return [
         { title: 'Painel', href: '/dashboard', icon: LayoutGrid },
         { title: 'Atletas', href: '/equipe/atletas', icon: Users },
-        { title: 'Objetivos', href: '/objetivos/alimentacao', icon: Salad },
+        { title: 'Objetivos', href: '/meus-objetivos/alimentacao', icon: Salad },
     ];
 });
 

@@ -23,7 +23,16 @@ defineProps<{
         <div class="flex h-full flex-1 flex-col gap-6 p-4 md:p-6">
             <h1 class="display-title text-[clamp(36px,5vw,56px)]">Atletas</h1>
 
-            <div class="surface-card overflow-x-auto">
+            <ul class="m-0 flex list-none flex-col gap-3 p-0 md:hidden">
+                <li v-if="athletes.length === 0" class="surface-card p-4 text-sm text-brand-muted">Nenhum atleta ainda.</li>
+                <li v-for="athlete in athletes" :key="athlete.id" class="surface-card flex flex-col gap-1 p-4">
+                    <span class="font-semibold">{{ athlete.name }}</span>
+                    <span class="break-all text-sm text-brand-muted">{{ athlete.email }}</span>
+                    <Link v-if="isNutri" :href="route('equipe.athlete.progress', athlete.id)" class="mt-1 w-fit py-1.5 text-sm font-semibold text-brand-gold">Comentar</Link>
+                </li>
+            </ul>
+
+            <div class="surface-card hidden overflow-x-auto md:block">
                 <table class="w-full text-left text-sm">
                     <thead class="text-[13px] uppercase tracking-[2px] text-brand-muted-2">
                         <tr>

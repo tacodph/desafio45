@@ -49,23 +49,25 @@ const saveSkills = () => skills.put(route('athlete.skills.update'));
             </div>
 
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-                <Link v-for="goal in GOALS" :key="goal.key" :href="route('objetivos.show', goal.key)" class="surface-card flex flex-col gap-3 p-5">
-                    <img :src="goal.icon" alt="" class="size-14" />
-                    <span class="font-display text-2xl font-extrabold leading-none" :style="{ color: goal.color }">{{ goal.metric }}</span>
-                    <span class="font-display text-lg font-bold uppercase leading-tight">{{ goal.title }}</span>
+                <Link v-for="goal in GOALS" :key="goal.key" :href="route('objetivos.show', goal.key)" class="surface-card flex items-center gap-4 p-5 sm:flex-col sm:items-start sm:gap-3">
+                    <img :src="goal.icon" alt="" class="size-16 shrink-0 sm:size-14" />
+                    <div class="flex min-w-0 flex-col gap-1 sm:gap-3">
+                        <span class="font-display text-2xl font-extrabold leading-none" :style="{ color: goal.color }">{{ goal.metric }}</span>
+                        <span class="font-display text-lg font-bold uppercase leading-tight">{{ goal.title }}</span>
+                    </div>
                 </Link>
             </div>
 
-            <div class="grid gap-3 md:grid-cols-4">
+            <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
                 <div
                     v-for="mile in milestones"
                     :key="mile.day"
-                    class="flex flex-col gap-2 rounded-[20px] p-4"
+                    class="flex min-w-0 flex-col gap-1 rounded-[20px] p-3 sm:gap-2 sm:p-4"
                     :style="{ background: mile.bg, border: `1.5px solid ${mile.border}` }"
                 >
                     <span class="text-[11px] font-bold uppercase tracking-widest text-brand-muted-2">{{ mile.date }}</span>
-                    <span class="font-display text-3xl font-black italic" :style="{ color: mile.numColor }">Dia {{ mile.day }}</span>
-                    <span class="font-display text-base font-extrabold uppercase">{{ mile.title }}</span>
+                    <span class="font-display text-2xl font-black italic sm:text-3xl" :style="{ color: mile.numColor }">Dia {{ mile.day }}</span>
+                    <span class="font-display text-sm font-extrabold uppercase leading-tight sm:text-base">{{ mile.title }}</span>
                 </div>
             </div>
 
@@ -75,19 +77,19 @@ const saveSkills = () => skills.put(route('athlete.skills.update'));
                     <h2 class="font-display m-0 text-3xl font-extrabold uppercase">Cantinho da nutri</h2>
                     <p class="m-0 mt-2 max-w-2xl text-sm text-brand-muted">Praticidade e equilíbrio, sem terrorismo.</p>
                 </div>
-                <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                    <Link :href="route('alimentacao.compras')" class="surface-card p-5">
-                        <h3 class="font-display m-0 text-xl font-extrabold uppercase leading-tight">Listas de compras</h3>
+                <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                    <Link :href="route('alimentacao.compras')" class="surface-card min-w-0 p-4 sm:p-5">
+                        <h3 class="font-display m-0 text-lg font-extrabold uppercase leading-tight sm:text-xl">Listas de compras</h3>
                     </Link>
-                    <div v-for="item in ['Cardápios da semana', 'Kit da vida real', 'Comer sem tudo ou nada']" :key="item" class="surface-card p-5">
-                        <h3 class="font-display m-0 text-xl font-extrabold uppercase leading-tight">{{ item }}</h3>
+                    <div v-for="item in ['Cardápios da semana', 'Kit da vida real', 'Comer sem tudo ou nada']" :key="item" class="surface-card min-w-0 p-4 sm:p-5">
+                        <h3 class="font-display m-0 text-lg font-extrabold uppercase leading-tight sm:text-xl">{{ item }}</h3>
                     </div>
                 </div>
             </section>
 
-            <div v-if="baseline.photo || baseline.weight || baseline.waist || baseline.abdomen || baseline.hip" class="surface-card flex flex-wrap items-center gap-5 p-5">
-                <img v-if="baseline.photo" :src="baseline.photo" alt="Foto do dia 1" class="h-28 w-24 rounded-xl object-cover" />
-                <div>
+            <div v-if="baseline.photo || baseline.weight || baseline.waist || baseline.abdomen || baseline.hip" class="surface-card flex items-center gap-4 p-4 sm:gap-5 sm:p-5">
+                <img v-if="baseline.photo" :src="baseline.photo" alt="Foto do dia 1" class="h-24 w-20 shrink-0 rounded-xl object-cover sm:h-28 sm:w-24" />
+                <div class="min-w-0">
                     <span class="text-[13px] font-bold uppercase tracking-[2px] text-brand-gold">Dia 1 · ponto de partida</span>
                     <p class="m-0 mt-2 text-sm text-brand-muted">
                         <span v-if="baseline.weight">{{ baseline.weight }} kg</span>
@@ -118,14 +120,16 @@ const saveSkills = () => skills.put(route('athlete.skills.update'));
                     <div v-else class="font-display text-3xl font-black italic uppercase text-brand-gold">Concluído</div>
                 </div>
 
-                <Link :href="route('objetivos.show', 'alimentacao')" class="surface-card flex flex-col gap-3 p-6">
-                    <img :src="images.alimentacao" alt="" class="size-14" />
-                    <span class="text-[13px] font-bold uppercase tracking-[2px] text-[#43A047]">Alimentação e organização</span>
-                    <p class="m-0 text-sm text-brand-muted">Sem álcool (exceto 3 eventos). Uma refeição luxo e uma Plus por semana. A luxo é uma refeição inteira. A Plus é um alimento cultural.</p>
+                <Link :href="route('objetivos.show', 'alimentacao')" class="surface-card flex items-center gap-4 p-6 md:flex-col md:items-start md:gap-3">
+                    <img :src="images.alimentacao" alt="" class="size-16 shrink-0 md:size-14" />
+                    <div class="flex min-w-0 flex-col gap-2 md:gap-3">
+                        <span class="text-[13px] font-bold uppercase tracking-[2px] text-[#43A047]">Alimentação e organização</span>
+                        <p class="m-0 text-sm text-brand-muted">Sem álcool (exceto 3 eventos). Uma refeição luxo e uma Plus por semana. A luxo é uma refeição inteira. A Plus é um alimento cultural.</p>
+                    </div>
                 </Link>
 
-                <div class="surface-card flex items-center justify-center p-6">
-                    <img :src="images.logo" alt="Desafio 45 Dias" class="max-h-40 object-contain" />
+                <div class="surface-card flex items-center justify-center p-4 md:p-6">
+                    <img :src="images.logo" alt="Desafio 45 Dias" class="max-h-28 object-contain md:max-h-40" />
                 </div>
             </div>
 
@@ -136,7 +140,7 @@ const saveSkills = () => skills.put(route('athlete.skills.update'));
                     <p class="m-0 mt-2 max-w-2xl text-sm text-brand-muted">Escolha 3 ideias para cada semana. Elas podem mudar de uma semana para a outra.</p>
                 </div>
                 <div class="grid gap-4 lg:grid-cols-2">
-                    <article v-for="(week, weekIndex) in skillWeeks" :key="week.week" class="surface-card grid gap-3 p-5">
+                    <article v-for="(week, weekIndex) in skillWeeks" :key="week.week" class="surface-card grid min-w-0 gap-3 p-4 sm:p-5">
                         <div class="flex items-baseline justify-between gap-3">
                             <span class="font-display text-xl font-extrabold uppercase">Semana {{ week.week }}</span>
                             <span class="text-sm text-brand-muted">{{ week.period }}</span>
@@ -145,7 +149,7 @@ const saveSkills = () => skills.put(route('athlete.skills.update'));
                             v-for="slot in 3"
                             :key="slot"
                             v-model="skills.weeks[weekIndex][slot - 1]"
-                            class="h-11 rounded-xl border border-brand-line2 bg-brand-card2 px-3 text-sm text-brand-cream"
+                            class="h-11 w-full min-w-0 rounded-xl border border-brand-line2 bg-brand-card2 px-3 text-sm text-brand-cream [color-scheme:dark]"
                         >
                             <option value="">Escolher</option>
                             <optgroup v-for="group in SKILL_IDEAS" :key="group.title" :label="group.title">
@@ -160,7 +164,7 @@ const saveSkills = () => skills.put(route('athlete.skills.update'));
                 <Button type="submit" class="w-fit" :disabled="skills.processing">Salvar habilidades</Button>
             </form>
 
-            <Link :href="route('athlete.progress')" class="surface-card flex items-center justify-between gap-4 p-6">
+            <Link :href="route('athlete.progress.tab', 'dias')" class="surface-card flex flex-wrap items-center justify-between gap-3 p-5 sm:gap-4 sm:p-6">
                 <div>
                     <span class="text-[13px] font-bold uppercase tracking-[2px] text-brand-gold">Minha evolução</span>
                     <p class="m-0 mt-1 font-display text-3xl font-black">{{ total }} pts</p>

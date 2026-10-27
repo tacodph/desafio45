@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
+use App\Models\Food;
+use App\Models\FoodGroup;
 use App\Models\User;
 use App\Models\UserType;
 use App\Support\ChallengeSheet;
@@ -30,7 +32,11 @@ class DashboardController extends Controller
             $user->load(['checkins', 'achievements', 'athleteProfile']);
 
             if (! $user->athleteProfile?->welcomed_at) {
-                return to_route('athlete.welcome');
+                return to_route('athlete.start.first-day');
+            }
+
+            if (! $user->athleteProfile->goals_set_at) {
+                return to_route('athlete.start.goals');
             }
             $saved = $user->athleteProfile?->weekly_skills ?? [];
             $skillWeeks = [];
@@ -101,6 +107,61 @@ class DashboardController extends Controller
         $user->forceFill(['email_verified_at' => now()])->save();
 
         return to_route('admin.users');
+    }
+
+    public function foods(Request $request): Response
+    {
+        $this->abortUnless($request, UserRole::Administrador);
+
+        return Inertia::render('dashboard/Foods', [
+            'groups' => FoodGroup::query()->with('foods')->orderBy('position')->orderBy('id')->get(),
+        ]);
+    }
+
+    public function storeFood(Request $request): RedirectResponse
+    {
+        $this->abortUnless($request, UserRole::Administrador);
+
+        $data = $request->validate([
+            'category' => 'required|string|max:80',
+            'group' => 'nullable|string|max:80',
+            'name' => 'required|string|max:120',
+        ]);
+
+        $group = FoodGroup::query()->firstOrCreate(
+            ['category' => trim($data['category']), 'name' => trim($data['group'] ?? '')],
+            ['position' => ((int) FoodGroup::query()->max('position')) + 1],
+        );
+
+        $group->foods()->create([
+            'name' => trim($data['name']),
+            'position' => ((int) $group->foods()->max('position')) + 1,
+        ]);
+
+        return to_route('admin.foods');
+    }
+
+    public function toggleFood(Request $request, Food $food): RedirectResponse
+    {
+        $this->abortUnless($request, UserRole::Administrador);
+
+        $food->update(['active' => ! $food->active]);
+
+        return to_route('admin.foods');
+    }
+
+    public function destroyFood(Request $request, Food $food): RedirectResponse
+    {
+        $this->abortUnless($request, UserRole::Administrador);
+
+        $group = $food->group;
+        $food->delete();
+
+        if ($group && $group->foods()->doesntExist() && ($group->notes ?? []) === []) {
+            $group->delete();
+        }
+
+        return to_route('admin.foods');
     }
 
     public function athletes(Request $request): Response

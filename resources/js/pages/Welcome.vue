@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BONUS_POINTS, DAILY_POINTS, useChallenge } from '@/composables/useChallenge';
+import { useChallenge } from '@/composables/useChallenge';
 
 import { images } from '@/data/images';
 import { Head, Link } from '@inertiajs/vue3';
@@ -154,30 +154,11 @@ const navLinks = [
             </div>
         </section>
 
-        <section id="alimentacao" class="border-y border-brand-line bg-brand-strip">
-            <div class="mx-auto flex max-w-[760px] flex-col gap-5 px-6 py-[clamp(72px,9vw,120px)]">
-                <img :src="images.alimentacao" alt="" class="size-24" />
-                <div class="text-sm font-bold uppercase tracking-[3px] text-[#43A047]">Alimentação e organização</div>
-                <p class="m-0 text-[18px] leading-relaxed text-brand-muted">
-                    O Desafio 45 Dias é um compromisso de 45 dias seguidos, de sexta, 6 de novembro, a domingo, 20 de dezembro de 2026. O último dia cai na véspera do início do verão (21 de dezembro), daí o subtítulo "Antes do verão".
-                </p>
-                <p class="m-0 text-[18px] leading-relaxed text-brand-muted">
-                    São 5 objetivos que cuidam do movimento, da hidratação e do sono, da autonomia na rotina, da alimentação e de pequenas experiências que deixam a vida mais prazerosa.
-                </p>
-                <p class="m-0 text-[18px] leading-relaxed text-brand-muted">
-                    Você vai treinar seu autocontrole, experimentar coisas novas e encarar desafios semanais com metas possíveis, que vão te mostrar do que você é capaz quando se compromete com suas escolhas.
-                </p>
-                <Link :href="route('objetivos.show', 'alimentacao')" class="w-fit text-sm font-bold uppercase tracking-wider text-[#43A047]">
-                    Ver a regra →
-                </Link>
-            </div>
-        </section>
-
         <div class="border-y border-brand-line bg-brand-strip">
             <div
-                class="font-display mx-auto flex max-w-[1200px] flex-wrap justify-between gap-x-8 gap-y-4 px-6 py-[18px] text-[clamp(18px,2vw,24px)] font-bold uppercase tracking-[2px]"
+                class="font-display mx-auto flex max-w-[1200px] justify-between gap-x-6 overflow-x-auto whitespace-nowrap px-6 py-[18px] text-[clamp(12px,1.7vw,22px)] font-bold uppercase tracking-[1px] lg:tracking-[2px]"
             >
-                <span v-for="goal in goals" :key="goal.key" :style="{ color: goal.color }">{{ goal.title }}</span>
+                <span v-for="goal in goals" :key="goal.key" class="shrink-0" :style="{ color: goal.color }">{{ goal.title }}</span>
             </div>
         </div>
 
@@ -189,6 +170,18 @@ const navLinks = [
                 </div>
                 <p class="m-0 max-w-[360px] text-[17px] leading-normal text-brand-muted">
                     Nem tudo é diário. Toque em cada objetivo para ver a regra, por que funciona e as dicas.
+                </p>
+            </div>
+
+            <div class="mb-10 flex max-w-[760px] flex-col gap-5">
+                <p class="m-0 text-[18px] leading-relaxed text-brand-muted">
+                    O Desafio 45 Dias é um compromisso de 45 dias seguidos, de sexta, 6 de novembro, a domingo, 20 de dezembro de 2026. O último dia cai na véspera do início do verão (21 de dezembro), daí o subtítulo "Antes do verão".
+                </p>
+                <p class="m-0 text-[18px] leading-relaxed text-brand-muted">
+                    São 5 objetivos que cuidam do movimento, da hidratação e do sono, da autonomia na rotina, da alimentação e de pequenas experiências que deixam a vida mais prazerosa.
+                </p>
+                <p class="m-0 text-[18px] leading-relaxed text-brand-muted">
+                    Você vai treinar seu autocontrole, experimentar coisas novas e encarar desafios semanais com metas possíveis, que vão te mostrar do que você é capaz quando se compromete com suas escolhas.
                 </p>
             </div>
 
@@ -308,43 +301,6 @@ const navLinks = [
                         }}</span>
                         <span class="text-[15px] leading-normal text-brand-muted">{{ failNote }}</span>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="mx-auto flex max-w-[1200px] flex-col gap-8 px-6 pb-[clamp(72px,9vw,120px)]">
-            <div class="flex flex-wrap items-end justify-between gap-6">
-                <h2 class="display-title m-0 text-[clamp(36px,4.6vw,60px)]">Sistema de pontos</h2>
-                <span class="text-[15px] font-semibold text-brand-muted-2">Máximo de 10 pontos por dia</span>
-            </div>
-            <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] gap-4">
-                <div class="flex flex-col gap-1 rounded-[22px] border border-brand-line2 bg-brand-card2 p-7">
-                    <span class="mb-2.5 text-[13px] font-bold uppercase tracking-[2px] text-brand-mente">No dia</span>
-                    <div v-for="row in DAILY_POINTS" :key="row.t" class="flex items-baseline justify-between gap-4 border-b border-brand-line2 py-3">
-                        <span class="text-base text-brand-muted-3">{{ row.t }}</span>
-                        <span class="font-display whitespace-nowrap text-[26px] font-extrabold text-brand-mente">{{ row.p }}</span>
-                    </div>
-                </div>
-                <div class="flex flex-col gap-1 rounded-[22px] border border-brand-line2 bg-brand-card2 p-7">
-                    <span class="mb-2.5 text-[13px] font-bold uppercase tracking-[2px] text-brand-gold">Bônus</span>
-                    <div v-for="row in BONUS_POINTS" :key="row.t" class="flex items-baseline justify-between gap-4 border-b border-brand-line2 py-3">
-                        <span class="text-base text-brand-muted-3">{{ row.t }}</span>
-                        <span class="font-display whitespace-nowrap text-[26px] font-extrabold text-brand-gold">{{ row.p }}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,240px),1fr))] gap-4">
-                <div class="flex items-center gap-[18px] rounded-[20px] border-[1.5px] border-brand-gold p-6">
-                    <span class="font-display text-[56px] font-black italic leading-none text-brand-gold">1º</span>
-                    <span class="text-base leading-snug text-brand-muted-3">Escolhe o <strong class="text-brand-cream">restaurante</strong> da celebração</span>
-                </div>
-                <div class="flex items-center gap-[18px] rounded-[20px] border-[1.5px] border-brand-silver p-6">
-                    <span class="font-display text-[56px] font-black italic leading-none text-brand-silver">2º</span>
-                    <span class="text-base leading-snug text-brand-muted-3">Escolhe o <strong class="text-brand-cream">programa</strong> depois da celebração</span>
-                </div>
-                <div class="flex items-center gap-[18px] rounded-[20px] border-[1.5px] border-brand-bronze p-6">
-                    <span class="font-display text-[56px] font-black italic leading-none text-brand-bronze">3º</span>
-                    <span class="text-base leading-snug text-brand-muted-3">Escolhe a <strong class="text-brand-cream">atividade</strong> da celebração</span>
                 </div>
             </div>
         </section>

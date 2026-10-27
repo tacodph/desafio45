@@ -73,6 +73,25 @@ class ChallengeSheet
             + ($checkin->skill ? 2 : 0);
     }
 
+    /**
+     * Detalhes do dia. Dias salvos antes dos detalhes existirem (só com os checks)
+     * entram com os objetivos marcados como "manuais", para não perder pontos.
+     *
+     * @return array<string, mixed>
+     */
+    private static function detailsFor(?Checkin $checkin): array
+    {
+        if ($checkin?->details !== null) {
+            return DayLog::normalize($checkin->details);
+        }
+
+        return DayLog::normalize([
+            'manual' => collect(DayLog::MANUAL_KEYS)
+                ->mapWithKeys(fn (string $key) => [$key => (bool) $checkin?->{$key}])
+                ->all(),
+        ]);
+    }
+
     public static function payload(User $user): array
     {
         $user->loadMissing(['athleteProfile', 'checkins', 'achievements']);
@@ -95,6 +114,7 @@ class ChallengeSheet
                 'strength' => (bool) $checkin?->strength,
                 'skill' => (bool) $checkin?->skill,
                 'plus_count' => (int) ($checkin?->plus_count ?? 0),
+                'details' => self::detailsFor($checkin),
                 'notes' => array_merge([
                     'movement' => '',
                     'water' => '',
@@ -102,6 +122,7 @@ class ChallengeSheet
                     'strength' => '',
                     'skill' => '',
                     'plus' => '',
+                    'day' => '',
                 ], is_array($checkin?->notes) ? $checkin->notes : []),
                 'points' => $checkin ? self::dayPoints($checkin) : 0,
             ];
@@ -121,6 +142,13 @@ class ChallengeSheet
 
         return [
             'currentWeek' => self::currentWeek(),
+            'today' => max(1, min(45, self::dayOn(Carbon::today()))),
+            'goals' => DayLog::goals($profile),
+            'workoutTypes' => DayLog::WORKOUT_TYPES,
+            'weeklySkills' => array_values(array_map(
+                fn ($picks) => array_values(array_filter((array) $picks)),
+                $profile?->weekly_skills ?? [],
+            )),
             'profile' => [
                 'movement_level' => $profile?->movement_level ?? '',
                 'movement_minutes' => $profile?->movement_minutes ?? '',

@@ -2,111 +2,45 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { shoppingList } from '@/data/shoppingList';
 import { type BreadcrumbItem, type SharedData } from '@/types';
-import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
-import { computed, ref, watch } from 'vue';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 const props = defineProps<{
     weeks: { week: number; period: string }[];
     lists: { week: number; period: string; items: string[]; extras: string[] }[];
     canSave: boolean;
+    catalog: { title: string; groups: { title: string; items: string[]; notes: string[] }[] }[];
 }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Alimentação', href: '/objetivos/alimentacao' },
+    { title: 'Alimentação', href: '/meus-objetivos/alimentacao' },
     { title: 'Lista de compras', href: '/objetivos/alimentacao/compras' },
 ];
 
 const loggedIn = computed(() => Boolean(usePage<SharedData>().props.auth.user));
 
 const intro = shoppingList.sections[0].groups.flatMap((group) => group.notes);
-const sections = shoppingList.sections.filter((section) => /^\d/.test(section.title));
+const sections = computed(() => (props.catalog.length ? props.catalog : shoppingList.sections.filter((section) => /^\d/.test(section.title))));
+const canCreate = computed(() => props.lists.length < props.weeks.length);
 
-const editing = ref(props.lists.length === 0);
-const week = ref(props.weeks[0]?.week ?? 1);
-const checked = ref<Record<string, boolean>>({});
-const extras = ref<Record<string, string>>({});
-const form = useForm({
-    week: 1,
-    items: [] as string[],
-    extras: [] as string[],
-});
+const summaries = computed(() =>
+    props.lists.map((list) => {
+        const counts = sections.value
+            .map((section) => {
+                const names = new Set(section.groups.flatMap((group) => group.items));
 
-const showForm = computed(() => !props.canSave || editing.value);
+                return { title: section.title.replace(/^\d+\.\s*/, ''), count: list.items.filter((item) => names.has(item)).length };
+            })
+            .filter((row) => row.count > 0);
+        const known = counts.reduce((sum, row) => sum + row.count, 0);
 
-const itemId = (section: string, group: string, index: number) => `${section}|${group}|${index}`;
+        if (list.items.length > known) {
+            counts.push({ title: 'Outros', count: list.items.length - known });
+        }
 
-const isBlank = (item: string) => item.includes('____');
-
-const blankIds = () => {
-    const ids: string[] = [];
-
-    sections.forEach((section) => {
-        section.groups.forEach((group) => {
-            group.items.forEach((item, index) => {
-                if (isBlank(item)) {
-                    ids.push(itemId(section.title, group.title, index));
-                }
-            });
-        });
-    });
-
-    return ids;
-};
-
-const loadWeek = (weekNumber: number) => {
-    const list = props.lists.find((item) => item.week === weekNumber);
-    const selected = new Set(list?.items ?? []);
-    const next: Record<string, boolean> = {};
-
-    sections.forEach((section) => {
-        section.groups.forEach((group) => {
-            group.items.forEach((item, index) => {
-                if (!isBlank(item) && selected.has(item)) {
-                    next[itemId(section.title, group.title, index)] = true;
-                }
-            });
-        });
-    });
-
-    checked.value = next;
-    extras.value = Object.fromEntries(blankIds().map((id, index) => [id, list?.extras[index] ?? '']));
-};
-
-watch(week, loadWeek, { immediate: true });
-
-const openWeek = (weekNumber: number) => {
-    week.value = weekNumber;
-    editing.value = true;
-    loadWeek(weekNumber);
-};
-
-const startNew = () => {
-    const empty = props.weeks.find((item) => !props.lists.some((list) => list.week === item.week));
-    openWeek(empty?.week ?? props.weeks[0].week);
-};
-
-const save = () => {
-    const items = new Set<string>();
-
-    sections.forEach((section) => {
-        section.groups.forEach((group) => {
-            group.items.forEach((item, index) => {
-                if (!isBlank(item) && checked.value[itemId(section.title, group.title, index)]) {
-                    items.add(item);
-                }
-            });
-        });
-    });
-
-    form.week = week.value;
-    form.items = [...items];
-    form.extras = Object.values(extras.value).map((item) => item.trim()).filter(Boolean);
-    form.put(route('alimentacao.compras.update'), {
-        onSuccess: () => {
-            editing.value = false;
-        },
-    });
-};
+        return { ...list, total: list.items.length + list.extras.length, counts, preview: [...list.items, ...list.extras].slice(0, 6) };
+    }),
+);
 </script>
 
 <template>
@@ -133,30 +67,43 @@ const save = () => {
             <section v-if="canSave" class="flex flex-col gap-4">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <h2 class="m-0 text-xl font-black">Listas criadas</h2>
-                    <button type="button" class="rounded-full bg-[#43A047] px-4 py-2 text-sm font-bold text-white" @click="startNew">Nova lista</button>
+                    <Link v-if="canCreate" :href="route('alimentacao.compras.create')" class="rounded-full bg-[#43A047] px-4 py-2 text-sm font-bold text-white">
+                        Nova lista
+                    </Link>
                 </div>
                 <p v-if="lists.length === 0" class="m-0 text-sm text-brand-cream/70">Nenhuma lista ainda. Escolha a semana e marque o que vai comprar.</p>
-                <article v-for="list in lists" :key="list.week" class="surface-card flex flex-col gap-3 p-6">
-                    <div class="flex flex-wrap items-center justify-between gap-3">
-                        <h3 class="m-0 text-lg font-black">Semana {{ list.week }} · {{ list.period }}</h3>
-                        <button type="button" class="text-sm font-bold text-[#43A047]" @click="openWeek(list.week)">Editar</button>
-                    </div>
-                    <ul class="m-0 flex flex-col gap-1 pl-5 text-[15px]">
-                        <li v-for="item in list.items" :key="item">{{ item }}</li>
-                        <li v-for="extra in list.extras" :key="extra">{{ extra }}</li>
-                    </ul>
-                </article>
+                <p v-else-if="!canCreate" class="m-0 text-sm text-brand-cream/70">Todas as semanas já têm lista. Edite uma delas se precisar mudar.</p>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <article v-for="list in summaries" :key="list.week" class="surface-card flex flex-col gap-4 p-5" style="border-top: 4px solid #43A047">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <h3 class="m-0 text-lg font-black">Semana {{ list.week }}</h3>
+                                <span class="text-sm text-brand-cream/70">{{ list.period }}</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="block text-4xl font-black leading-none tabular-nums text-[#43A047]">{{ list.total }}</span>
+                                <span class="text-xs uppercase tracking-[2px] text-brand-cream/70">{{ list.total === 1 ? 'item' : 'itens' }}</span>
+                            </div>
+                        </div>
+                        <ul class="m-0 flex list-none flex-col gap-1 p-0 text-sm">
+                            <li v-for="row in list.counts" :key="row.title" class="flex justify-between gap-3">
+                                <span>{{ row.title }}</span>
+                                <span class="font-bold tabular-nums">{{ row.count }}</span>
+                            </li>
+                            <li v-if="list.extras.length" class="flex justify-between gap-3">
+                                <span>Itens extras</span>
+                                <span class="font-bold tabular-nums">{{ list.extras.length }}</span>
+                            </li>
+                        </ul>
+                        <p class="m-0 text-sm leading-relaxed text-brand-cream/70">
+                            {{ list.preview.join(', ') }}<span v-if="list.total > list.preview.length"> e mais {{ list.total - list.preview.length }}</span>
+                        </p>
+                        <Link :href="route('alimentacao.compras.edit', list.week)" class="w-fit text-sm font-bold text-[#43A047]">Editar lista</Link>
+                    </article>
+                </div>
             </section>
 
-            <form v-if="showForm" class="flex flex-col gap-8" @submit.prevent="save">
-                <div v-if="canSave" class="surface-card flex flex-col gap-3 p-6">
-                    <label class="text-sm font-bold uppercase tracking-[2px] text-[#43A047]" for="semana">Semana desta lista</label>
-                    <select id="semana" v-model.number="week" class="h-11 rounded-xl border border-brand-line3 bg-transparent px-3 text-brand-cream">
-                        <option v-for="item in weeks" :key="item.week" :value="item.week">Semana {{ item.week }} · {{ item.period }}</option>
-                    </select>
-                    <p v-if="form.errors.week" class="m-0 text-sm text-red-300">{{ form.errors.week }}</p>
-                </div>
-
+            <template v-if="!canSave">
                 <section v-for="section in sections" :key="section.title" class="surface-card flex flex-col gap-6 p-6">
                     <h2 class="text-xl font-black">{{ section.title }}</h2>
                     <div
@@ -165,30 +112,13 @@ const save = () => {
                         class="flex flex-col gap-3"
                     >
                         <h3 v-if="group.title" class="text-sm font-bold uppercase tracking-[2px] text-[#43A047]">{{ group.title }}</h3>
-                        <label v-for="(item, index) in group.items" :key="itemId(section.title, group.title, index)" class="flex items-start gap-3 text-[15px]">
-                            <input v-if="canSave && !isBlank(item)" v-model="checked[itemId(section.title, group.title, index)]" type="checkbox" class="mt-1 size-4 accent-[#43A047]" />
-                            <span v-if="!isBlank(item)" class="leading-snug">{{ item }}</span>
-                            <input
-                                v-else-if="canSave"
-                                v-model="extras[itemId(section.title, group.title, index)]"
-                                type="text"
-                                placeholder="Outro item"
-                                class="w-full rounded-lg border border-brand-line3 bg-transparent px-3 py-1.5 text-brand-cream outline-none placeholder:text-brand-cream/40"
-                            />
-                        </label>
+                        <ul class="m-0 flex list-none flex-col gap-2 p-0 text-[15px]">
+                            <li v-for="item in group.items.filter((name) => !name.includes('____'))" :key="item">{{ item }}</li>
+                        </ul>
                         <p v-for="note in group.notes" :key="note" class="text-sm leading-relaxed text-brand-cream/70">{{ note }}</p>
                     </div>
                 </section>
-
-                <div v-if="canSave" class="flex flex-wrap gap-3">
-                    <button type="submit" class="rounded-full bg-[#43A047] px-5 py-3 text-sm font-bold text-white disabled:opacity-60" :disabled="form.processing">
-                        Salvar lista
-                    </button>
-                    <button v-if="lists.length" type="button" class="rounded-full border border-brand-line3 px-5 py-3 text-sm font-bold" @click="editing = false">
-                        Cancelar
-                    </button>
-                </div>
-            </form>
+            </template>
 
             <section class="surface-card flex flex-col gap-3 p-6">
                 <h2 class="text-xl font-black">Dicas para uma compra que funciona na vida real</h2>

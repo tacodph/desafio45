@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import GoalContent from '@/components/GoalContent.vue';
 import { GOAL_DETAILS, type GoalKey } from '@/data/goalDetails';
-import { SKILL_IDEAS, SKILL_OBJECTIVE } from '@/data/skillIdeas';
 import { images } from '@/data/images';
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowLeft, Menu, X } from 'lucide-vue-next';
-import { nextTick, onMounted, ref, watch } from 'vue';
+import { ArrowLeft, ArrowRight, Menu, X } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 
 const props = defineProps<{
     goal: GoalKey;
@@ -12,25 +12,10 @@ const props = defineProps<{
 
 const menuOpen = ref(false);
 
-const scrollToGoal = (key: string) => {
-    const el = document.getElementById(key);
-    if (!el) {
-        return;
-    }
-
-    const offset = 96;
-    const top = el.getBoundingClientRect().top + window.scrollY - offset;
-    window.scrollTo({ top, behavior: 'smooth' });
-};
-
-onMounted(() => {
-    nextTick(() => scrollToGoal(props.goal));
-});
-
-watch(
-    () => props.goal,
-    (key) => nextTick(() => scrollToGoal(key)),
-);
+const index = computed(() => Math.max(0, GOAL_DETAILS.findIndex((item) => item.key === props.goal)));
+const item = computed(() => GOAL_DETAILS[index.value]);
+const previous = computed(() => GOAL_DETAILS[(index.value + GOAL_DETAILS.length - 1) % GOAL_DETAILS.length]);
+const next = computed(() => GOAL_DETAILS[(index.value + 1) % GOAL_DETAILS.length]);
 </script>
 
 <template>
@@ -91,20 +76,26 @@ watch(
             </Link>
             <div class="mt-6 flex flex-col gap-3.5">
                 <div class="eyebrow">Cada um no seu ritmo</div>
-                <h1 class="display-title m-0 text-[clamp(44px,6vw,80px)]">A regra de cada objetivo</h1>
+                <h1 class="display-title m-0 text-[clamp(44px,6vw,80px)]">A regra do objetivo</h1>
                 <p class="m-0 max-w-[560px] text-[17px] leading-relaxed text-brand-muted">
-                    Toque nos cards da home ou use o menu acima. Aqui está a regra, por que funciona e dicas práticas de cada um dos 5.
+                    Aqui está a regra, por que funciona e dicas práticas. Escolha outro objetivo abaixo.
                 </p>
+            </div>
+            <div class="-mx-6 mt-6 flex gap-2 overflow-x-auto px-6 pb-1">
+                <Link
+                    v-for="goalItem in GOAL_DETAILS"
+                    :key="goalItem.key"
+                    :href="route('objetivos.show', goalItem.key)"
+                    class="shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-bold"
+                    :class="goalItem.key === goal ? 'border-transparent text-brand-ink' : 'border-brand-line3 text-brand-cream hover:border-brand-cream'"
+                    :style="goalItem.key === goal ? { background: goalItem.color } : {}"
+                >
+                    {{ goalItem.nav }}
+                </Link>
             </div>
         </section>
 
-        <section
-            v-for="(item, index) in GOAL_DETAILS"
-            :id="item.key"
-            :key="item.key"
-            class="scroll-mt-24 border-t border-brand-line"
-            :class="index % 2 ? 'bg-brand-strip' : 'bg-brand-ink'"
-        >
+        <section :key="item.key" class="border-t border-brand-line bg-brand-ink">
             <div v-if="item.key === 'alimentacao'" class="mx-auto flex max-w-[1200px] flex-wrap gap-2 px-6 pt-8">
                 <span class="rounded-full bg-[#43A047] px-4 py-2 text-sm font-bold text-white">A regra</span>
                 <Link
@@ -114,61 +105,24 @@ watch(
                     Lista de compras
                 </Link>
             </div>
-            <div class="mx-auto grid max-w-[1200px] items-start gap-10 px-6 py-[clamp(56px,8vw,96px)] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-                <div class="flex flex-col gap-5">
-                    <img :src="item.icon" alt="" class="size-[88px]" />
-                    <div class="text-sm font-bold uppercase tracking-[3px]" :style="{ color: item.color }">{{ item.pillar }}</div>
-                    <h2 class="display-title m-0 text-[clamp(40px,5vw,72px)]">{{ item.title }}</h2>
-                    <p class="font-display text-[clamp(32px,4vw,48px)] font-extrabold leading-none" :style="{ color: item.color }">
-                        {{ item.metric }}
-                    </p>
-                    <p class="m-0 max-w-[420px] text-[17px] leading-relaxed text-brand-muted">{{ item.desc }}</p>
-                </div>
-
-                <div class="flex flex-col gap-4">
-                    <div class="surface-card flex flex-col gap-3 p-7">
-                        <span class="text-[13px] font-bold uppercase tracking-[2px]" :style="{ color: item.color }">A regra</span>
-                        <ul class="m-0 flex list-none flex-col gap-3 p-0">
-                            <li v-for="line in item.rule" :key="line" class="text-[16px] leading-relaxed text-brand-muted-3">{{ line }}</li>
-                        </ul>
-                    </div>
-                    <div class="surface-card flex flex-col gap-3 p-7">
-                        <span class="text-[13px] font-bold uppercase tracking-[2px] text-brand-gold">Por que funciona</span>
-                        <ul class="m-0 flex list-none flex-col gap-3 p-0">
-                            <li v-for="line in item.why" :key="line" class="text-[16px] leading-relaxed text-brand-muted-3">{{ line }}</li>
-                        </ul>
-                    </div>
-                    <div v-if="item.key !== 'habilidade'" class="surface-card flex flex-col gap-3 p-7">
-                        <span class="text-[13px] font-bold uppercase tracking-[2px] text-brand-muted-2">Dicas práticas</span>
-                        <ul class="m-0 flex list-none flex-col gap-3 p-0">
-                            <li v-for="line in item.tips" :key="line" class="text-[16px] leading-relaxed text-brand-muted-3">{{ line }}</li>
-                        </ul>
-                    </div>
-                </div>
+            <div class="mx-auto max-w-[1200px] px-6 py-[clamp(56px,8vw,96px)]">
+                <GoalContent :item="item" />
             </div>
 
-            <div v-if="item.key === 'habilidade'" class="mx-auto flex max-w-[1200px] flex-col gap-6 px-6 pb-[clamp(56px,8vw,96px)]">
-                <div class="flex flex-col gap-3">
-                    <span class="text-[13px] font-bold uppercase tracking-[2px]" :style="{ color: item.color }">Ideias para o desafio</span>
-                    <p class="m-0 max-w-[720px] text-[17px] leading-relaxed text-brand-muted">{{ SKILL_OBJECTIVE }}</p>
-                </div>
-                <div class="grid gap-4 md:grid-cols-2">
-                    <article v-for="group in SKILL_IDEAS" :key="group.title" class="surface-card flex flex-col gap-3 p-7">
-                        <h3 class="font-display m-0 text-2xl font-extrabold uppercase" :style="{ color: item.color }">{{ group.title }}</h3>
-                        <ul class="m-0 flex list-none flex-col gap-3 p-0">
-                            <li v-for="idea in group.items" :key="idea" class="text-[16px] leading-relaxed text-brand-muted-3">{{ idea }}</li>
-                        </ul>
-                    </article>
-                </div>
-            </div>
-
-            <div class="mx-auto max-w-[1200px] px-6 pb-[clamp(40px,6vw,72px)]">
+            <div class="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-3 px-6 pb-[clamp(40px,6vw,72px)]">
                 <Link
-                    :href="route('dashboard')"
+                    :href="route('objetivos.show', previous.key)"
                     class="inline-flex items-center gap-2 rounded-full border border-brand-line3 px-5 py-3 text-[15px] font-bold text-brand-cream hover:border-brand-cream"
                 >
                     <ArrowLeft class="size-4" />
-                    Voltar
+                    {{ previous.nav }}
+                </Link>
+                <Link
+                    :href="route('objetivos.show', next.key)"
+                    class="inline-flex items-center gap-2 rounded-full border border-brand-line3 px-5 py-3 text-[15px] font-bold text-brand-cream hover:border-brand-cream"
+                >
+                    {{ next.nav }}
+                    <ArrowRight class="size-4" />
                 </Link>
             </div>
         </section>

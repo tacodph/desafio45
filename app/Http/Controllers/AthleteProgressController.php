@@ -6,9 +6,11 @@ use App\Enums\UserRole;
 use App\Models\Achievement;
 use App\Models\AthleteProfile;
 use App\Models\Checkin;
+use App\Models\FoodGroup;
 use App\Models\User;
 use App\Models\UserType;
 use App\Support\ChallengeSheet;
+use App\Support\DayLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -19,18 +21,25 @@ use Inertia\Response;
 
 class AthleteProgressController extends Controller
 {
-    public function welcome(Request $request): Response|RedirectResponse
+    public function firstDay(Request $request): Response
     {
         $this->abortUnlessAthlete($request);
 
-        if ($request->user()->athleteProfile?->welcomed_at) {
-            return to_route('dashboard');
-        }
+        $profile = $request->user()->athleteProfile;
 
-        return Inertia::render('dashboard/BoasVindas');
+        return Inertia::render('dashboard/PrimeiroDia', [
+            'firstAccess' => ! $profile?->welcomed_at,
+            'baseline' => [
+                'weight' => $profile?->weight ?? '',
+                'waist' => $profile?->waist ?? '',
+                'abdomen' => $profile?->abdomen ?? '',
+                'hip' => $profile?->hip ?? '',
+                'photo' => $profile?->photo ? '/storage/'.$profile->photo : null,
+            ],
+        ]);
     }
 
-    public function storeWelcome(Request $request): RedirectResponse
+    public function storeFirstDay(Request $request): RedirectResponse
     {
         $this->abortUnlessAthlete($request);
 
@@ -57,17 +66,32 @@ class AthleteProgressController extends Controller
             'waist' => $data['waist'] ?? null,
             'abdomen' => $data['abdomen'] ?? null,
             'hip' => $data['hip'] ?? null,
-            'welcomed_at' => now(),
+            'welcomed_at' => $profile->welcomed_at ?? now(),
         ])->save();
 
-        return to_route('dashboard');
+        // No primeiro acesso, o segundo passo é preencher as metas.
+        return $profile->goals_set_at ? to_route('athlete.start.first-day') : to_route('athlete.start.goals');
     }
 
-    public function show(Request $request): Response
+    public function goals(Request $request): Response
     {
         $this->abortUnlessAthlete($request);
 
-        return $this->page($request->user(), true, false);
+        $payload = ChallengeSheet::payload($request->user());
+
+        return Inertia::render('dashboard/Metas', [
+            'firstAccess' => ! $request->user()->athleteProfile?->goals_set_at,
+            'profile' => $payload['profile'],
+            'penalty' => $payload['penalty'],
+            'weight' => $request->user()->athleteProfile?->weight,
+            'waterMinimum' => DayLog::waterMinimumLiters($request->user()->athleteProfile?->weight),
+        ]);
+    }
+    public function show(Request $request, string $tab): Response
+    {
+        $this->abortUnlessAthlete($request);
+
+        return $this->page($request->user(), true, false, $tab);
     }
 
     public function showAthlete(Request $request, User $athlete): Response
@@ -98,12 +122,12 @@ class AthleteProgressController extends Controller
             'penalty_note' => 'nullable|string|max:255',
         ]);
 
-        AthleteProfile::query()->updateOrCreate(
-            ['user_id' => $request->user()->id],
-            $data,
-        );
+        $profile = AthleteProfile::query()->firstOrNew(['user_id' => $request->user()->id]);
+        $firstTime = $profile->goals_set_at === null;
 
-        return to_route('athlete.progress');
+        $profile->fill([...$data, 'goals_set_at' => $profile->goals_set_at ?? now()])->save();
+
+        return $firstTime ? to_route('dashboard') : to_route('athlete.start.goals');
     }
 
     public function updateSkills(Request $request): RedirectResponse
@@ -152,21 +176,40 @@ class AthleteProgressController extends Controller
             'days.*.plus_count' => 'integer|min:0|max:9',
             'days.*.notes' => 'nullable|array',
             'days.*.notes.*' => 'nullable|string|max:255',
+            'days.*.details' => 'nullable|array',
+            'days.*.details.workouts' => 'nullable|array|max:6',
+            'days.*.details.workouts.*.type' => 'required|string|max:40',
+            'days.*.details.workouts.*.minutes' => 'nullable|integer|min:0|max:600',
+            'days.*.details.water_ml' => 'nullable|integer|min:0|max:10000',
+            'days.*.details.sleep_hours' => 'nullable|numeric|min:0|max:24',
+            'days.*.details.food' => 'nullable|array',
+            'days.*.details.food.*' => 'boolean',
+            'days.*.details.skill' => 'nullable|string|max:180',
+            'days.*.details.manual' => 'nullable|array',
+            'days.*.details.manual.*' => 'boolean',
         ]);
 
+        $profile = $request->user()->athleteProfile;
+
         foreach ($data['days'] as $day) {
+            $details = isset($day['details']) ? DayLog::normalize($day['details']) : null;
+            $achieved = $details ? DayLog::achieved($details, $profile) : [
+                'movement' => $day['movement'] ?? false,
+                'water' => $day['water'] ?? false,
+                'sleep' => $day['sleep'] ?? false,
+                'strength' => $day['strength'] ?? false,
+                'skill' => $day['skill'] ?? false,
+            ];
+
             Checkin::query()->updateOrCreate(
                 ['user_id' => $request->user()->id, 'day' => $day['day']],
                 [
                     'checked_in' => $day['checked_in'] ?? false,
-                    'movement' => $day['movement'] ?? false,
-                    'water' => $day['water'] ?? false,
-                    'sleep' => $day['sleep'] ?? false,
-                    'strength' => $day['strength'] ?? false,
-                    'skill' => $day['skill'] ?? false,
+                    ...$achieved,
+                    'details' => $details,
                     'plus_count' => $day['plus_count'] ?? 0,
                     'notes' => collect($day['notes'] ?? [])
-                        ->only(['movement', 'water', 'sleep', 'strength', 'skill', 'plus'])
+                        ->only(['movement', 'water', 'sleep', 'strength', 'skill', 'plus', 'day'])
                         ->map(fn ($note) => filled($note) ? $note : null)
                         ->filter()
                         ->all() ?: null,
@@ -174,7 +217,7 @@ class AthleteProgressController extends Controller
             );
         }
 
-        return to_route('athlete.progress');
+        return to_route('athlete.progress.tab', 'dias');
     }
 
     public function storeAchievement(Request $request): RedirectResponse
@@ -192,7 +235,7 @@ class AthleteProgressController extends Controller
             'achieved_on' => $data['achieved_on'] ?? now()->toDateString(),
         ]);
 
-        return to_route('athlete.progress', ['aba' => 'conquistas']);
+        return to_route('athlete.progress.tab', 'conquistas');
     }
 
     public function updateAchievement(Request $request, Achievement $achievement): RedirectResponse
@@ -204,7 +247,7 @@ class AthleteProgressController extends Controller
             'detail' => 'required|string|max:255',
         ]));
 
-        return to_route('athlete.progress', ['aba' => 'conquistas']);
+        return to_route('athlete.progress.tab', 'conquistas');
     }
 
     public function commentAchievement(Request $request, Achievement $achievement): RedirectResponse
@@ -230,13 +273,14 @@ class AthleteProgressController extends Controller
 
         $achievement->delete();
 
-        return to_route('athlete.progress', ['aba' => 'conquistas']);
+        return to_route('athlete.progress.tab', 'conquistas');
     }
 
-    private function page(User $athlete, bool $canEdit, bool $canComment): Response
+    private function page(User $athlete, bool $canEdit, bool $canComment, ?string $tab = null): Response
     {
         return Inertia::render('dashboard/Evolucao', [
             ...ChallengeSheet::payload($athlete),
+            'tab' => $tab,
             'canEdit' => $canEdit,
             'canComment' => $canComment,
             'athleteName' => $canComment ? $athlete->name : null,
@@ -249,46 +293,62 @@ class AthleteProgressController extends Controller
 
     public function shopping(Request $request): Response
     {
-        $weeks = collect(ChallengeSheet::WEEKS)->map(function (array $range, int $week) {
-            [$from, $to] = $range;
-
-            return [
-                'week' => $week,
-                'period' => Carbon::parse(ChallengeSheet::dateForDay($from))->format('d/m').' a '.Carbon::parse(ChallengeSheet::dateForDay($to))->format('d/m'),
-            ];
-        })->values();
-
-        $saved = [];
         $user = $request->user();
         $canSave = $user && UserRole::tryFrom($user->userType->name) === UserRole::Atleta;
 
-        if ($canSave) {
-            $saved = $user->athleteProfile?->shopping_lists ?? [];
-        }
-
-        $lists = $weeks->map(function (array $week) use ($saved) {
-            $row = $saved[(string) $week['week']] ?? null;
-
-            if (! is_array($row) || (($row['items'] ?? []) === [] && ($row['extras'] ?? []) === [])) {
-                return null;
-            }
-
-            return [
-                'week' => $week['week'],
-                'period' => $week['period'],
-                'items' => array_values($row['items']),
-                'extras' => array_values($row['extras'] ?? []),
-            ];
-        })->filter()->values();
-
         return Inertia::render('Compras', [
-            'weeks' => $weeks,
-            'lists' => $lists,
+            'weeks' => $this->shoppingWeeks(),
+            'lists' => $canSave ? $this->shoppingLists($user) : [],
             'canSave' => $canSave,
+            'catalog' => FoodGroup::catalog(),
         ]);
     }
 
+    public function createShopping(Request $request): Response|RedirectResponse
+    {
+        $this->abortUnlessAthlete($request);
+
+        $used = collect($this->shoppingLists($request->user()))->pluck('week');
+        $free = $this->shoppingWeeks()->reject(fn (array $week) => $used->contains($week['week']))->values();
+
+        if ($free->isEmpty()) {
+            return to_route('alimentacao.compras');
+        }
+
+        return Inertia::render('ComprasForm', [
+            'weeks' => $free,
+            'week' => $free->first()['week'],
+            'list' => null,
+            'catalog' => FoodGroup::catalog(),
+        ]);
+    }
+
+    public function editShopping(Request $request, int $week): Response
+    {
+        $this->abortUnlessAthlete($request);
+
+        $list = collect($this->shoppingLists($request->user()))->firstWhere('week', $week);
+        abort_if($list === null, 404);
+
+        return Inertia::render('ComprasForm', [
+            'weeks' => $this->shoppingWeeks()->where('week', $week)->values(),
+            'week' => $week,
+            'list' => $list,
+            'catalog' => FoodGroup::catalog(),
+        ]);
+    }
+
+    public function storeShopping(Request $request): RedirectResponse
+    {
+        return $this->saveShopping($request, true);
+    }
+
     public function updateShopping(Request $request): RedirectResponse
+    {
+        return $this->saveShopping($request, false);
+    }
+
+    private function saveShopping(Request $request, bool $new): RedirectResponse
     {
         $this->abortUnlessAthlete($request);
 
@@ -310,6 +370,10 @@ class AthleteProgressController extends Controller
         $lists = $profile->shopping_lists ?? [];
         $key = (string) $data['week'];
 
+        if ($new && isset($lists[$key])) {
+            throw ValidationException::withMessages(['week' => 'Essa semana já tem uma lista. Edite a existente.']);
+        }
+
         if ($items === [] && $extras === []) {
             unset($lists[$key]);
         } else {
@@ -320,6 +384,40 @@ class AthleteProgressController extends Controller
         $profile->save();
 
         return to_route('alimentacao.compras');
+    }
+
+    /** @return \Illuminate\Support\Collection<int, array{week: int, period: string}> */
+    private function shoppingWeeks()
+    {
+        return collect(ChallengeSheet::WEEKS)->map(function (array $range, int $week) {
+            [$from, $to] = $range;
+
+            return [
+                'week' => $week,
+                'period' => Carbon::parse(ChallengeSheet::dateForDay($from))->format('d/m').' a '.Carbon::parse(ChallengeSheet::dateForDay($to))->format('d/m'),
+            ];
+        })->values();
+    }
+
+    /** @return list<array{week: int, period: string, items: list<string>, extras: list<string>}> */
+    private function shoppingLists(User $user): array
+    {
+        $saved = $user->athleteProfile?->shopping_lists ?? [];
+
+        return $this->shoppingWeeks()->map(function (array $week) use ($saved) {
+            $row = $saved[(string) $week['week']] ?? null;
+
+            if (! is_array($row) || (($row['items'] ?? []) === [] && ($row['extras'] ?? []) === [])) {
+                return null;
+            }
+
+            return [
+                'week' => $week['week'],
+                'period' => $week['period'],
+                'items' => array_values($row['items'] ?? []),
+                'extras' => array_values($row['extras'] ?? []),
+            ];
+        })->filter()->values()->all();
     }
 
     private function abortUnlessAthlete(Request $request): void
