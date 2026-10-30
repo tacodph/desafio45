@@ -33,6 +33,16 @@ return [
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
     ],
 
+    'asaas' => [
+        'env' => env('ASAAS_ENV', 'sandbox'),
+        'api_key' => env('ASAAS_API_KEY'),
+        'webhook_token' => env('ASAAS_WEBHOOK_TOKEN'),
+        'user_agent' => env('ASAAS_USER_AGENT', 'Desafio45Firme'),
+        'base_url' => env('ASAAS_ENV', 'sandbox') === 'production'
+            ? 'https://api.asaas.com/v3'
+            : 'https://api-sandbox.asaas.com/v3',
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

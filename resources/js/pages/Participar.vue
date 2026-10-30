@@ -1,11 +1,17 @@
 <script setup lang="ts">
 import { GOAL_DETAILS } from '@/data/goalDetails';
 import { images } from '@/data/images';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
-defineProps<{
-    paymentUrl: string | null;
+const props = defineProps<{
+    price: number;
 }>();
+
+const page = usePage();
+const priceLabel = computed(() => props.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+// Quem já está logada vai direto para o pagamento; quem não está, cria a conta primeiro.
+const ctaHref = computed(() => (page.props.auth?.user ? route('pagamento.show') : route('register')));
 </script>
 
 <template>
@@ -47,17 +53,15 @@ defineProps<{
 
             <section id="pagamento" class="flex flex-col gap-4 rounded-[28px] bg-brand-gold px-7 py-8 text-brand-ink">
                 <span class="text-sm font-bold uppercase tracking-[2px]">Inscrição</span>
-                <p class="display-title m-0 text-[clamp(56px,8vw,80px)] leading-none">R$ 79,90</p>
+                <p class="display-title m-0 text-[clamp(56px,8vw,80px)] leading-none">{{ priceLabel }}</p>
                 <p class="m-0 max-w-[460px] text-[17px] font-semibold leading-snug">
                     Um pagamento para os 45 dias. Depois é só entrar e acompanhar o desafio.
                 </p>
                 <a
-                    :href="paymentUrl || route('register')"
+                    :href="ctaHref"
                     class="mt-2 inline-flex w-fit items-center rounded-full bg-brand-ink px-7 py-4 text-[17px] font-bold text-brand-cream hover:bg-brand-line hover:text-brand-cream"
-                    :target="paymentUrl ? '_blank' : undefined"
-                    :rel="paymentUrl ? 'noopener' : undefined"
                 >
-                    Pagar R$ 79,90
+                    Pagar {{ priceLabel }}
                 </a>
             </section>
         </main>

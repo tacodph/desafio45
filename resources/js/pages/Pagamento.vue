@@ -1,0 +1,203 @@
+<script setup lang="ts">
+import InputError from '@/components/InputError.vue';
+import { images } from '@/data/images';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
+import { LoaderCircle } from 'lucide-vue-next';
+import { computed, onBeforeUnmount, onMounted, watch } from 'vue';
+
+type PaymentState = 'novo' | 'pendente' | 'vencido' | 'confirmado' | 'reembolsado';
+
+const props = defineProps<{
+    price: number;
+    needsCpf: boolean;
+    payment: {
+        state: PaymentState;
+        dueDate: string | null;
+    };
+}>();
+
+const page = usePage();
+const asaasError = computed(() => (page.props.errors as Record<string, string> | undefined)?.asaas);
+
+const priceLabel = computed(() => props.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+
+const form = useForm({ cpf: '' });
+
+const maskCpf = (value: string) => {
+    const d = value.replace(/\D/g, '').slice(0, 11);
+    return d
+        .replace(/^(\d{3})(\d)/, '$1.$2')
+        .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+        .replace(/\.(\d{3})(\d)/, '.$1-$2');
+};
+
+const onCpfInput = (event: Event) => {
+    form.cpf = maskCpf((event.target as HTMLInputElement).value);
+};
+
+const submit = () => {
+    form.post(route('pagamento.store'), { preserveScroll: true });
+};
+
+// Enquanto aguarda o pagamento, consulta o servidor (o webhook do Asaas libera o acesso).
+let poll: ReturnType<typeof setInterval> | undefined;
+let redirect: ReturnType<typeof setTimeout> | undefined;
+
+const stopPolling = () => {
+    if (poll) {
+        clearInterval(poll);
+        poll = undefined;
+    }
+};
+
+const startPolling = () => {
+    stopPolling();
+    poll = setInterval(() => router.reload({ only: ['payment'] }), 5000);
+};
+
+const verifyNow = () => router.get(route('pagamento.retorno'));
+
+watch(
+    () => props.payment.state,
+    (state) => {
+        if (state === 'pendente') {
+            startPolling();
+        } else {
+            stopPolling();
+        }
+
+        if (state === 'confirmado') {
+            redirect = setTimeout(() => router.visit(route('dashboard')), 3000);
+        }
+    },
+    { immediate: true },
+);
+
+onMounted(() => {
+    if (props.payment.state === 'pendente') startPolling();
+});
+
+onBeforeUnmount(() => {
+    stopPolling();
+    if (redirect) clearTimeout(redirect);
+});
+</script>
+
+<template>
+    <Head title="Pagamento | Desafio 45 Firme" />
+
+    <div class="min-h-screen bg-brand-ink text-brand-cream">
+        <header class="border-b border-brand-line">
+            <div class="mx-auto flex max-w-[760px] items-center justify-between px-6 py-4">
+                <Link :href="route('home')" class="flex items-center gap-2.5 text-brand-cream hover:text-brand-cream">
+                    <img :src="images.logoMark" alt="" class="size-11 object-contain" />
+                    <span class="flex flex-col font-display font-extrabold uppercase italic leading-none tracking-wide">
+                        <span class="text-[22px]">Desafio <span class="text-brand-gold">45</span> Dias</span>
+                        <span class="text-[13px] text-brand-muted-3">antes do verão</span>
+                    </span>
+                </Link>
+                <Link :href="route('logout')" method="post" as="button" class="text-sm font-semibold text-brand-muted-3 hover:text-brand-cream">
+                    Sair
+                </Link>
+            </div>
+        </header>
+
+        <main class="mx-auto flex max-w-[760px] flex-col gap-8 px-6 py-12" aria-live="polite">
+            <!-- Confirmado -->
+            <section v-if="payment.state === 'confirmado'" class="flex flex-col gap-4 rounded-[28px] bg-brand-gold px-7 py-8 text-brand-ink">
+                <span class="text-sm font-bold uppercase tracking-[2px]">Pagamento confirmado</span>
+                <p class="display-title m-0 text-[clamp(40px,7vw,64px)] leading-none">Você está dentro!</p>
+                <p class="m-0 max-w-[460px] text-[17px] font-semibold leading-snug">
+                    Recebemos sua inscrição no Desafio 45 Firme. Estamos levando você para o app.
+                </p>
+                <Link
+                    :href="route('dashboard')"
+                    class="mt-2 inline-flex w-fit items-center rounded-full bg-brand-ink px-7 py-4 text-[17px] font-bold text-brand-cream hover:bg-brand-line hover:text-brand-cream"
+                >
+                    Entrar agora
+                </Link>
+            </section>
+
+            <template v-else>
+                <div class="flex flex-col gap-4">
+                    <div class="text-sm font-bold uppercase tracking-[3px] text-brand-gold">6 nov → 20 dez 2026</div>
+                    <h1 class="display-title m-0 text-[clamp(40px,7vw,64px)] leading-[0.95]">Falta só o pagamento para entrar no Desafio 45 Firme</h1>
+                    <p class="m-0 text-[18px] leading-relaxed text-brand-muted-3">
+                        Um pagamento para os 45 dias. Você escolhe Pix, boleto ou cartão. Assim que o pagamento for confirmado, o acesso é liberado.
+                    </p>
+                </div>
+
+                <div v-if="asaasError" role="alert" class="rounded-[22px] border border-red-500/40 bg-red-500/10 px-5 py-4 text-[16px] text-red-200">
+                    {{ asaasError }}
+                </div>
+
+                <!-- Reembolsado -->
+                <section v-if="payment.state === 'reembolsado'" class="rounded-[22px] border border-brand-line2 bg-brand-card2 px-5 py-4">
+                    <p class="m-0 text-[16px] text-brand-muted-3">
+                        Seu pagamento foi reembolsado e o acesso está suspenso. Se quiser voltar para o desafio, fale com a equipe.
+                    </p>
+                </section>
+
+                <!-- Pendente -->
+                <section v-else-if="payment.state === 'pendente'" class="flex flex-col gap-4 rounded-[28px] bg-brand-gold px-7 py-8 text-brand-ink">
+                    <span class="text-sm font-bold uppercase tracking-[2px]">Inscrição</span>
+                    <p class="display-title m-0 text-[clamp(56px,8vw,80px)] leading-none">{{ priceLabel }}</p>
+                    <p class="m-0 max-w-[460px] text-[17px] font-semibold leading-snug">Pix, boleto ou cartão. Vence em {{ payment.dueDate }}.</p>
+                    <div class="mt-2 flex flex-wrap items-center gap-4">
+                        <a
+                            :href="route('pagamento.pagar')"
+                            target="_blank"
+                            rel="noopener"
+                            class="inline-flex w-fit items-center rounded-full bg-brand-ink px-7 py-4 text-[17px] font-bold text-brand-cream hover:bg-brand-line hover:text-brand-cream focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-ink"
+                        >
+                            Pagar {{ priceLabel }}
+                        </a>
+                        <button type="button" class="text-[15px] font-bold underline underline-offset-4" @click="verifyNow">
+                            Já paguei, verificar agora
+                        </button>
+                    </div>
+                    <p class="m-0 flex items-center gap-2 text-sm font-semibold">
+                        <LoaderCircle class="size-4 animate-spin" aria-hidden="true" />
+                        Aguardando a confirmação do pagamento...
+                    </p>
+                </section>
+
+                <!-- Novo / vencido -->
+                <form v-else class="flex flex-col gap-4 rounded-[28px] bg-brand-gold px-7 py-8 text-brand-ink" @submit.prevent="submit">
+                    <span class="text-sm font-bold uppercase tracking-[2px]">Inscrição</span>
+                    <p class="display-title m-0 text-[clamp(56px,8vw,80px)] leading-none">{{ priceLabel }}</p>
+                    <p v-if="payment.state === 'vencido'" class="m-0 max-w-[460px] text-[17px] font-semibold leading-snug">
+                        Seu pagamento anterior venceu. Gere um novo para continuar.
+                    </p>
+
+                    <div v-if="needsCpf" class="flex max-w-[360px] flex-col gap-1.5">
+                        <label for="cpf" class="text-[15px] font-bold">CPF</label>
+                        <input
+                            id="cpf"
+                            :value="form.cpf"
+                            type="text"
+                            inputmode="numeric"
+                            autocomplete="off"
+                            placeholder="000.000.000-00"
+                            class="rounded-xl border-2 border-brand-ink/20 bg-white px-4 py-3 text-[17px] text-brand-ink outline-none focus:border-brand-ink"
+                            @input="onCpfInput"
+                        />
+                        <InputError :message="form.errors.cpf" />
+                        <p class="m-0 text-sm font-semibold leading-snug">
+                            O CPF é exigido para emitir a cobrança. Ele é enviado ao Asaas e não fica salvo aqui.
+                        </p>
+                    </div>
+
+                    <button
+                        type="submit"
+                        :disabled="form.processing"
+                        class="mt-2 inline-flex w-fit items-center gap-2 rounded-full bg-brand-ink px-7 py-4 text-[17px] font-bold text-brand-cream hover:bg-brand-line hover:text-brand-cream disabled:opacity-60"
+                    >
+                        <LoaderCircle v-if="form.processing" class="size-4 animate-spin" aria-hidden="true" />
+                        {{ payment.state === 'vencido' ? 'Gerar novo pagamento' : 'Gerar pagamento' }}
+                    </button>
+                </form>
+            </template>
+        </main>
+    </div>
+</template>

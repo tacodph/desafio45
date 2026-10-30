@@ -39,7 +39,7 @@ class GoogleAuthTest extends TestCase
         $response = $this->withSession(['google_oauth_state' => 'state-1'])
             ->get('/auth/google/callback?state=state-1&code=abc');
 
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $response->assertRedirect(route('pagamento.show', absolute: false));
         $this->assertAuthenticated();
         $this->assertDatabaseHas('users', [
             'email' => 'ana@gmail.com',

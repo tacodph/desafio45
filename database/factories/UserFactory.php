@@ -30,6 +30,7 @@ class UserFactory extends Factory
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
+            'challenge_paid_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'user_type_id' => UserType::idFor(UserRole::Atleta),
             'remember_token' => Str::random(10),
@@ -43,6 +44,13 @@ class UserFactory extends Factory
     {
         return $this->state(fn () => [
             'user_type_id' => UserType::idFor($role),
+        ]);
+    }
+
+    public function unpaid(): static
+    {
+        return $this->state(fn () => [
+            'challenge_paid_at' => null,
         ]);
     }
 

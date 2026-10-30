@@ -32,6 +32,9 @@ defineProps<{
                 <Link :href="route('admin.users')" class="surface-card w-fit px-5 py-4 font-display text-lg font-bold uppercase">
                     Ver usuários
                 </Link>
+                <Link :href="route('admin.payments')" class="surface-card w-fit px-5 py-4 font-display text-lg font-bold uppercase">
+                    Solicitações de pagamento
+                </Link>
                 <Link :href="route('admin.foods')" class="surface-card w-fit px-5 py-4 font-display text-lg font-bold uppercase">
                     Alimentos
                 </Link>

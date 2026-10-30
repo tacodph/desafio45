@@ -44,7 +44,7 @@ Fluxo:
 - **Não guardar CPF** no banco. Enviar ao Asaas e guardar só o `asaas_customer_id`.
 - **Sem SDK:** cliente HTTP próprio em `app/Services/Asaas/AsaasClient.php`.
 - **Identificação da cobrança:** `externalReference` = UUID interno do registro de pagamento.
-- **Marca:** tudo que a pessoa vê em relação ao pagamento deve usar o nome **Desafio 45 Firme**: título da aba, cabeçalho, textos, descrição da cobrança, e-mails e links. Na página de pagamento, trocar o "Desafio 45 Dias" do cabeçalho por "Desafio **45** Firme" (mesmo estilo `font-display` e destaque dourado no 45). Não alterar as demais telas do app nesta tarefa.
+- **Marca:** tudo que a pessoa vê em relação ao pagamento deve usar o nome **Desafio 45 Firme**: título da aba, cabeçalho, textos, descrição da cobrança, e-mails e links. O **cabeçalho** da página de pagamento usa **"Desafio 45 Dias antes do verão"** (mesmo estilo `font-display` e destaque dourado no 45; se o texto ficar longo no mobile, quebrar "antes do verão" em uma segunda linha menor). Já o título da aba, a descrição da cobrança e o domínio dos links seguem como Desafio 45 Firme. Não alterar as demais telas do app nesta tarefa.
 - **Links em nome do Desafio:** a pessoa só vê links do nosso domínio (`https://www.desafio45firme.com.br/pagamento`, `/pagamento/pagar`, `/pagamento/retorno`). O endereço da fatura do Asaas (`invoiceUrl`, domínio do Asaas) **não** é exibido nem enviado por nós: o botão "Pagar" aponta para `/pagamento/pagar`, que redireciona (302) para a fatura. O domínio da fatura em si não dá para trocar; o que se personaliza é a aparência (ver seção 5).
 
 ## 5. Integração Asaas (API v3)
@@ -117,7 +117,7 @@ Models: `ChallengePayment` (com `belongsTo User`, escopos `pending()`, `isPaid()
 
 ## 8. Frontend (`resources/js/pages/Pagamento.vue`)
 
-Página no layout de `Participar.vue` (cabeçalho com logo, `max-w-[760px]`, fundo `brand-ink`), com `<Head title="Pagamento | Desafio 45 Firme" />` e o nome **Desafio 45 Firme** no cabeçalho e nos textos. Props: `payment` (status, valor, vencimento; sem `invoiceUrl`), `price`, `needsCpf`.
+Página no layout de `Participar.vue` (cabeçalho com logo, `max-w-[760px]`, fundo `brand-ink`), com `<Head title="Pagamento | Desafio 45 Firme" />` o cabeçalho "Desafio 45 Dias antes do verão" e o nome Desafio 45 Firme nos textos de apoio. Props: `payment` (status, valor, vencimento; sem `invoiceUrl`), `price`, `needsCpf`.
 
 Estados:
 
@@ -159,7 +159,7 @@ Rode `php artisan test`, `./vendor/bin/pint` e `npm run build` (ou `npx vue-tsc 
 4. Nenhuma ação do usuário cria cobrança duplicada.
 5. Atleta não pago não acessa nenhuma rota do app, exceto pagamento, configurações e logout.
 6. Equipe e usuários antigos continuam acessando normalmente.
-7. Página, textos, título da aba, descrição da cobrança e links exibidos usam o nome Desafio 45 Firme e o domínio `desafio45firme.com.br`; o `invoiceUrl` não aparece no HTML nem em e-mails nossos.
+7. O cabeçalho da página mostra "Desafio 45 Dias antes do verão"; título da aba, descrição da cobrança e links exibidos usam o nome Desafio 45 Firme e o domínio `desafio45firme.com.br`; o `invoiceUrl` não aparece no HTML nem em e-mails nossos.
 8. Todos os testes passam e o build não tem erros.
 
 ## 12. Como trabalhar

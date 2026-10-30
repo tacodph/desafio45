@@ -17,9 +17,14 @@ interface Props {
     mustVerifyEmail: boolean;
     status?: string;
     className?: string;
+    paymentInfo: {
+        status: 'novo' | 'pendente' | 'vencido' | 'confirmado' | 'reembolsado';
+        value: number | string;
+        dueDate: string | null;
+    } | null;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -51,6 +56,17 @@ const submit = () => {
         forceFormData: true,
     });
 };
+
+const paymentStatus = (status: NonNullable<Props['paymentInfo']>['status']) =>
+    ({
+        novo: 'Pagamento ainda não iniciado',
+        pendente: 'Aguardando pagamento',
+        vencido: 'Pagamento vencido',
+        confirmado: 'Pagamento confirmado',
+        reembolsado: 'Pagamento reembolsado',
+    })[status];
+
+const paymentValue = (value: number | string) => Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 </script>
 
 <template>
@@ -126,6 +142,31 @@ const submit = () => {
                         </TransitionRoot>
                     </div>
                 </form>
+
+                <section v-if="props.paymentInfo" class="rounded-xl border border-sidebar-border p-4">
+                    <HeadingSmall title="Dados de pagamento" description="Acompanhe o status da inscrição no Desafio 45." />
+                    <dl class="mt-4 grid gap-4 sm:grid-cols-3">
+                        <div>
+                            <dt class="text-sm text-muted-foreground">Status</dt>
+                            <dd class="font-semibold">{{ paymentStatus(props.paymentInfo.status) }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm text-muted-foreground">Valor da inscrição</dt>
+                            <dd class="font-semibold">{{ paymentValue(props.paymentInfo.value) }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm text-muted-foreground">Vencimento</dt>
+                            <dd class="font-semibold">{{ props.paymentInfo.dueDate ?? 'Ainda não definido' }}</dd>
+                        </div>
+                    </dl>
+                    <Link
+                        v-if="props.paymentInfo.status !== 'confirmado'"
+                        :href="route('pagamento.show')"
+                        class="mt-4 inline-flex text-sm font-semibold text-primary underline underline-offset-4"
+                    >
+                        Ver pagamento
+                    </Link>
+                </section>
             </div>
 
             <DeleteUser />

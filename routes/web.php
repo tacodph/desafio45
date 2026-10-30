@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AthleteProgressController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\WebhookController;
 use App\Models\Skill;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -12,7 +14,7 @@ Route::get('/', function () {
 
 Route::get('participar', function () {
     return Inertia::render('Participar', [
-        'paymentUrl' => config('desafio.payment_url'),
+        'price' => config('desafio.price'),
     ]);
 })->name('participar');
 
@@ -44,7 +46,16 @@ Route::get('objetivos/{goal}', function (string $goal) {
     ]);
 })->name('objetivos.show');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware('auth')->group(function () {
+    Route::get('pagamento', [PaymentController::class, 'show'])->name('pagamento.show');
+    Route::post('pagamento', [PaymentController::class, 'store'])->middleware('throttle:6,1')->name('pagamento.store');
+    Route::get('pagamento/pagar', [PaymentController::class, 'pay'])->name('pagamento.pagar');
+    Route::get('pagamento/retorno', [PaymentController::class, 'callback'])->name('pagamento.retorno');
+});
+
+Route::post('webhooks/asaas', WebhookController::class)->name('webhooks.asaas');
+
+Route::middleware(['auth', 'verified', 'challenge.paid'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
     Route::get('pontuacao', [DashboardController::class, 'scoring'])->name('pontuacao');
     Route::put('pontuacao', [DashboardController::class, 'updateScoring'])->name('pontuacao.update');
@@ -54,6 +65,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('Objetivo', ['goal' => $goal, 'skillCatalog' => Skill::catalog()]);
     })->name('meus-objetivos.show');
     Route::get('admin/usuarios', [DashboardController::class, 'users'])->name('admin.users');
+    Route::get('admin/pagamentos', [DashboardController::class, 'payments'])->name('admin.payments');
     Route::get('admin/usuarios/novo', [DashboardController::class, 'createUser'])->name('admin.users.create');
     Route::post('admin/usuarios', [DashboardController::class, 'storeUser'])->name('admin.users.store');
     Route::get('admin/alimentos', [DashboardController::class, 'foods'])->name('admin.foods');

@@ -33,6 +33,12 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $user = $request->user();
+
+        if ($user->isAthlete() && ! $user->hasPaidChallenge()) {
+            return to_route('pagamento.show');
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

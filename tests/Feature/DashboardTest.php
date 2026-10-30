@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\UserRole;
 use App\Models\AthleteProfile;
+use App\Models\ChallengePayment;
 use App\Models\User;
 use App\Models\UserType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -119,6 +120,41 @@ class DashboardTest extends TestCase
 
         $this->actingAs(User::factory()->ofRole(UserRole::Coach)->create())
             ->get('/admin/usuarios')
+            ->assertForbidden();
+    }
+
+    public function test_admin_and_nutritionist_can_view_payment_requests_but_other_roles_cannot(): void
+    {
+        $athlete = User::factory()->unpaid()->create(['name' => 'Atleta Pagante']);
+        ChallengePayment::create([
+            'user_id' => $athlete->id,
+            'asaas_payment_id' => 'pay_dashboard_test',
+            'status' => ChallengePayment::PENDING,
+            'billing_type' => 'PIX',
+            'value' => 79.90,
+            'due_date' => today()->addDays(2),
+            'invoice_url' => 'https://asaas.example/private-invoice',
+        ]);
+
+        foreach ([UserRole::Administrador, UserRole::Nutricionista] as $role) {
+            $this->actingAs(User::factory()->ofRole($role)->create())
+                ->get(route('admin.payments'))
+                ->assertOk()
+                ->assertInertia(fn (Assert $page) => $page
+                    ->component('dashboard/Payments')
+                    ->where('payments.data.0.athlete', 'Atleta Pagante')
+                    ->where('payments.data.0.asaasPaymentId', 'pay_dashboard_test')
+                    ->where('payments.data.0.status', ChallengePayment::PENDING)
+                    ->where('payments.data.0.billingType', 'PIX')
+                    ->missing('payments.data.0.invoice_url'));
+        }
+
+        $this->actingAs(User::factory()->ofRole(UserRole::Coach)->create())
+            ->get(route('admin.payments'))
+            ->assertForbidden();
+
+        $this->actingAs(User::factory()->create())
+            ->get(route('admin.payments'))
             ->assertForbidden();
     }
 

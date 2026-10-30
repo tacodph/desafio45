@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Models\ChallengePayment;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
@@ -19,9 +20,36 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
+        $user = $request->user();
+        $paymentInfo = null;
+
+        if ($user->isAthlete()) {
+            $latestPayment = $user->payments()->latest('id')->first();
+            $status = 'novo';
+
+            if ($user->hasPaidChallenge()) {
+                $status = 'confirmado';
+            } elseif ($latestPayment?->status === ChallengePayment::REFUNDED) {
+                $status = 'reembolsado';
+            } elseif ($latestPayment) {
+                $status = $latestPayment->status === ChallengePayment::PENDING
+                    && $latestPayment->asaas_payment_id
+                    && $latestPayment->due_date?->gte(today())
+                        ? 'pendente'
+                        : 'vencido';
+            }
+
+            $paymentInfo = [
+                'status' => $status,
+                'value' => $latestPayment?->value ?? config('desafio.price'),
+                'dueDate' => $latestPayment?->due_date?->format('d/m/Y'),
+            ];
+        }
+
         return Inertia::render('settings/Profile', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => $request->session()->get('status'),
+            'paymentInfo' => $paymentInfo,
         ]);
     }
 

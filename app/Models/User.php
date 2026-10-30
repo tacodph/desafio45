@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\UserRole;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -28,6 +29,8 @@ class User extends Authenticatable
         'google_id',
         'user_type_id',
         'avatar',
+        'asaas_customer_id',
+        'challenge_paid_at',
     ];
 
     /**
@@ -50,6 +53,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'challenge_paid_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
@@ -62,6 +66,21 @@ class User extends Authenticatable
     public function athleteProfile(): HasOne
     {
         return $this->hasOne(AthleteProfile::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(ChallengePayment::class);
+    }
+
+    public function isAthlete(): bool
+    {
+        return $this->user_type_id === UserType::idFor(UserRole::Atleta);
+    }
+
+    public function hasPaidChallenge(): bool
+    {
+        return $this->challenge_paid_at !== null;
     }
 
     public function checkins(): HasMany

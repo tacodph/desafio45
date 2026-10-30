@@ -31,6 +31,7 @@ const mainNavItems = computed<NavGroupItem[]>(() => {
         return [
             { title: 'Painel', href: '/dashboard', icon: LayoutGrid },
             { title: 'Usuários', href: '/admin/usuarios', icon: Users },
+            { title: 'Pagamentos', href: '/admin/pagamentos', icon: ClipboardCheck },
             { title: 'Alimentos', href: '/admin/alimentos', icon: Apple },
             { title: 'Objetivos', href: '/meus-objetivos/alimentacao', icon: Salad },
             { title: 'Pontuação', href: '/pontuacao', icon: Trophy },
@@ -67,7 +68,7 @@ const mainNavItems = computed<NavGroupItem[]>(() => {
         ];
     }
 
-    return [
+    const items: NavGroupItem[] = [
         { title: 'Painel', href: '/dashboard', icon: LayoutGrid },
         { title: 'Atletas', href: '/equipe/atletas', icon: Users },
         {
@@ -83,6 +84,12 @@ const mainNavItems = computed<NavGroupItem[]>(() => {
         },
         { title: 'Pontuação', href: '/pontuacao', icon: Trophy },
     ];
+
+    if (role.value === 'nutricionista') {
+        items.splice(2, 0, { title: 'Pagamentos', href: '/admin/pagamentos', icon: ClipboardCheck });
+    }
+
+    return items;
 });
 
 const footerNavItems: NavItem[] = [

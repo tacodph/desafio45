@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
+use App\Models\ChallengePayment;
 use App\Models\Food;
 use App\Models\FoodGroup;
 use App\Models\ScoreRule;
@@ -55,6 +56,42 @@ class DashboardController extends Controller
 
         return Inertia::render('dashboard/Equipe', [
             'athleteCount' => User::query()->where('user_type_id', UserType::idFor(UserRole::Atleta))->count(),
+            'canViewPayments' => $role === UserRole::Nutricionista,
+        ]);
+    }
+
+    public function payments(Request $request): Response
+    {
+        $role = $this->role($request);
+        abort_unless(in_array($role, [UserRole::Administrador, UserRole::Nutricionista], true), 403);
+
+        return Inertia::render('dashboard/Payments', [
+            'payments' => ChallengePayment::query()
+                ->with('user:id,name,email')
+                ->latest('id')
+                ->paginate(25, [
+                    'id',
+                    'user_id',
+                    'asaas_payment_id',
+                    'status',
+                    'billing_type',
+                    'value',
+                    'due_date',
+                    'confirmed_at',
+                    'created_at',
+                ])
+                ->through(fn (ChallengePayment $payment) => [
+                    'id' => $payment->id,
+                    'athlete' => $payment->user?->name,
+                    'email' => $payment->user?->email,
+                    'asaasPaymentId' => $payment->asaas_payment_id,
+                    'status' => $payment->status,
+                    'billingType' => $payment->billing_type,
+                    'value' => $payment->value,
+                    'dueDate' => $payment->due_date?->format('d/m/Y'),
+                    'confirmedAt' => $payment->confirmed_at?->format('d/m/Y H:i'),
+                    'createdAt' => $payment->created_at?->format('d/m/Y H:i'),
+                ]),
         ]);
     }
 
@@ -93,7 +130,8 @@ class DashboardController extends Controller
             'password' => $data['password'],
             'user_type_id' => $data['user_type_id'],
         ]);
-        $user->forceFill(['email_verified_at' => now()])->save();
+        // Conta criada pela administração é cortesia: não passa pela cobrança.
+        $user->forceFill(['email_verified_at' => now(), 'challenge_paid_at' => now()])->save();
 
         return to_route('admin.users');
     }

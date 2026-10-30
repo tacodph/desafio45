@@ -18,9 +18,32 @@ class ProfileUpdateTest extends TestCase
 
         $response = $this
             ->actingAs($user)
-            ->get('/settings/profile');
+            ->get('/settings/profile')
+            ->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page
+                ->where('paymentInfo.status', 'confirmado')
+                ->where('paymentInfo.value', 79.9)
+                ->where('paymentInfo.dueDate', null));
 
         $response->assertOk();
+    }
+
+    public function test_unpaid_athlete_sees_payment_status_and_due_date_on_profile_settings()
+    {
+        $user = User::factory()->unpaid()->create();
+        $user->payments()->create([
+            'status' => \App\Models\ChallengePayment::PENDING,
+            'value' => 79.9,
+            'due_date' => today()->addDays(2),
+            'asaas_payment_id' => 'pay_profile_test',
+        ]);
+
+        $this->actingAs($user)
+            ->get('/settings/profile')
+            ->assertOk()
+            ->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page
+                ->where('paymentInfo.status', 'pendente')
+                ->where('paymentInfo.value', '79.90')
+                ->where('paymentInfo.dueDate', today()->addDays(2)->format('d/m/Y')));
     }
 
     public function test_profile_information_can_be_updated()

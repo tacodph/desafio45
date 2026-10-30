@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureChallengePaid;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -13,6 +14,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->alias([
+            'challenge.paid' => EnsureChallengePaid::class,
+        ]);
+
+        // O webhook do Asaas é server-to-server e se autentica pelo header asaas-access-token.
+        $middleware->validateCsrfTokens(except: ['webhooks/asaas']);
+
         $middleware->web(append: [
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,

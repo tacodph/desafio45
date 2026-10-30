@@ -52,6 +52,7 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return to_route('dashboard');
+        // Atleta novo ainda não pagou: o primeiro acesso é a página de pagamento.
+        return to_route('pagamento.show');
     }
 }
