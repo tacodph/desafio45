@@ -2,9 +2,12 @@
 
 namespace App\Support;
 
+use App\Enums\UserRole;
 use App\Models\Checkin;
+use App\Models\ScoreRule;
 use App\Models\Skill;
 use App\Models\User;
+use App\Models\UserType;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
 
@@ -64,14 +67,22 @@ class ChallengeSheet
         return self::weekOf(max(1, min(45, $day)));
     }
 
-    public static function dayPoints(Checkin $checkin): int
+    public static function dayPoints(Checkin $checkin, ?array $scores = null): int
     {
-        return ($checkin->checked_in ? 1 : 0)
-            + ($checkin->movement ? 3 : 0)
-            + ($checkin->water ? 1 : 0)
-            + ($checkin->sleep ? 1 : 0)
-            + ($checkin->strength ? 2 : 0)
-            + ($checkin->skill ? 2 : 0);
+        $p = fn (string $key, int $default) => (int) (($scores ?? self::scoreMap())[$key] ?? $default);
+
+        return ($checkin->checked_in ? $p('checkin', 1) : 0)
+            + ($checkin->movement ? $p('movement', 3) : 0)
+            + ($checkin->water ? $p('water', 1) : 0)
+            + ($checkin->sleep ? $p('sleep', 1) : 0)
+            + ($checkin->strength ? $p('strength', 2) : 0)
+            + ($checkin->skill ? $p('skill', 2) : 0);
+    }
+
+    /** @return array<string, int> */
+    private static function scoreMap(): array
+    {
+        return ScoreRule::map()->all();
     }
 
     /**
@@ -119,6 +130,7 @@ class ChallengeSheet
         $user->load('checkins');
         $checkins = $user->checkins->keyBy('day');
         $weekdays = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+        $scores = self::scoreMap();
         $days = [];
 
         for ($day = 1; $day <= 45; $day++) {
@@ -150,7 +162,7 @@ class ChallengeSheet
                     'plus' => '',
                     'day' => '',
                 ], is_array($checkin?->notes) ? $checkin->notes : []),
-                'points' => $checkin ? self::dayPoints($checkin) : 0,
+                'points' => $checkin ? self::dayPoints($checkin, $scores) : 0,
             ];
         }
 
@@ -165,6 +177,8 @@ class ChallengeSheet
                 }
             }
         }
+
+        $weeks = self::weeksWithGroup($user);
 
         return [
             'currentWeek' => self::currentWeek(),
@@ -192,7 +206,7 @@ class ChallengeSheet
                 'penalty_note' => $profile?->penalty_note ?? '',
             ],
             'days' => $days,
-            'weeks' => self::weeks($user),
+            'weeks' => $weeks,
             'achievements' => $user->achievements
                 ->sortByDesc('achieved_on')
                 ->values()
@@ -201,7 +215,7 @@ class ChallengeSheet
                     'achieved_on' => $item->achieved_on->toDateString(),
                     'type' => $item->type,
                     'label' => self::ACHIEVEMENTS[$item->type][0] ?? $item->type,
-                    'points' => self::ACHIEVEMENTS[$item->type][1] ?? 0,
+                    'points' => $scores[$item->type] ?? self::ACHIEVEMENTS[$item->type][1] ?? 0,
                     'detail' => $item->detail ?? '',
                     'emotion' => $item->emotion ?? '',
                     'comment' => $item->comment ?? '',
@@ -210,9 +224,10 @@ class ChallengeSheet
             'types' => collect(self::ACHIEVEMENTS)->map(fn ($item, $type) => [
                 'type' => $type,
                 'label' => $item[0],
-                'points' => $item[1],
+                'points' => $scores[$type] ?? $item[1],
             ])->values(),
-            'total' => collect(self::weeks($user))->sum('total'),
+            'scoreRules' => $scores,
+            'total' => collect($weeks)->sum('total'),
             'penalty' => [
                 'missed' => $missed,
                 'amount' => $missed * 10,
@@ -225,11 +240,12 @@ class ChallengeSheet
     {
         $user->loadMissing(['checkins', 'achievements']);
         $checkins = $user->checkins->keyBy('day');
+        $scores = self::scoreMap();
         $rows = [];
 
         foreach (self::WEEKS as $week => [$from, $to]) {
             $slice = collect(range($from, $to))->map(fn (int $day) => $checkins->get($day));
-            $daily = $slice->sum(fn ($checkin) => $checkin ? self::dayPoints($checkin) : 0);
+            $daily = $slice->sum(fn ($checkin) => $checkin ? self::dayPoints($checkin, $scores) : 0);
             $checkinCount = $slice->filter(fn ($checkin) => $checkin?->checked_in)->count();
             $strength = $slice->filter(fn ($checkin) => $checkin?->strength)->count();
             $skill = $slice->filter(fn ($checkin) => $checkin?->skill)->count();
@@ -238,8 +254,8 @@ class ChallengeSheet
             $toDate = self::dateForDay($to);
             $achievementPoints = $user->achievements
                 ->filter(fn ($item) => $item->achieved_on->toDateString() >= $fromDate && $item->achieved_on->toDateString() <= $toDate)
-                ->sum(fn ($item) => self::ACHIEVEMENTS[$item->type][1] ?? 0);
-            $consistency = $checkinCount >= ($week === 1 ? 3 : 6) ? 10 : 0;
+                ->sum(fn ($item) => $scores[$item->type] ?? self::ACHIEVEMENTS[$item->type][1] ?? 0);
+            $consistency = $checkinCount >= ($week === 1 ? 3 : 6) ? (int) ($scores['consistency'] ?? 10) : 0;
             $goalsBonus = $skill >= ($week === 1 ? 2 : 3) && $strength >= ($week === 1 ? 3 : 6) ? 10 : 0;
             $plusBonus = min(2, $plus) * 5;
 
@@ -260,5 +276,46 @@ class ChallengeSheet
         }
 
         return $rows;
+    }
+
+    /** @return list<array<string, int|string>> */
+    private static function weeksWithGroup(User $user): array
+    {
+        $weeks = self::weeks($user);
+        $group = self::weekCompletions();
+
+        foreach ($weeks as &$row) {
+            $row['athletes_done'] = $group['done'][$row['week']] ?? 0;
+            $row['athletes_total'] = $group['total'];
+        }
+        unset($row);
+
+        return $weeks;
+    }
+
+    /** Quantos atletas bateram a consistência de cada semana (3 dias na 1, 6 nas outras). */
+    private static function weekCompletions(): array
+    {
+        $ids = User::query()->where('user_type_id', UserType::idFor(UserRole::Atleta))->pluck('id');
+        $done = array_fill_keys(array_keys(self::WEEKS), 0);
+
+        if ($ids->isEmpty()) {
+            return ['total' => 0, 'done' => $done];
+        }
+
+        $byUser = Checkin::query()
+            ->whereIn('user_id', $ids)
+            ->where('checked_in', true)
+            ->get(['user_id', 'day'])
+            ->groupBy('user_id');
+
+        foreach (self::WEEKS as $week => [$from, $to]) {
+            $need = $week === 1 ? 3 : 6;
+            $done[$week] = $byUser->filter(
+                fn ($days) => $days->filter(fn ($row) => $row->day >= $from && $row->day <= $to)->count() >= $need
+            )->count();
+        }
+
+        return ['total' => $ids->count(), 'done' => $done];
     }
 }

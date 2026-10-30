@@ -30,7 +30,41 @@ class DashboardTest extends TestCase
         $this->actingAs(User::factory()->create())
             ->get('/pontuacao')
             ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page->component('Pontuacao'));
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Pontuacao')
+                ->where('canEdit', false)
+                ->has('daily', 6)
+                ->has('bonus', 3));
+    }
+
+    public function test_only_the_admin_can_edit_scoring(): void
+    {
+        $admin = User::factory()->ofRole(UserRole::Administrador)->create();
+        $athlete = User::factory()->create();
+
+        $this->actingAs($admin)
+            ->get('/pontuacao')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->where('canEdit', true));
+
+        $daily = \App\Models\ScoreRule::query()->where('group', 'daily')->orderBy('sort')->get(['id', 'label', 'points'])->map->only(['id', 'label', 'points'])->all();
+        $bonus = \App\Models\ScoreRule::query()->where('group', 'bonus')->orderBy('sort')->get(['id', 'label', 'points'])->map->only(['id', 'label', 'points'])->all();
+        $daily[1]['points'] = 5;
+        $daily[1]['label'] = 'Treino pesado';
+
+        $this->actingAs($athlete)
+            ->put('/pontuacao', ['daily' => $daily, 'bonus' => $bonus])
+            ->assertForbidden();
+
+        $this->actingAs($admin)
+            ->put('/pontuacao', ['daily' => $daily, 'bonus' => $bonus])
+            ->assertRedirect('/pontuacao');
+
+        $this->assertDatabaseHas('score_rules', ['key' => 'movement', 'label' => 'Treino pesado', 'points' => 5]);
+
+        $this->actingAs($athlete)
+            ->get('/pontuacao')
+            ->assertInertia(fn (Assert $page) => $page->where('daily.1.label', 'Treino pesado')->where('daily.1.points', 5)->where('dailyMax', 12));
     }
 
     public function test_a_logged_in_user_can_open_the_measures_guide(): void

@@ -1,4 +1,4 @@
-﻿import { GOAL_DETAILS } from '@/data/goalDetails';
+import { GOAL_DETAILS } from '@/data/goalDetails';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 export const INSTAGRAM_URL = 'https://www.instagram.com/desafio60.firme/';
@@ -11,21 +11,6 @@ export const GOALS = GOAL_DETAILS.map(({ key, color, metric, title, desc, icon }
     desc,
     icon,
 }));
-
-export const DAILY_POINTS = [
-    { t: 'Check-in enviado no dia', p: '+1' },
-    { t: 'Movimento e treino', p: '+3' },
-    { t: 'Hidratação', p: '+1' },
-    { t: 'Sono', p: '+1' },
-    { t: 'Alimentação e organização', p: '+2' },
-    { t: 'Habilidade nova', p: '+2' },
-];
-
-export const BONUS_POINTS = [
-    { t: 'Semana consistente, 6 de 7 dias (3 na semana 1)', p: '+10' },
-    { t: 'Motivar um amigo desanimado', p: '+5' },
-    { t: 'Primeira vez acertando algo novo', p: '+5' },
-];
 
 const MILES = [
     { day: 1, date: '6 nov', title: 'Início oficial.', line: 'Foto antes. Declare nível, habilidade e os 3 eventos com álcool.' },

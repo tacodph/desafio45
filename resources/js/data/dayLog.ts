@@ -24,8 +24,16 @@ export const achieved = (details: DayDetails, goals: DayGoals): Achieved => ({
     skill: details.skill !== '' || details.manual.skill,
 });
 
-export const dayPoints = (checkedIn: boolean, details: DayDetails, goals: DayGoals) => {
+export const dayPoints = (checkedIn: boolean, details: DayDetails, goals: DayGoals, scores: Record<string, number> = {}) => {
     const done = achieved(details, goals);
+    const p = (key: string, fallback: number) => scores[key] ?? fallback;
 
-    return (checkedIn ? 1 : 0) + (done.movement ? 3 : 0) + (done.water ? 1 : 0) + (done.sleep ? 1 : 0) + (done.strength ? 2 : 0) + (done.skill ? 2 : 0);
+    return (
+        (checkedIn ? p('checkin', 1) : 0) +
+        (done.movement ? p('movement', 3) : 0) +
+        (done.water ? p('water', 1) : 0) +
+        (done.sleep ? p('sleep', 1) : 0) +
+        (done.strength ? p('strength', 2) : 0) +
+        (done.skill ? p('skill', 2) : 0)
+    );
 };

@@ -36,7 +36,7 @@ const { countdown, milestones } = useChallenge();
             </div>
 
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-                <Link v-for="goal in GOALS" :key="goal.key" :href="route('objetivos.show', goal.key)" class="surface-card flex items-center gap-4 p-5 sm:flex-col sm:items-start sm:gap-3">
+                <Link v-for="goal in GOALS" :key="goal.key" :href="goal.key === 'plus' ? route('objetivo.luxo') : route('objetivos.show', goal.key)" class="surface-card flex items-center gap-4 p-5 sm:flex-col sm:items-start sm:gap-3">
                     <img :src="goal.icon" alt="" class="size-16 shrink-0 sm:size-14" />
                     <div class="flex min-w-0 flex-col gap-1 sm:gap-3">
                         <span class="font-display text-2xl font-extrabold leading-none" :style="{ color: goal.color }">{{ goal.metric }}</span>
@@ -111,7 +111,7 @@ const { countdown, milestones } = useChallenge();
                     <img :src="images.alimentacao" alt="" class="size-16 shrink-0 md:size-14" />
                     <div class="flex min-w-0 flex-col gap-2 md:gap-3">
                         <span class="text-[13px] font-bold uppercase tracking-[2px] text-[#43A047]">Alimentação e organização</span>
-                        <p class="m-0 text-sm text-brand-muted">Sem álcool (exceto 3 eventos). Uma refeição luxo e uma Plus por semana. A luxo é uma refeição inteira. A Plus é um alimento cultural.</p>
+                        <p class="m-0 text-sm text-brand-muted">Sem álcool (exceto 3 eventos). Duas refeições luxo por semana: uma refeição inteira cada.</p>
                     </div>
                 </Link>
 

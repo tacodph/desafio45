@@ -63,14 +63,24 @@ const mainNavItems = computed<NavGroupItem[]>(() => {
             { title: 'Treino', icon: Dumbbell, children: [objective('treino')] },
             { title: 'Hidratação', icon: Droplets, children: [objective('hidratacao')] },
             { title: 'Habilidade', icon: Lightbulb, children: [objective('habilidade')] },
-            { title: 'Plus', icon: Star, children: [objective('plus')] },
+            { title: 'Refeição luxo', icon: Star, children: [objective('plus')] },
         ];
     }
 
     return [
         { title: 'Painel', href: '/dashboard', icon: LayoutGrid },
         { title: 'Atletas', href: '/equipe/atletas', icon: Users },
-        { title: 'Objetivos', href: '/meus-objetivos/alimentacao', icon: Salad },
+        {
+            title: 'Objetivos',
+            icon: Salad,
+            children: [
+                { title: 'Alimentação', href: '/meus-objetivos/alimentacao' },
+                { title: 'Treino', href: '/meus-objetivos/treino' },
+                { title: 'Hidratação', href: '/meus-objetivos/hidratacao' },
+                { title: 'Habilidade', href: '/meus-objetivos/habilidade' },
+                { title: 'Refeição luxo', href: '/meus-objetivos/plus' },
+            ],
+        },
         { title: 'Pontuação', href: '/pontuacao', icon: Trophy },
     ];
 });

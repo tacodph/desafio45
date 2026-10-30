@@ -1,9 +1,10 @@
 export const images = {
     logo: '/images/logo.png?v=2',
+    logoMark: '/images/logo_sem_objetivo.png',
     helen: '/images/helen-freitas.jpg',
     treino: '/images/treino_movimento.png',
     hidratacao: '/images/hidratacao_sono.png',
     habilidade: '/images/habilidade_nova.png',
     alimentacao: '/images/alimentacao.png',
-    plus: '/images/objetivo_plus.png',
+    plus: '/images/refeicao_luxo.png',
 } as const;

@@ -17,6 +17,7 @@ const index = computed(() => Math.max(0, GOAL_DETAILS.findIndex((item) => item.k
 const item = computed(() => GOAL_DETAILS[index.value]);
 const previous = computed(() => GOAL_DETAILS[(index.value + GOAL_DETAILS.length - 1) % GOAL_DETAILS.length]);
 const next = computed(() => GOAL_DETAILS[(index.value + 1) % GOAL_DETAILS.length]);
+const goalHref = (key: GoalKey) => (key === 'plus' ? route('objetivo.luxo') : route('objetivos.show', key));
 </script>
 
 <template>
@@ -26,7 +27,7 @@ const next = computed(() => GOAL_DETAILS[(index.value + 1) % GOAL_DETAILS.length
         <header class="sticky top-0 z-20 border-b border-brand-line bg-brand-ink/88 backdrop-blur-[10px]">
             <div class="mx-auto flex max-w-[1200px] items-center justify-between gap-4 px-6 py-3">
                 <Link :href="route('home')" class="flex items-center gap-2.5 text-brand-cream hover:text-brand-cream">
-                    <img :src="images.logo" alt="Desafio 45 Dias" class="size-11 object-contain" />
+                    <img :src="images.logoMark" alt="Desafio 45 Dias" class="size-11 object-contain" />
                     <span class="font-display text-[22px] font-extrabold italic uppercase tracking-wide">
                         Desafio <span class="text-brand-gold">45</span> Dias
                     </span>
@@ -36,7 +37,7 @@ const next = computed(() => GOAL_DETAILS[(index.value + 1) % GOAL_DETAILS.length
                     <Link
                         v-for="item in GOAL_DETAILS"
                         :key="item.key"
-                        :href="route('objetivos.show', item.key)"
+                        :href="goalHref(item.key)"
                         class="text-[15px] font-medium hover:text-brand-cream"
                         :class="item.key === goal ? 'text-brand-cream' : 'text-brand-muted-3'"
                     >
@@ -60,7 +61,7 @@ const next = computed(() => GOAL_DETAILS[(index.value + 1) % GOAL_DETAILS.length
                 <Link
                     v-for="item in GOAL_DETAILS"
                     :key="item.key"
-                    :href="route('objetivos.show', item.key)"
+                    :href="goalHref(item.key)"
                     class="text-[15px] font-medium text-brand-muted-3"
                     @click="menuOpen = false"
                 >
@@ -86,7 +87,7 @@ const next = computed(() => GOAL_DETAILS[(index.value + 1) % GOAL_DETAILS.length
                 <Link
                     v-for="goalItem in GOAL_DETAILS"
                     :key="goalItem.key"
-                    :href="route('objetivos.show', goalItem.key)"
+                    :href="goalHref(goalItem.key)"
                     class="shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-bold"
                     :class="goalItem.key === goal ? 'border-transparent text-brand-ink' : 'border-brand-line3 text-brand-cream hover:border-brand-cream'"
                     :style="goalItem.key === goal ? { background: goalItem.color } : {}"
@@ -112,14 +113,14 @@ const next = computed(() => GOAL_DETAILS[(index.value + 1) % GOAL_DETAILS.length
 
             <div class="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-3 px-6 pb-[clamp(40px,6vw,72px)]">
                 <Link
-                    :href="route('objetivos.show', previous.key)"
+                    :href="goalHref(previous.key)"
                     class="inline-flex items-center gap-2 rounded-full border border-brand-line3 px-5 py-3 text-[15px] font-bold text-brand-cream hover:border-brand-cream"
                 >
                     <ArrowLeft class="size-4" />
                     {{ previous.nav }}
                 </Link>
                 <Link
-                    :href="route('objetivos.show', next.key)"
+                    :href="goalHref(next.key)"
                     class="inline-flex items-center gap-2 rounded-full border border-brand-line3 px-5 py-3 text-[15px] font-bold text-brand-cream hover:border-brand-cream"
                 >
                     {{ next.nav }}

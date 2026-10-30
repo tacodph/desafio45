@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\UserRole;
 use App\Models\Food;
 use App\Models\FoodGroup;
+use App\Models\ScoreRule;
 use App\Models\User;
 use App\Models\UserType;
 use App\Support\ChallengeSheet;
@@ -150,6 +151,39 @@ class DashboardController extends Controller
         }
 
         return to_route('admin.foods');
+    }
+
+    public function scoring(Request $request): Response
+    {
+        return Inertia::render('Pontuacao', [
+            ...ScoreRule::grouped(),
+            'canEdit' => $this->role($request) === UserRole::Administrador,
+        ]);
+    }
+
+    public function updateScoring(Request $request): RedirectResponse
+    {
+        $this->abortUnless($request, UserRole::Administrador);
+
+        $data = $request->validate([
+            'daily' => 'required|array',
+            'daily.*.id' => 'required|exists:score_rules,id',
+            'daily.*.label' => 'required|string|max:160',
+            'daily.*.points' => 'required|integer|min:0|max:50',
+            'bonus' => 'required|array',
+            'bonus.*.id' => 'required|exists:score_rules,id',
+            'bonus.*.label' => 'required|string|max:160',
+            'bonus.*.points' => 'required|integer|min:0|max:50',
+        ]);
+
+        foreach ([...$data['daily'], ...$data['bonus']] as $row) {
+            ScoreRule::query()->whereKey($row['id'])->update([
+                'label' => $row['label'],
+                'points' => $row['points'],
+            ]);
+        }
+
+        return to_route('pontuacao');
     }
 
     public function athletes(Request $request): Response

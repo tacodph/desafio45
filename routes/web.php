@@ -17,11 +17,19 @@ Route::get('participar', function () {
 })->name('participar');
 
 Route::redirect('objetivos', '/objetivos/alimentacao')->name('objetivos');
-Route::redirect('objetivos/oracao', '/objetivos/plus');
+Route::redirect('objetivos/plus', '/objetivo/luxo');
+Route::redirect('objetivos/oracao', '/objetivo/luxo');
 Route::redirect('objetivos/corpo', '/objetivos/alimentacao');
 Route::redirect('objetivos/flexoes', '/objetivos/alimentacao');
 
 Route::get('objetivos/alimentacao/compras', [AthleteProgressController::class, 'shopping'])->name('alimentacao.compras');
+
+Route::get('objetivo/luxo', function () {
+    return Inertia::render('Objetivos', [
+        'goal' => 'plus',
+        'skillCatalog' => Skill::catalog(),
+    ]);
+})->name('objetivo.luxo');
 
 Route::get('objetivos/{goal}', function (string $goal) {
     $keys = ['alimentacao', 'treino', 'hidratacao', 'habilidade', 'plus'];
@@ -38,7 +46,8 @@ Route::get('objetivos/{goal}', function (string $goal) {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
-    Route::get('pontuacao', fn () => Inertia::render('Pontuacao'))->name('pontuacao');
+    Route::get('pontuacao', [DashboardController::class, 'scoring'])->name('pontuacao');
+    Route::put('pontuacao', [DashboardController::class, 'updateScoring'])->name('pontuacao.update');
     Route::get('meus-objetivos/{goal}', function (string $goal) {
         abort_unless(in_array($goal, ['alimentacao', 'treino', 'hidratacao', 'habilidade', 'plus'], true), 404);
 

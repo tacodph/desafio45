@@ -28,6 +28,7 @@ const props = withDefaults(
         weekSkills: string[];
         defaultOpen?: boolean;
         canEdit?: boolean;
+        scoreRules?: Record<string, number>;
         canComment?: boolean;
         athleteId?: number | null;
     }>(),
@@ -488,13 +489,13 @@ const chipClass = (active: boolean) =>
                 </label>
             </section>
 
-            <!-- Plus -->
+            <!-- Refeição luxo -->
             <section class="grid gap-2 rounded-xl border px-3 py-3" :class="entry.plus_count > 0 ? 'border-brand-gold bg-brand-gold/10' : 'border-brand-line2'">
                 <div class="flex items-center justify-between gap-3 text-sm font-semibold">
-                    <span class="flex items-center gap-2"><Star class="size-4 text-brand-gold" /> Plus</span>
-                    <input v-model.number="entry.plus_count" type="number" min="0" max="9" aria-label="Quantidade de Plus" :class="[fieldClass, 'w-16']" />
+                    <span class="flex items-center gap-2"><Star class="size-4 text-brand-gold" /> Refeição luxo</span>
+                    <input v-model.number="entry.plus_count" type="number" min="0" max="9" aria-label="Quantidade de refeição luxo" :class="[fieldClass, 'w-16']" />
                 </div>
-                <input v-model="entry.notes.plus" maxlength="255" placeholder="O que foi? Ex.: bolo, pão de queijo, pipoca" :class="fieldClass" />
+                <input v-model="entry.notes.plus" maxlength="255" placeholder="O que foi? Ex.: pizza, hambúrguer, churrasco" :class="fieldClass" />
             </section>
 
             <input v-model="entry.notes.day" maxlength="255" placeholder="Observação do dia (opcional)" :class="fieldClass" />

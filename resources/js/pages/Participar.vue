@@ -15,7 +15,7 @@ defineProps<{
         <header class="border-b border-brand-line">
             <div class="mx-auto flex max-w-[760px] items-center justify-between px-6 py-4">
                 <Link :href="route('home')" class="flex items-center gap-2.5 text-brand-cream hover:text-brand-cream">
-                    <img :src="images.logo" alt="" class="size-11 object-contain" />
+                    <img :src="images.logoMark" alt="" class="size-11 object-contain" />
                     <span class="font-display text-[22px] font-extrabold italic uppercase tracking-wide">
                         Desafio <span class="text-brand-gold">45</span> Dias
                     </span>

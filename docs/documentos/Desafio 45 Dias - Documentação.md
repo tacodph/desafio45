@@ -91,7 +91,7 @@ O objetivo do dia é cumprido quando as duas metas são batidas. Para a pontuaç
 
 ### 2.4 🥗 Alimentação e organização
 
-**Regra:** organizar a alimentação do dia a dia e manter as regras da semana: sem álcool (exceto 3 eventos), sem fast food e sem doce industrializado. Uma refeição luxo por semana, usada **apenas** na sexta à noite, no sábado ou no domingo.
+**Regra:** organizar a alimentação do dia a dia e manter as regras da semana: sem álcool (exceto 3 eventos), sem fast food e sem doce industrializado. Duas refeições luxo por semana, usadas **apenas** na sexta à noite, no sábado ou no domingo.
 
 **Por que funciona:** alimentação limpa dá energia real. Você sente a diferença no treino e no sono.
 
@@ -101,12 +101,12 @@ O objetivo do dia é cumprido quando as duas metas são batidas. Para a pontuaç
 - **Lista de compras:** monte a lista a partir do cardápio e do que já tem em casa.
 - **Marmitas e preparo:** separe um tempo curto para deixar proteínas, legumes e lanches prontos.
 - **Plano para a correria:** tenha opções prontas para os dias cheios (lanche na bolsa, pedido equilibrado já escolhido).
-- **Escolha a refeição luxo com antecedência:** decida no começo da semana quando ela vai acontecer.
+- **Escolha as refeições luxo com antecedência:** decida no começo da semana quando elas vão acontecer.
 
 **Dicas práticas:**
 
 - **3 eventos com álcool:** no dia 1, declare seus 3 eventos (casamento, aniversário, confraternização). Assim ninguém fica inventando no meio do caminho. Nos dias desses eventos, beba água também.
-- **Refeição luxo:** uma por semana, pode ser qualquer coisa (sim, fast food também). Só vale na sexta à noite, no sábado ou no domingo. É o seu momento sem culpa, aproveite.
+- **Refeição luxo:** duas por semana, podem ser qualquer coisa (sim, fast food também). Só valem na sexta à noite, no sábado ou no domingo. É o seu momento sem culpa, aproveite.
 - **O que é doce industrializado:** chocolate, bombom, refrigerante, sorvete de pote, bolo de padaria. Na refeição luxo, tudo é permitido.
 - **O que é fast food:** lanches, frituras, comida de rua. Uma refeição completa em restaurante normal vale.
 - **Foto do dia:** o prato de uma das refeições. Simples e funciona.
@@ -125,7 +125,7 @@ O objetivo do dia é cumprido quando as duas metas são batidas. Para a pontuaç
 - Experimentar um alimento novo.
 - Preparar um café da manhã com calma.
 
-**Como cumprir (proposta):** a meta é **pelo menos 1 Objetivo Plus por semana**. Cada um rende pontos extras (ver seção 4). Ele não é obrigatório para fechar o dia, mas conta para o ranking.
+**Como cumprir (proposta):** a meta é **2 Objetivos Plus por semana**. Cada um rende pontos extras (ver seção 4). Eles não são obrigatórios para fechar o dia, mas contam para o ranking.
 
 ---
 
@@ -275,7 +275,7 @@ Todos os dias, **até as 23h**, cada participante envia no grupo:
 > 🏋️ Movimento e treino (45 min como referência, no seu nível)
 > 💧 Hidratação e sono
 > 💡 Habilidade nova (autonomia na rotina)
-> 🥗 Alimentação e organização (sem álcool, fast food e doce, com 1 refeição luxo por semana)
+> 🥗 Alimentação e organização (sem álcool, fast food e doce, com 2 refeições luxo por semana)
 > ⭐ Objetivo Plus, a qualquer momento
 >
 > Check-in diário até as 23h com foto e checklist. Pontua quem participa, não quem é perfeito.

@@ -85,6 +85,8 @@ class AthleteProgressTest extends TestCase
                 ->where('weeks.0.consistency', 10)
                 ->where('weeks.0.goals_bonus', 10)
                 ->where('weeks.0.achievements', 5)
+                ->where('weeks.0.athletes_done', 1)
+                ->where('weeks.0.athletes_total', 1)
                 ->where('total', 65));
     }
 

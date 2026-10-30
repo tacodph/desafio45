@@ -40,6 +40,8 @@ type Week = {
     goals_bonus: number;
     achievements: number;
     total: number;
+    athletes_done: number;
+    athletes_total: number;
 };
 
 const props = defineProps<{
@@ -60,6 +62,7 @@ const props = defineProps<{
     athleteId: number | null;
     athleteName: string | null;
     nutritionistName: string | null;
+    scoreRules?: Record<string, number>;
 }>();
 
 type Tab = 'dias' | 'conquistas' | 'resumo';
@@ -195,6 +198,18 @@ const openComment = (item: (typeof props.achievements)[number]) => {
     commentForm.clearErrors();
 };
 
+const daysInWeek = (week: number) => (week === 1 ? 3 : 7);
+const needDays = (week: number) => (week === 1 ? 3 : 6);
+const weekClosed = (item: Week) => item.checkins >= needDays(item.week);
+const missingDays = (item: Week) => Math.max(0, needDays(item.week) - item.checkins);
+const weekParts = [
+    { key: 'daily', label: 'Diários' },
+    { key: 'plus_bonus', label: 'Refeição luxo' },
+    { key: 'consistency', label: 'Consistência' },
+    { key: 'goals_bonus', label: 'Metas' },
+    { key: 'achievements', label: 'Conquistas' },
+] as const;
+
 const saveComment = () => {
     if (!commenting.value) {
         return;
@@ -329,6 +344,7 @@ const saveComment = () => {
                     :can-edit="canEdit"
                     :can-comment="canComment"
                     :athlete-id="athleteId"
+                    :score-rules="scoreRules"
                 />
             </div>
 
@@ -385,17 +401,50 @@ const saveComment = () => {
                 </section>
             </div>
 
-            <div v-else class="grid gap-3">
-                <article v-for="item in weeks" :key="item.week" class="surface-card grid gap-2 p-5">
-                    <div class="flex items-baseline justify-between gap-3">
-                        <span class="font-display text-2xl font-extrabold uppercase">Semana {{ item.week }}</span>
-                        <span class="font-display text-3xl font-black text-brand-gold">{{ item.total }}</span>
+            <div v-else class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <article v-for="item in weeks" :key="item.week" class="surface-card flex flex-col gap-4 p-5">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <div class="eyebrow">Semana {{ item.week }}</div>
+                            <p class="m-0 mt-1 text-sm text-brand-muted">{{ item.period }}</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-display text-4xl font-black leading-none text-brand-gold">{{ item.total }}</div>
+                            <div class="mt-1 text-[11px] font-bold uppercase tracking-[2px] text-brand-muted-2">pts</div>
+                        </div>
                     </div>
-                    <p class="m-0 text-sm text-brand-muted">{{ item.period }}</p>
-                    <p class="m-0 text-sm text-brand-muted-3">
-                        Diários {{ item.daily }} · Plus {{ item.plus_bonus }} · Consistência {{ item.consistency }} · Metas {{ item.goals_bonus }} ·
-                        Conquistas {{ item.achievements }}
+
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center justify-between gap-3 text-sm">
+                            <span class="font-semibold text-brand-cream">{{ item.checkins }} de {{ daysInWeek(item.week) }} dias</span>
+                            <span
+                                class="rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider"
+                                :class="weekClosed(item) ? 'bg-brand-gold text-brand-ink' : 'border border-brand-line2 text-brand-muted'"
+                            >
+                                {{ weekClosed(item) ? 'Concluiu' : missingDays(item) === 1 ? 'Falta 1 dia' : `Faltam ${missingDays(item)} dias` }}
+                            </span>
+                        </div>
+                        <div class="h-1.5 overflow-hidden rounded-full bg-brand-line2">
+                            <div
+                                class="h-full rounded-full bg-brand-gold"
+                                :style="{ width: `${Math.min(100, (item.checkins / daysInWeek(item.week)) * 100)}%` }"
+                            />
+                        </div>
+                    </div>
+
+                    <p class="m-0 rounded-xl border border-brand-line2 bg-brand-card2 px-3 py-2.5 text-sm">
+                        <span class="font-display text-2xl font-black text-brand-gold">{{ item.athletes_done }}</span>
+                        <span class="text-brand-muted">
+                            de {{ item.athletes_total }} {{ item.athletes_total === 1 ? 'atleta concluiu' : 'atletas concluíram' }} a semana
+                        </span>
                     </p>
+
+                    <dl class="grid grid-cols-2 gap-x-3 gap-y-2">
+                        <div v-for="part in weekParts" :key="part.key" class="flex items-baseline justify-between gap-2">
+                            <dt class="text-xs text-brand-muted-2">{{ part.label }}</dt>
+                            <dd class="m-0 text-sm font-bold tabular-nums">{{ item[part.key] }}</dd>
+                        </div>
+                    </dl>
                 </article>
             </div>
         </div>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useChallenge } from '@/composables/useChallenge';
 
+import type { GoalKey } from '@/data/goalDetails';
 import { images } from '@/data/images';
 import { Head, Link } from '@inertiajs/vue3';
 import { Menu, X } from 'lucide-vue-next';
@@ -9,6 +10,37 @@ import { ref } from 'vue';
 const { countdown, goals, fails, failTotal, failNote, failDots, incFail, decFail, milestones } = useChallenge();
 
 const menuOpen = ref(false);
+
+const goalCardCopy: Record<GoalKey, { frequency: string; title: string; desc: string; supportTitle?: string }> = {
+    alimentacao: {
+        frequency: 'Diariamente',
+        title: 'Alimentação e organização',
+        desc: '45 dias de alimentação limpa, com planejamento e praticidade.',
+    },
+    treino: {
+        frequency: 'Check-in diário',
+        title: 'Movimento e treino',
+        desc: 'Registre seu treino ou atividade física. A referência é de 45 minutos por dia, respeitando seu nível e sua rotina.',
+    },
+    hidratacao: {
+        frequency: 'Check-in diário',
+        title: 'Água e sono',
+        desc: 'Cumpra sua meta individual de água e busque pelo menos 7 horas de sono por noite. Registre os dois hábitos diariamente.',
+    },
+    habilidade: {
+        frequency: '3x / sem',
+        title: 'Habilidade nova',
+        supportTitle: 'Autonomia na rotina',
+        desc: 'Desenvolva habilidades que facilitem sua alimentação no dia a dia: planejar o cardápio, preparar marmitas, aprender receitas e organizar suas compras.',
+    },
+    plus: {
+        frequency: '2x / sem',
+        title: 'Refeição luxo',
+        desc: 'Programe duas refeições luxo por semana. Isso mantém sua motivação para seguir firme!',
+    },
+};
+
+const goalHref = (key: GoalKey) => (key === 'plus' ? route('objetivo.luxo') : route('objetivos.show', key));
 
 const navLinks = [
     { href: '#objetivos', label: 'Objetivos' },
@@ -27,7 +59,7 @@ const navLinks = [
         <header class="sticky top-0 z-20 border-b border-brand-line bg-brand-ink/88 backdrop-blur-[10px]">
             <div class="mx-auto flex max-w-[1200px] items-center justify-between gap-4 px-6 py-3">
                 <a href="#topo" class="flex items-center gap-2.5 text-brand-cream hover:text-brand-cream">
-                    <img :src="images.logo" alt="Desafio 45 Dias" class="size-11 object-contain" />
+                    <img :src="images.logoMark" alt="Desafio 45 Dias" class="size-11 object-contain" />
                     <span class="font-display text-[22px] font-extrabold italic uppercase tracking-wide">
                         Desafio <span class="text-brand-gold">45</span> Dias
                     </span>
@@ -98,8 +130,8 @@ const navLinks = [
                     <span class="text-brand-gold">45 dias.</span><br />5 objetivos.<br />Antes do verão.
                 </h1>
                 <p class="m-0 max-w-[520px] text-[clamp(18px,1.6vw,21px)] leading-normal text-brand-muted-3">
-                    De 6 de novembro a 20 de dezembro de 2026. Alimentação, movimento, água, sono e uma habilidade nova. O desafio
-                    premia consistência e participação, não perfeição.
+                    De 6 de novembro a 20 de dezembro de 2026. Alimentação, movimento, água, sono e uma habilidade nova. Serão 45 dias
+                    para trocar a intenção pela ação e começar a fazer diferente.
                 </p>
                 <div class="flex flex-wrap gap-3">
                     <Link
@@ -142,15 +174,16 @@ const navLinks = [
                 </div>
             </div>
 
-            <div class="relative flex items-center justify-center">
+            <div class="grid grid-cols-2 gap-3.5 sm:grid-cols-3">
                 <div
-                    class="absolute aspect-square w-[78%] rounded-full bg-[radial-gradient(circle,rgba(246,168,33,0.22)_0%,rgba(246,168,33,0)_68%)]"
-                />
-                <img
-                    :src="images.logo"
-                    alt="Emblema Desafio 45 Dias — antes do verão. A gente cresce junto"
-                    class="relative block h-auto w-full max-w-[580px]"
-                />
+                    v-for="goal in goals"
+                    :key="goal.key"
+                    class="flex flex-col justify-between gap-3 overflow-hidden rounded-[22px] border border-brand-line2 bg-brand-card2 p-5"
+                    :style="{ borderTop: `4px solid ${goal.color}` }"
+                >
+                    <img :src="goal.icon" alt="" class="size-20 object-contain" />
+                    <span class="font-display text-[clamp(18px,2vw,24px)] font-extrabold uppercase leading-[0.95]">{{ goal.title }}</span>
+                </div>
             </div>
         </section>
 
@@ -189,14 +222,18 @@ const navLinks = [
                 <Link
                     v-for="goal in goals"
                     :key="goal.key"
-                    :href="route('objetivos.show', goal.key)"
+                    :href="goalHref(goal.key)"
                     class="flex flex-col gap-4 rounded-[22px] border-2 border-brand-line2 bg-brand-card p-6 text-brand-cream transition hover:-translate-y-0.5 hover:border-brand-line3 hover:text-brand-cream"
                 >
                     <img :src="goal.icon" alt="" class="block size-[88px]" />
                     <div class="flex flex-1 flex-col gap-1.5">
-                        <span class="font-display text-[34px] font-extrabold leading-none" :style="{ color: goal.color }">{{ goal.metric }}</span>
-                        <span class="font-display text-[22px] font-bold uppercase leading-tight tracking-wide text-brand-cream">{{ goal.title }}</span>
-                        <span class="text-[15px] leading-snug text-brand-muted">{{ goal.desc }}</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-brand-muted">Frequência</span>
+                        <span class="font-display text-[34px] font-extrabold leading-none" :style="{ color: goal.color }">{{ goalCardCopy[goal.key].frequency }}</span>
+                        <span class="font-display text-[22px] font-bold uppercase leading-tight tracking-wide text-brand-cream">{{ goalCardCopy[goal.key].title }}</span>
+                        <span v-if="goalCardCopy[goal.key].supportTitle" class="text-[15px] font-semibold leading-snug text-brand-cream">
+                            {{ goalCardCopy[goal.key].supportTitle }}
+                        </span>
+                        <span class="text-[15px] leading-snug text-brand-muted">{{ goalCardCopy[goal.key].desc }}</span>
                     </div>
                     <span class="flex items-center gap-2 text-sm font-bold uppercase tracking-wider" :style="{ color: goal.color }">
                         <span>Ver regra e dicas</span><span>→</span>
@@ -219,22 +256,22 @@ const navLinks = [
                 <div class="surface-card flex flex-col gap-3 p-7">
                     <span class="font-display text-xl font-extrabold text-brand-gold">01</span>
                     <h3 class="font-display m-0 text-[28px] font-extrabold uppercase leading-none">Check-in até 23h</h3>
-                    <p class="m-0 text-base leading-normal text-brand-muted">Foto do dia e o checklist: alimentação, treino, água e sono, habilidade e, se rolou, o Plus.</p>
+                    <p class="m-0 text-base leading-normal text-brand-muted">Faça seu check-in diário dos cinco objetivos: alimentação, treino, água, sono, habilidade nova e refeição luxo.</p>
                 </div>
                 <div class="surface-card flex flex-col gap-3 p-7">
                     <span class="font-display text-xl font-extrabold text-brand-gold">02</span>
-                    <h3 class="font-display m-0 text-[28px] font-extrabold uppercase leading-none">Ranking de domingo</h3>
-                    <p class="m-0 text-base leading-normal text-brand-muted">A soma da semana sai todo domingo. O geral acompanha os 45 dias.</p>
+                    <h3 class="font-display m-0 text-[28px] font-extrabold uppercase leading-none">Conquistas do dia</h3>
+                    <p class="m-0 text-base leading-normal text-brand-muted">Registre suas conquistas, metas batidas e situações que você superou. Reconheça sua evolução ao longo dos 45 dias.</p>
                 </div>
                 <div class="surface-card flex flex-col gap-3 p-7">
                     <span class="font-display text-xl font-extrabold text-brand-gold">03</span>
-                    <h3 class="font-display m-0 text-[28px] font-extrabold uppercase leading-none">Sem punição</h3>
-                    <p class="m-0 text-base leading-normal text-brand-muted">Falhou um dia? Avisa o grupo. O dia só deixa de pontuar. Amanhã conta de novo.</p>
+                    <h3 class="font-display m-0 text-[28px] font-extrabold uppercase leading-none">Superação e aprendizado</h3>
+                    <p class="m-0 text-base leading-normal text-brand-muted">Teve um dia difícil? Identifique o que pode melhorar, aprenda com a experiência e siga em frente no dia seguinte.</p>
                 </div>
                 <div class="surface-card flex flex-col gap-3 p-7">
                     <span class="font-display text-xl font-extrabold text-brand-gold">04</span>
-                    <h3 class="font-display m-0 text-[28px] font-extrabold uppercase leading-none">Máximo 10</h3>
-                    <p class="m-0 text-base leading-normal text-brand-muted">Check-in, alimentação, treino, água, sono e habilidade. O Plus entra como bônus.</p>
+                    <h3 class="font-display m-0 text-[28px] font-extrabold uppercase leading-none">Evolução na prática</h3>
+                    <p class="m-0 text-base leading-normal text-brand-muted">Bateu uma meta ou foi além do planejado? Registre suas vitórias e valorize cada avanço. Toda conquista conta!</p>
                 </div>
             </div>
 
@@ -244,27 +281,13 @@ const navLinks = [
             >
                 <div class="flex flex-col gap-[22px]">
                     <div class="flex flex-col gap-2.5">
-                        <span class="text-sm font-bold uppercase tracking-[3px]">Opcional, no dia 1</span>
+                        <span class="text-sm font-bold uppercase tracking-[3px]">Opcional · no dia 1</span>
                         <h3 class="display-title m-0 text-[clamp(48px,6vw,84px)] leading-[0.86]">Penalidade<br />solidária</h3>
-                        <span class="font-script text-[clamp(24px,2.6vw,32px)] leading-tight">Se o grupo combinar</span>
+                        <span class="font-script text-[clamp(24px,2.6vw,32px)] leading-tight">Um compromisso extra com você mesmo.</span>
                     </div>
                     <p class="m-0 max-w-[520px] text-[19px] font-semibold leading-snug">
-                        Quem topar, guarda <strong class="font-extrabold">R$ 10,00</strong> por dia sem check-in. No fim, vira doação ou a comemoração.
+                        Quem topar, guarda <strong class="font-extrabold">R$ 10,00</strong> por dia sem check-in. No fim, vira doação ou comemoração.
                     </p>
-                    <div class="flex flex-col border-t-[1.5px] border-brand-ink/25">
-                        <div class="grid grid-cols-[minmax(0,190px)_minmax(0,1fr)] items-baseline gap-4 border-b-[1.5px] border-brand-ink/25 py-3.5">
-                            <span class="font-display text-2xl font-extrabold uppercase leading-none">Falhou 1 dia?</span>
-                            <span class="text-[17px] font-semibold leading-snug">R$ 10,00 para alguém na rua.</span>
-                        </div>
-                        <div class="grid grid-cols-[minmax(0,190px)_minmax(0,1fr)] items-baseline gap-4 border-b-[1.5px] border-brand-ink/25 py-3.5">
-                            <span class="font-display text-2xl font-extrabold uppercase leading-none">Entrou atrasado?</span>
-                            <span class="text-[17px] font-semibold leading-snug">Cada dia não cumprido = R$ 10,00.</span>
-                        </div>
-                        <div class="grid grid-cols-[minmax(0,190px)_minmax(0,1fr)] items-baseline gap-4 border-b-[1.5px] border-brand-ink/25 py-3.5">
-                            <span class="font-display text-2xl font-extrabold uppercase leading-none">No final?</span>
-                            <span class="text-[17px] font-semibold leading-snug">Doa seu valor acumulado e faz diferença real.</span>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="flex flex-col gap-[22px] rounded-[22px] bg-brand-ink p-6 text-brand-cream lg:p-9">
@@ -348,7 +371,7 @@ const navLinks = [
                             n: '01',
                             title: 'Comunidade,<br>não competição',
                             solo: 'Sua única comparação é com quem você era ontem.',
-                            group: 'O ranking é brincadeira. A meta é todo mundo cruzar a linha de chegada.',
+                            group: 'O ambiente muda tudo! Motivação em grupo para todo mundo cruzar a linha de chegada melhor do que começou.',
                         },
                         {
                             n: '02',
@@ -360,13 +383,13 @@ const navLinks = [
                             n: '03',
                             title: 'Celebrar<br>tudo',
                             solo: 'Primeira marmita, primeiro treino, primeira habilidade — anota e comemora.',
-                            group: 'Reação de fogo em cada check-in completo. A vitória de um é de todos.',
+                            group: 'A vitória de um é a de todos.',
                         },
                         {
                             n: '04',
                             title: 'Lembrar<br>todo dia',
                             solo: 'Você não está só: tem gente fazendo o mesmo desafio, no seu ritmo.',
-                            group: '“A gente cresce junto” é o hino do desafio. No fim de todo post e de toda mensagem importante.',
+                            group: 'Amigo que melhora junto, emagrece junto, fica mais saudável junto e faz refeição luxo junto! 😂',
                         },
                     ]"
                     :key="item.n"
@@ -394,31 +417,6 @@ const navLinks = [
             </div>
         </section>
 
-        <section class="mx-auto grid max-w-[1200px] items-start gap-12 px-6 py-[clamp(72px,9vw,120px)] lg:grid-cols-2">
-            <div class="flex flex-col gap-6">
-                <div class="eyebrow">Mais do que um desafio</div>
-                <h2 class="display-title m-0 text-[clamp(44px,6vw,80px)]">Uma regra<br />de vida.</h2>
-                <p class="m-0 max-w-[480px] text-[19px] leading-relaxed text-brand-muted-3">
-                    A gente quer chegar melhor no verão. Cada um no próprio nível, com o grupo cobrando, motivando e celebrando. Acima de tudo, a gente
-                    quer <strong class="text-brand-cream">crescer junto</strong>.
-                </p>
-                <p class="m-0 max-w-[480px] text-[19px] leading-relaxed text-brand-muted-3">
-                    Isso não é um desafio de 45 dias. É uma regra de vida que a gente vai repetir todo ano.
-                </p>
-            </div>
-            <div class="grid grid-cols-2 gap-3.5 sm:grid-cols-3">
-                <div
-                    v-for="goal in goals"
-                    :key="goal.key"
-                    class="flex flex-col justify-between gap-3 overflow-hidden rounded-[22px] border border-brand-line2 bg-brand-card2 p-5"
-                    :style="{ borderTop: `4px solid ${goal.color}` }"
-                >
-                    <img :src="goal.icon" alt="" class="size-20 object-contain" />
-                    <span class="font-display text-[clamp(22px,2.4vw,28px)] font-extrabold uppercase leading-[0.95]">{{ goal.title }}</span>
-                </div>
-            </div>
-        </section>
-
         <section id="nutri" class="border-t border-brand-line bg-brand-strip">
             <div class="mx-auto flex max-w-[1200px] flex-col gap-8 px-6 py-[clamp(72px,9vw,120px)]">
                 <div class="flex flex-col gap-3.5">
@@ -429,8 +427,34 @@ const navLinks = [
                     </p>
                 </div>
                 <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,220px),1fr))] gap-3">
-                    <div v-for="item in ['Listas de compras', 'Cardápios da semana', 'Kit da vida real', 'Comer sem tudo ou nada']" :key="item" class="surface-card p-6">
-                        <h3 class="font-display m-0 text-2xl font-extrabold uppercase leading-tight">{{ item }}</h3>
+                    <div
+                        v-for="item in [
+                            {
+                                title: 'Listas de compras',
+                                description: 'Listas práticas para organizar as compras da semana.',
+                            },
+                            {
+                                title: 'Orientações nos check-ins',
+                                description: 'Comentários e sugestões gerais sobre as situações relatadas, respeitando os limites do acompanhamento em grupo.',
+                            },
+                            {
+                                title: 'Produtos do dia a dia',
+                                description: 'Sugestões para escolher opções práticas, ler rótulos e comparar produtos industrializados.',
+                            },
+                            {
+                                title: 'Kit da vida real',
+                                description: 'Soluções para dias corridos, imprevistos e momentos em que cozinhar não é possível.',
+                            },
+                            {
+                                title: 'Refeições práticas',
+                                description: 'Ideias simples para café da manhã, almoço, jantar, lanches e combinações rápidas.',
+                            },
+                        ]"
+                        :key="item.title"
+                        class="surface-card flex flex-col gap-3 p-6"
+                    >
+                        <h3 class="font-display m-0 text-2xl font-extrabold uppercase leading-tight">{{ item.title }}</h3>
+                        <p class="m-0 text-base leading-relaxed text-brand-muted-3">{{ item.description }}</p>
                     </div>
                 </div>
             </div>
@@ -438,8 +462,8 @@ const navLinks = [
 
         <section id="parceiros" class="mx-auto flex max-w-[1200px] flex-col gap-10 px-6 py-[clamp(72px,9vw,120px)]">
             <div class="flex flex-col gap-3.5">
-                <div class="eyebrow">Quem caminha com a gente</div>
-                <h2 class="display-title m-0 text-[clamp(44px,6vw,80px)]">Parceiros</h2>
+                <div class="eyebrow">Siga a nutri nas redes sociais</div>
+                <h2 class="display-title m-0 text-[clamp(44px,6vw,80px)]">Siga a nutri nas redes sociais</h2>
             </div>
 
             <article class="grid items-center gap-8 overflow-hidden rounded-[22px] border border-brand-line2 bg-brand-card2 p-5 sm:p-8 lg:grid-cols-[320px_1fr]">
@@ -470,16 +494,44 @@ const navLinks = [
                 <span class="font-script text-[clamp(28px,3.4vw,40px)] leading-none">A gente cresce junto</span>
                 <h2 class="display-title m-0 text-[clamp(72px,13vw,180px)] tracking-[-2px] leading-[0.82]">Quem topa?</h2>
                 <p class="m-0 max-w-[560px] text-[clamp(18px,1.8vw,22px)] font-semibold leading-snug">
-                    Bora ficar 45 dias firme. 6 de novembro a 20 de dezembro — sozinho ou com seus amigos de verdade.
+                    Bora ficar 45 dias firme. 6 de novembro a 20 de dezembro — sozinho ou com seus amigos.
                 </p>
                 <div class="flex flex-wrap justify-center gap-3 pt-2">
                     <Link
                         :href="route('register')"
                         class="rounded-full bg-brand-ink px-[30px] py-[18px] text-[17px] font-bold text-brand-cream hover:bg-brand-line hover:text-brand-cream"
                     >
-                        Criar conta
+                        Participar
                     </Link>
                 </div>
+            </div>
+        </section>
+
+        <section class="mx-auto grid max-w-[1200px] items-start gap-12 px-6 py-[clamp(72px,9vw,120px)] lg:grid-cols-2">
+            <div class="flex flex-col gap-6">
+                <div class="eyebrow">Mais do que um desafio</div>
+                <h2 class="display-title m-0 text-[clamp(44px,6vw,80px)]">Uma regra de vida.</h2>
+                <p class="m-0 max-w-[480px] text-[19px] leading-relaxed text-brand-muted-3">
+                    A gente quer chegar melhor no verão. Cada um no seu ritmo, respeitando o próprio nível e construindo hábitos que fazem diferença de
+                    verdade.
+                </p>
+                <p class="m-0 max-w-[480px] text-[19px] leading-relaxed text-brand-muted-3">
+                    São 45 dias para sair da intenção, colocar os planos em prática e descobrir do que a gente é capaz.
+                </p>
+                <p class="m-0 max-w-[480px] text-[19px] leading-relaxed text-brand-muted-3">
+                    Porque o objetivo vai muito além do verão: é levar essa evolução para a vida.
+                </p>
+            </div>
+            <div class="relative flex items-center justify-center">
+                <div
+                    class="absolute aspect-square w-[78%] rounded-full bg-[radial-gradient(circle,rgba(246,168,33,0.22)_0%,rgba(246,168,33,0)_68%)]"
+                    aria-hidden="true"
+                />
+                <img
+                    :src="images.logo"
+                    alt="Emblema do Desafio 45 Dias Antes do Verão, com os cinco ícones dos objetivos"
+                    class="relative block h-auto w-full max-w-[580px]"
+                />
             </div>
         </section>
 
